@@ -1,25 +1,25 @@
 {
   "data": [
     {
-      "id": "43756cc2-b8ab-491c-a056-735dd8180b18",
-      "name": "Combo Maquilovers",
-      "description": "24 cortes (4 sabores a elección) + 6 alistas + 1 Gaseosa personal",
+      "id": "combo-1-pizza-valery",
+      "name": "Combo 1 - Pizza Valery (Familiar)",
+      "description": "Incluye: Lasaña a la Bolognesa, Porc. Pan al Ajo Simple y Pepsi Helada.",
       "image": {
-        "url": "https://picsum.photos/seed/combo_43756cc2-b8ab-491c-a056-735dd8180b18/800/600",
-        "alt": "Combo Maquilovers — Sazón Digital"
+        "url": "",
+        "alt": ""
       },
-      "price": 53,
+      "price": 59.9,
       "price_before": null
     },
     {
-      "id": "773fee12-347b-4855-93bf-8829cb66f58f",
-      "name": "Combo familiar",
-      "description": "48 cortes (4 sabores a elección) + 2 gaseosa (250ml)",
+      "id": "combo-2-pizza-eleccion",
+      "name": "Combo 2 - Pizza de su Elección",
+      "description": "Incluye: Lasaña a la Bolognesa o de Pollo, Porc. Pan al Ajo y Pepsi Helada.",
       "image": {
-        "url": "https://picsum.photos/seed/combo_773fee12-347b-4855-93bf-8829cb66f58f/800/600",
-        "alt": "Combo familiar — Sazón Digital"
+        "url": "",
+        "alt": ""
       },
-      "price": 85,
+      "price": 49.9,
       "price_before": null
     }
   ]

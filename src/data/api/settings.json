@@ -1,14 +1,14 @@
 {
   "data": {
-    "name": "SAZÓN DIGITAL",
-    "phone": "987654321",
+    "name": "Pizzas Valery",
+    "phone": "968454600",
     "address": "Av. Principal 123, Lima Metropolitana",
     "geo": {
       "lat": -12.0464,
       "lng": -77.0428
     },
     "whatsapp": {
-      "number": "987654321",
+      "number": "972820217",
       "message_template": "Hola, quisiera ordenar:"
     },
     "timezone": "America/Lima",
@@ -20,14 +20,15 @@
       "zones": []
     },
     "payment_methods": [
-      "efectivo",
-      "yape"
+      "yape",
+      "plin",
+      "visa"
     ],
     "max_order_quantity": 20,
     "social_media": {
-      "tiktok": null,
-      "facebook": "https://www.facebook.com/",
-      "instagram": "https://www.instagram.com/"
+      "tiktok": "https://www.tiktok.com/@pizzasvalery",
+      "facebook": "https://www.facebook.com/pizzasvalery",
+      "instagram": "https://www.instagram.com/pizzasvalery"
     },
     "google_maps": "https://www.google.com/maps/search/?api=1&query=-12.0464,-77.0428",
     "business_hours": {
@@ -72,14 +73,14 @@
     "footer_bg": null,
     "tags": [],
     "seo": {
-      "site_name": "SAZÓN DIGITAL",
-      "title": "Sazón Digital — Tu carta digital en línea",
-      "title_template": "%s | Sazón Digital",
-      "description": "Tu carta digital en línea: menú, combos, promociones y reservas.",
+      "site_name": "Pizzas Valery",
+      "title": "Pizzas Valery — Pizzas a domicilio en Lima",
+      "title_template": "%s | Pizzas Valery",
+      "description": "Pizzas clásicas y especiales, lasañas, combos y bebidas a domicilio.",
       "keywords": [
-        "sushi lima",
-        "delivery sushi",
-        "carta digital"
+        "pizza a domicilio",
+        "pizzas lima",
+        "combos de pizza"
       ],
       "og_image": null,
       "twitter_card": "summary_large_image",
@@ -87,7 +88,7 @@
       "canonical_url": null,
       "json_ld": {
         "@type": "Restaurant",
-        "servesCuisine": "Peruvian, Japanese",
+        "servesCuisine": "Pizza",
         "priceRange": "$$"
       }
     }
