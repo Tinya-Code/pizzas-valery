@@ -1,6 +1,28 @@
 {
-  "enabled": false,
+  "enabled": true,
   "delay_seconds": 3,
   "show_once_per_session": true,
-  "items": []
+  "items": [
+    {
+      "id": "flyer-promocion-familiar",
+      "title": "Promoción Familiar",
+      "image": "/flyers/Pizza_Valery_flyer_promotion.png",
+      "alt": "Promoción Familiar — Pizza Familiar + Pan al Ajo + Pepsi Jumbo a S/29.90",
+      "link": null
+    },
+    {
+      "id": "flyer-combo-1",
+      "title": "Combo 1",
+      "image": "/flyers/Pizzeria_combo_1_modificado.png",
+      "alt": "Combo 1 — Pizzería Valery",
+      "link": null
+    },
+    {
+      "id": "flyer-combo-2",
+      "title": "Combo 2",
+      "image": "/flyers/Pizza_Valery_flyer_combo_2.png",
+      "alt": "Combo 2 — Pizzería Valery",
+      "link": null
+    }
+  ]
 }

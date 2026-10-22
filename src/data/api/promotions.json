@@ -1,3 +1,17 @@
 {
-  "data": []
+  "data": [
+    {
+      "id": "promo-familiar-pepsi-jumbo",
+      "slug": "pizza-familiar-pan-al-ajo-pepsi-jumbo",
+      "name": "Promoción Familiar",
+      "description": "Pizza Familiar + Pan al Ajo + Pepsi Jumbo. Promoción válida de lunes a viernes.",
+      "image": {
+        "url": "/flyers/Pizza_Valery_flyer_promotion.png",
+        "alt": "Promoción Familiar — Pizza Familiar + Pan al Ajo + Pepsi Jumbo"
+      },
+      "price": 29.9,
+      "price_before": null,
+      "valid_until": null
+    }
+  ]
 }

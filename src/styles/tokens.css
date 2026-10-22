@@ -11,8 +11,8 @@
 
 @theme {
   /* Tipografías */
-  --font-display: 'Noto Sans', system-ui, sans-serif;
-  --font-body: 'Noto Sans', sans-serif;
+  --font-display: 'Paquito', system-ui, sans-serif;
+  --font-body: 'Paquito', sans-serif;
   /* Colores base */
   --color-primary: #dc2626; /* Rojo vibrante, moderno */
   --color-secondary: #0a0a0a; /* Negro Zinc 950, premium */
