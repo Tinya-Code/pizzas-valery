@@ -1,0 +1,165 @@
+---
+/**
+ * Landing page (`src/pages/index.astro`, route `/`).
+ *
+ * Fully driven by `src/data/api/landing.json` via `getLanding()`,
+ * in the same declarative, polymorphic block architecture as `src/pages/enlaces.astro`.
+ *
+ * Supported block types in landing.json:
+ *   - "hero"         — Hero header with open badge and dual CTAs
+ *   - "promotions"   — Special deals / combos strip
+ *   - "recommended"  — Horizontal scroll of recommended dishes
+ *   - "media"        — Heterogeneous grid of banners / flyers / videos
+ *   - "banner"       — Standalone banner
+ *   - "flyer"        — Standalone flyer
+ *   - "video"        — Standalone video embed
+ *   - "nav-cards"    — Navigation cards (Menú, Galería, Contacto)
+ *
+ * Data is loaded server-side and passed as props — no client fetching.
+ */
+import Layout from '../storefront/layout/Layout.astro';
+import SiteHeader from '../storefront/layout/site-header.astro';
+import Footer from '../storefront/layout/footer.astro';
+import FlyerModal from '../storefront/ui/flyer-modal.astro';
+
+import HomeHero from '../storefront/home/home-hero.astro';
+import HomePromotions from '../storefront/home/home-promotions.astro';
+import HomeRecommended from '../storefront/home/home-recommended.astro';
+import HomeMedia from '../storefront/home/home-media.astro';
+import HomeNavCards from '../storefront/home/home-nav-cards.astro';
+import WhatsAppIcon from '../storefront/icons/whatsapp.astro';
+
+import { loadStorefront, getLanding, isOpenAt, weekDayKey } from '../storefront/services/index.js';
+import { WhatsApp } from '../storefront/utils/whatsapp.js';
+
+const {
+  restaurant,
+  settings,
+  rawHours,
+  businessHours,
+  decorations,
+  blocks: menuBlocks,
+  promotions,
+  flyers,
+} = await loadStorefront();
+
+// Load declarative blocks configuration from landing.json
+const { meta, blocks } = await getLanding(settings, promotions, menuBlocks);
+
+const restaurantName = meta.title || restaurant?.name || settings?.seo?.site_name || 'Sazón Digital';
+const tagline = meta.tagline || settings?.seo?.description || 'Sushi artesanal en Lima. Delivery a domicilio, combos y promociones.';
+const siteTitle = settings?.seo?.title ?? `${restaurantName} — Sushi y delivery en Lima`;
+
+// Initial open/closed state — computed at build time and corrected on the
+// client against the visitor's clock (home-hero re-reads the embedded
+// #business-hours-data payload below).
+const now = new Date();
+const todayKey = weekDayKey(now);
+const todayHours = businessHours?.[todayKey];
+const isOpen = todayHours ? isOpenAt(todayHours, now) : null;
+const openLabel = todayHours?.open && todayHours?.close
+  ? `${todayHours.open} – ${todayHours.close}`
+  : null;
+
+/**
+ * Same escaping as menu.astro: the attribute is omitted entirely when the
+ * schedule never arrived, and `<` is escaped so the JSON cannot break out
+ * of the attribute.
+ */
+const hoursJson =
+  rawHours === undefined ? null : JSON.stringify(rawHours).replace(/</g, '\\u003c');
+
+// WhatsApp link
+const whatsappNumber = settings?.whatsapp?.number ?? restaurant?.phone ?? '';
+const whatsappMsg = settings?.whatsapp?.message_template ?? 'Hola, quiero hacer un pedido 🍱';
+const whatsappUrl = whatsappNumber ? WhatsApp.link(whatsappNumber, whatsappMsg) : null;
+---
+
+<Layout title={siteTitle} seo={settings?.seo}>
+  <div class="min-h-screen flex flex-col bg-secondary text-primary-text font-body selection:bg-primary selection:text-white">
+    <SiteHeader restaurant={restaurant} settings={settings} />
+
+    <main class="flex-1 flex flex-col">
+      {blocks.map((block) => {
+        switch (block.type) {
+          case 'hero':
+            return (
+              <HomeHero
+                block={block}
+                restaurantName={restaurantName}
+                tagline={tagline}
+                isOpen={isOpen}
+                openLabel={openLabel}
+                whatsappUrl={whatsappUrl}
+              />
+            );
+          case 'promotions':
+            return (
+              <HomePromotions
+                block={block}
+                promotions={promotions}
+                whatsappUrl={whatsappUrl}
+              />
+            );
+          case 'recommended':
+            return (
+              <HomeRecommended
+                block={block}
+              />
+            );
+          case 'media':
+            return (
+              <HomeMedia
+                block={block}
+              />
+            );
+          case 'banner':
+          case 'flyer':
+          case 'video':
+            return (
+              <HomeMedia
+                items={[block]}
+              />
+            );
+          case 'nav-cards':
+            return (
+              <HomeNavCards
+                block={block}
+              />
+            );
+          default:
+            return null;
+        }
+      })}
+    </main>
+
+    <!-- Floating WhatsApp button -->
+    {whatsappUrl && (
+      <a
+        href={whatsappUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="Pedir por WhatsApp"
+        id="fab-whatsapp"
+        class="fixed bottom-6 right-6 z-50 w-14 h-14 bg-emerald-600 hover:bg-emerald-500 text-white rounded-full flex items-center justify-center shadow-[0_8px_24px_rgba(16,185,129,0.4)] hover:shadow-[0_12px_32px_rgba(16,185,129,0.55)] hover:scale-110 active:scale-95 transition-all duration-200"
+      >
+        <WhatsAppIcon class="w-7 h-7" />
+      </a>
+    )}
+
+    <Footer
+      restaurant={restaurant}
+      settings={settings}
+      businessHours={businessHours}
+      footerBg={decorations?.footer_bg}
+    />
+
+    <FlyerModal flyers={flyers} />
+  </div>
+
+  {
+    hoursJson !== null && (
+      <div id="business-hours-data" data-business-hours={hoursJson} hidden />
+    )
+  }
+</Layout>

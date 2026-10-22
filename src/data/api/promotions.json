@@ -1,0 +1,28 @@
+{
+  "data": [
+    {
+      "id": "cffb90df-8bdd-4e74-8191-e8da455ec5d0",
+      "name": "Sábado de promo",
+      "description": "4 piezas de tus makis favoritos, ahora tus sábado son de makis.",
+      "image": {
+        "url": "https://picsum.photos/seed/promo_cffb90df-8bdd-4e74-8191-e8da455ec5d0/800/600",
+        "alt": "Sábado de promo — Sazón Digital"
+      },
+      "price": 26,
+      "price_before": 33,
+      "valid_until": null
+    },
+    {
+      "id": "40d7da13-a42e-4543-aa3f-ec423feaa719",
+      "name": "Makilovers",
+      "description": "12 cortes (4 sabores a elección) + 6 Ebi furai",
+      "image": {
+        "url": "https://picsum.photos/seed/promo_40d7da13-a42e-4543-aa3f-ec423feaa719/800/600",
+        "alt": "Makilovers — Sazón Digital"
+      },
+      "price": 30,
+      "price_before": 38,
+      "valid_until": null
+    }
+  ]
+}

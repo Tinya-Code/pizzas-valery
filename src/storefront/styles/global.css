@@ -1,0 +1,20 @@
+@import "tailwindcss";
+/* Brand fonts + theme tokens live in the APP zone — this import is the seam. */
+@import "../../styles/tokens.css";
+/* You can add global styles to this file, and also import other style files */
+
+html {
+  scroll-behavior: smooth;
+}
+
+/* Elements toggled from client scripts must lose to `hidden` even when a
+   utility sets an explicit `display` (flex, grid, …). */
+[hidden] {
+  display: none !important;
+}
+
+img {
+  -webkit-user-select: none;
+  user-select: none;
+  pointer-events: none;
+}

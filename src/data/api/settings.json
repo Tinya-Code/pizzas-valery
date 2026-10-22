@@ -1,0 +1,95 @@
+{
+  "data": {
+    "name": "SAZÓN DIGITAL",
+    "phone": "987654321",
+    "address": "Av. Principal 123, Lima Metropolitana",
+    "geo": {
+      "lat": -12.0464,
+      "lng": -77.0428
+    },
+    "whatsapp": {
+      "number": "987654321",
+      "message_template": "Hola, quisiera ordenar:"
+    },
+    "timezone": "America/Lima",
+    "currency": "PEN",
+    "language": "es",
+    "delivery": {
+      "enabled": true,
+      "fee": 5,
+      "zones": []
+    },
+    "payment_methods": [
+      "efectivo",
+      "yape"
+    ],
+    "max_order_quantity": 20,
+    "social_media": {
+      "tiktok": null,
+      "facebook": "https://www.facebook.com/",
+      "instagram": "https://www.instagram.com/"
+    },
+    "google_maps": "https://www.google.com/maps/search/?api=1&query=-12.0464,-77.0428",
+    "business_hours": {
+      "thu": {
+        "isOpen": true,
+        "open": "11:00",
+        "close": "22:30"
+      },
+      "wed": {
+        "isOpen": true,
+        "open": "11:00",
+        "close": "22:30"
+      },
+      "sun": {
+        "isOpen": true,
+        "open": "11:00",
+        "close": "22:30"
+      },
+      "tue": {
+        "isOpen": true,
+        "open": "11:00",
+        "close": "22:30"
+      },
+      "fri": {
+        "isOpen": true,
+        "open": "11:00",
+        "close": "22:30"
+      },
+      "sat": {
+        "isOpen": true,
+        "open": "10:00",
+        "close": "22:30"
+      },
+      "mon": {
+        "isOpen": true,
+        "open": "11:00",
+        "close": "22:30"
+      }
+    },
+    "logo_url": null,
+    "header_bg": null,
+    "footer_bg": null,
+    "tags": [],
+    "seo": {
+      "site_name": "SAZÓN DIGITAL",
+      "title": "Sazón Digital — Tu carta digital en línea",
+      "title_template": "%s | Sazón Digital",
+      "description": "Tu carta digital en línea: menú, combos, promociones y reservas.",
+      "keywords": [
+        "sushi lima",
+        "delivery sushi",
+        "carta digital"
+      ],
+      "og_image": null,
+      "twitter_card": "summary_large_image",
+      "locale": "es_PE",
+      "canonical_url": null,
+      "json_ld": {
+        "@type": "Restaurant",
+        "servesCuisine": "Peruvian, Japanese",
+        "priceRange": "$$"
+      }
+    }
+  }
+}

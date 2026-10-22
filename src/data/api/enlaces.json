@@ -1,0 +1,141 @@
+{
+  "meta": {
+    "title": "SAZÓN DIGITAL",
+    "tagline": "Tu carta digital en línea: menú, combos, promociones y reservas.",
+    "logo_url": null,
+    "theme": "dark"
+  },
+  "blocks": [
+    {
+      "id": "cta-whatsapp",
+      "type": "link",
+      "enabled": true,
+      "style": "primary",
+      "label": "Pedir por WhatsApp",
+      "sublabel": "Atención y pedidos inmediatos",
+      "icon": "whatsapp",
+      "href": "whatsapp",
+      "target": "_blank"
+    },
+    {
+      "id": "cta-menu",
+      "type": "link",
+      "enabled": true,
+      "style": "default",
+      "label": "Ver Menú Completo",
+      "sublabel": "Makis, combos y promociones",
+      "icon": "utensils",
+      "href": "/menu",
+      "target": "_self"
+    },
+    {
+      "id": "banner-promo",
+      "type": "banner",
+      "enabled": true,
+      "title": "¡Combo de la casa disponible!",
+      "description": "2 rolls + bebida desde S/ 35. Solo por delivery.",
+      "image_url": null,
+      "cta_label": "Pedir ahora",
+      "cta_href": "whatsapp",
+      "cta_message": "Hola, quiero el Combo de la casa 🍱",
+      "accent": "#ef4444"
+    },
+    {
+      "id": "carousel-rolls",
+      "type": "product-carousel",
+      "enabled": true,
+      "title": "Nuestros Rolls",
+      "subtitle": "Deslizá para ver más",
+      "category_filter": "Rolls",
+      "max_items": 8,
+      "cta_label": "Ver menú completo",
+      "cta_href": "/menu"
+    },
+    {
+      "id": "video-reels",
+      "type": "video",
+      "enabled": true,
+      "title": "Mira cómo los preparamos",
+      "provider": "youtube",
+      "video_id": "dQw4w9WgXcQ",
+      "autoplay": false,
+      "muted": false,
+      "caption": "Proceso artesanal de nuestros rolls"
+    },
+    {
+      "id": "social-instagram",
+      "type": "link",
+      "enabled": true,
+      "style": "social",
+      "label": "Instagram",
+      "sublabel": "Fotos, novedades y promos",
+      "icon": "instagram",
+      "color": "instagram",
+      "href": "instagram",
+      "target": "_blank"
+    },
+    {
+      "id": "social-facebook",
+      "type": "link",
+      "enabled": true,
+      "style": "social",
+      "label": "Facebook",
+      "sublabel": "Comunidad y promociones",
+      "icon": "facebook",
+      "color": "facebook",
+      "href": "facebook",
+      "target": "_blank"
+    },
+    {
+      "id": "social-tiktok",
+      "type": "link",
+      "enabled": true,
+      "style": "social",
+      "label": "TikTok",
+      "sublabel": "Videos y detrás de escena",
+      "icon": "tiktok",
+      "color": "tiktok",
+      "href": "tiktok",
+      "target": "_blank"
+    },
+    {
+      "id": "divider-gallery",
+      "type": "divider",
+      "enabled": true,
+      "label": "Nuestra Galería"
+    },
+    {
+      "id": "gallery-preview",
+      "type": "gallery-grid",
+      "enabled": true,
+      "title": "Galería",
+      "max_items": 6,
+      "cta_label": "Ver toda la galería",
+      "cta_href": "/galeria"
+    },
+    {
+      "id": "maps-link",
+      "type": "link",
+      "enabled": true,
+      "style": "default",
+      "label": "Cómo llegar (Google Maps)",
+      "sublabel": "Ver ubicación",
+      "icon": "map-pin",
+      "color": "amber",
+      "href": "google_maps",
+      "target": "_blank"
+    },
+    {
+      "id": "phone-link",
+      "type": "link",
+      "enabled": true,
+      "style": "default",
+      "label": "Llamar por teléfono",
+      "sublabel": "phone",
+      "icon": "phone",
+      "color": "neutral",
+      "href": "tel",
+      "target": "_self"
+    }
+  ]
+}

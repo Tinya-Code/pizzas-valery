@@ -1,0 +1,60 @@
+---
+/**
+ * ShareButton — native share with a clipboard fallback.
+ *
+ * Props: none. Angular `output()` surface: none.
+ *
+ * Client only: `navigator.share` when available, otherwise the URL is copied
+ * to the clipboard.
+ */
+import Share2 from '../icons/share-2.astro';
+
+interface Props {
+  class?: string;
+}
+
+const { class: hostClass = '' } = Astro.props;
+---
+
+<button
+  data-share-button
+  type="button"
+  class={`flex items-center gap-2 px-4 py-2 bg-primary/80 hover:bg-primary text-white rounded-sm transition-all duration-300 font-bold border border-primary/20 group backdrop-blur-sm ${hostClass}`}
+  title="Compartir este menú"
+>
+  <Share2 class="w-4 h-4 group-hover:scale-110 transition-transform" />
+  <span class="text-lg uppercase tracking-widest font-display select-none">Compartir</span>
+</button>
+
+<script>
+  document.addEventListener('click', async (event) => {
+    const target = event.target instanceof Element ? event.target : null;
+    const button = target?.closest('[data-share-button]');
+    if (!button) return;
+
+    const url = window.location.href;
+    const shareData = {
+      title: 'Sazón Digital',
+      text: '¡Mira este delicioso menú! 🍜🏮',
+      url,
+    };
+
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData);
+      } catch (error) {
+        if (error instanceof DOMException && error.name !== 'AbortError') {
+          console.error('Error al compartir:', error);
+        }
+      }
+      return;
+    }
+
+    try {
+      await navigator.clipboard.writeText(url);
+      alert('Enlace copiado al portapapeles');
+    } catch {
+      console.warn('La API Web Share no está soportada y no se pudo copiar al portapapeles');
+    }
+  });
+</script>

@@ -1,0 +1,174 @@
+---
+/**
+ * Header — brand, address and share actions.
+ *
+ * Props:
+ * - `restaurant` — profile rendered here (name, address, coordinates); the
+ *                  page loads it once and passes it down (F5)
+ * - `class`      — pass-through host classes (the Angular component exposed
+ *                  no outputs)
+ *
+ * Client actions (no Angular outputs to mirror):
+ * - `[data-copy-address]` — copies the address to the clipboard
+ * - `[data-open-maps]`    — opens Google Maps (coordinates when available,
+ *                           the address otherwise)
+ *
+ * Note: the old `/menu` and `/gallery` anchors are gone — neither route
+ * exists (the only page is `/`).
+ */
+import Copy from "../icons/copy.astro";
+import Images from "../icons/images.astro";
+import Map from "../icons/map.astro";
+import MapPin from "../icons/map-pin.astro";
+import Utensils from "../icons/utensils.astro";
+import ShareButton from "../ui/share-button.astro";
+import type { RestaurantProfile, RestaurantSettings } from "../types/menu";
+
+interface Props {
+  class?: string;
+  restaurant?: RestaurantProfile | null;
+  settings?: RestaurantSettings | null;
+  headerBg?: string | null;
+}
+
+const {
+  class: hostClass = "",
+  restaurant = null,
+  settings = null,
+  headerBg: explicitHeaderBg = null,
+} = Astro.props;
+
+const restaurantName = restaurant?.name ?? "Mr Sushi";
+const address = restaurant?.address ?? "";
+const location = restaurant?.location;
+const latitude = location?.lat ?? "";
+const longitude = location?.lng ?? "";
+const logoUrl = settings?.logo_url ?? null;
+const headerBg = explicitHeaderBg ?? settings?.header_bg ?? null;
+
+const hasCoordinates =
+  latitude !== "" &&
+  longitude !== "" &&
+  latitude !== "undefined" &&
+  longitude !== "undefined";
+const mapsQuery = hasCoordinates
+  ? `${latitude},${longitude}`
+  : encodeURIComponent(address);
+const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${mapsQuery}`;
+---
+
+<header
+  class={`relative font-body bg-secondary border-b-8 border-primary px-6 pt-12 pb-16 mb-12 rounded-b-[100px] overflow-hidden ${hostClass}`}
+  style={headerBg
+    ? `background-image: url(${headerBg}); background-size: cover; background-position: center;`
+    : undefined}
+>
+  <div
+    class="max-w-7xl mx-auto flex flex-col md:flex-row items-center gap-10 relative z-10"
+  >
+    <!-- Logo Section -->
+    <a href="/" class="relative group cursor-pointer">
+      <div
+        class="absolute inset-0 bg-primary blur-2xl opacity-20 group-hover:opacity-40 transition-opacity duration-500"
+      >
+      </div>
+      <div
+        class="w-32 h-32 bg-gradient-to-br from-primary to-primary/80 rounded-3xl flex items-center justify-center shadow-[0_20px_50px_rgba(220,38,38,0.3)] transform -rotate-6 group-hover:rotate-0 transition-all duration-700 ease-out overflow-hidden"
+      >
+        {
+          logoUrl ? (
+            <img
+              src={logoUrl}
+              alt={restaurantName}
+              class="w-full h-full object-cover"
+            />
+          ) : (
+            <Utensils class="w-16 h-16 text-white" />
+          )
+        }
+      </div>
+    </a>
+
+    <!-- Info Section -->
+    <div class="text-center md:text-left flex-1 space-y-4">
+      <h1
+        class="text-6xl md:text-8xl font-display text-white leading-none tracking-tighter"
+      >
+        {restaurantName}<span class="text-primary">.</span>
+      </h1>
+
+      <div
+        class="flex flex-wrap items-center justify-center md:justify-start gap-4"
+      >
+        <div
+          class="flex items-center gap-2 text-primary-text/80 bg-primary/10 px-4 py-2 rounded-xl border border-primary/20"
+        >
+          <MapPin class="w-4 h-4 text-primary" />
+          <span class="text-xs font-bold uppercase tracking-wider mr-2"
+            >{address}</span
+          >
+
+          <div
+            class="flex items-center gap-3 border-l border-primary/20 pl-4 py-1"
+          >
+            <button
+              data-copy-address
+              data-address={address}
+              type="button"
+              title="Copiar dirección"
+              class="hover:text-primary transition-colors hover:scale-110"
+            >
+              <Copy class="w-4 h-4" />
+            </button>
+            <a
+              href={mapsUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              title="Ver en Google Maps"
+              class="hover:text-primary transition-colors hover:scale-110"
+            >
+              <Map class="w-4 h-4" />
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Action Section -->
+    <div class="flex flex-row md:flex-col items-center md:items-end gap-3">
+      <!-- Gallery Link -->
+      <a
+        href="/galeria"
+        class="flex items-center gap-2 px-4 py-2 bg-primary hover:bg-primary/80 text-white rounded-sm transition-all duration-300 font-bold border border-primary/20 group backdrop-blur-sm hover:scale-105 active:scale-95"
+        title="Ver galería de fotos"
+      >
+        <Images
+          class="w-4 h-4 text-white group-hover:scale-110 transition-transform"
+        />
+        <span class="text-lg uppercase tracking-widest font-display select-none"
+          >Galería</span
+        >
+      </a>
+
+      <!-- Share Button -->
+      <ShareButton />
+    </div>
+  </div>
+</header>
+
+<script>
+  document.addEventListener("click", async (event) => {
+    const target = event.target instanceof Element ? event.target : null;
+    if (!target) return;
+
+    const copyButton = target.closest<HTMLElement>("[data-copy-address]");
+    if (copyButton) {
+      const address = copyButton.dataset.address ?? "";
+      try {
+        await navigator.clipboard.writeText(address);
+      } catch (error) {
+        console.warn("No se pudo copiar la dirección", error);
+      }
+    }
+  });
+</script>

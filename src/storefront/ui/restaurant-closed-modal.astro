@@ -1,0 +1,121 @@
+---
+/**
+ * RestaurantClosedModal — bottom sheet listing the weekly opening hours.
+ *
+ * Port of Angular `src/app/components/restaurant-closed-modal/*` (which wrapped
+ * `app-modal`); the backdrop + sheet live here so the port needs no extra
+ * primitive.
+ *
+ * Visibility is driven by `cartService.isBusinessClosed` (the Angular input
+ * `isOpen` came from the same signal), and "Entendido" / the backdrop dispatch
+ * the Angular `close` output by calling `cartService.closeBusinessClosedModal()`.
+ *
+ * Props:
+ * - `businessHours` — weekly schedule the page loaded (F5); a missing day
+ *                     renders as "Cerrado"
+ */
+import Clock from '../icons/clock.astro';
+import X from '../icons/x.astro';
+import { timeFormat } from '../utils/format.js';
+import { WEEK_DAYS } from '../services/business-hours.service.js';
+import type { BusinessHours } from '../types/menu';
+
+interface Props {
+  businessHours?: BusinessHours;
+}
+
+const { businessHours = {} } = Astro.props;
+
+const hasHours = WEEK_DAYS.some((day) => businessHours[day.key]?.isOpen);
+---
+
+<div data-restaurant-closed-modal hidden>
+  <!-- Backdrop -->
+  <div
+    data-closed-backdrop
+    class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 transition-all duration-300"
+  ></div>
+
+  <!-- Sheet -->
+  <div
+    class="fixed bottom-0 left-0 right-0 backdrop-blur-3xl bg-white rounded-t-4xl z-50 max-h-[92vh] flex flex-col p-6 transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] max-w-4xl mx-auto"
+  >
+    <!-- Header -->
+    <div class="px-6 py-4 flex items-center justify-between border-b-6 border-secondary/10 border-dashed">
+      <h2 class="font-bungee text-slate-800 text-xl overflow-hidden text-ellipsis whitespace-nowrap">
+        Restaurante Cerrado
+      </h2>
+      <button
+        data-closed-dismiss
+        type="button"
+        class="p-2 rounded-full text-secondary hover:bg-slate-100 hover:text-slate-800 transition-all"
+        aria-label="Cerrar"
+      >
+        <X class="w-6 h-6" />
+      </button>
+    </div>
+
+    <!-- Content -->
+    <div class="grow overflow-y-auto p-6">
+      <div class="flex flex-col items-center text-center p-4">
+        <div class="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mb-6 text-red-500">
+          <Clock class="w-10 h-10" />
+        </div>
+        <h3 class="text-xl font-bold text-secondary mb-2">¡Lo sentimos!</h3>
+        <p class="text-secondary/60 mb-6">
+          Actualmente no estamos recibiendo pedidos. Consulta nuestros horarios:
+        </p>
+
+        {
+          hasHours && (
+            <div class="w-full bg-secondary/5 rounded-2xl p-4 space-y-2">
+              {WEEK_DAYS.map((day) => {
+                const schedule = businessHours[day.key];
+                return (
+                  <div class="flex justify-between items-center py-1 border-b border-primary/5 last:border-0">
+                    <span class="text-sm font-bold text-secondary/60">{day.label}</span>
+                    {schedule?.isOpen ? (
+                      <span class="text-sm font-bungee text-secondary">
+                        {timeFormat(schedule.open)} - {timeFormat(schedule.close)}
+                      </span>
+                    ) : (
+                      <span class="text-sm font-bold text-red-400">Cerrado</span>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )
+        }
+
+        <button
+          data-closed-dismiss
+          type="button"
+          class="w-full mt-8 bg-secondary text-primary py-4 rounded-2xl font-bold"
+        >
+          Entendido
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  import { cartService } from '../services/cart.service.js';
+
+  const root = document.querySelector<HTMLElement>('[data-restaurant-closed-modal]');
+  if (root) {
+    const render = () => {
+      root.hidden = !cartService.isBusinessClosed.get();
+    };
+
+    cartService.isBusinessClosed.subscribe(render, { immediate: true });
+
+    root.addEventListener('click', (event) => {
+      const target = event.target instanceof Element ? event.target : null;
+      if (target?.closest('[data-closed-dismiss], [data-closed-backdrop]')) {
+        cartService.closeBusinessClosedModal();
+      }
+    });
+  }
+</script>

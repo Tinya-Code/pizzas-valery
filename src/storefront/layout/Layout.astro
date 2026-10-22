@@ -1,0 +1,104 @@
+---
+/**
+ * Layout — the HTML shell.
+ *
+ * Props:
+ * - `title` — page title fallback (used only when no `seo` block arrives)
+ * - `seo`   — the site-level `settings.seo` block (build-time prop, F5)
+ *
+ * Head rules (proposal §2.4): the `seo` block owns the document head —
+ * `<title>` via `seo.title` (falling back to `title_template` + site name),
+ * meta description/keywords, Open Graph, Twitter card, canonical (only when
+ * set) and one JSON-LD `@graph` (Organization + the API's `json_ld` object).
+ * Without an `seo` block the head stays minimal (title only), exactly like
+ * the pre-v2 page.
+ */
+import '../styles/global.css';
+import type { SiteSeo } from '../types/menu';
+
+interface Props {
+	title?: string;
+	seo?: SiteSeo | null;
+}
+
+const { title, seo = null } = Astro.props;
+
+/** Document title: explicitly passed title composes with seo.title_template; otherwise seo.title or default. */
+const documentTitle = seo
+	? (title && title !== seo.title
+		? (seo.title_template ? seo.title_template.replace('%s', title) : title)
+		: (seo.title || (seo.title_template ? seo.title_template.replace('%s', seo.site_name) : seo.site_name)))
+	: (title || 'Sazón Digital');
+
+const description = seo?.description ?? '';
+const keywords = Array.isArray(seo?.keywords) ? seo.keywords : [];
+const canonical = seo?.canonical_url ?? '';
+const twitterCard = seo?.twitter_card ?? 'summary_large_image';
+const siteName = seo?.site_name ?? 'SAZÓN DIGITAL';
+const locale = seo?.locale ?? 'es_PE';
+const ogImage = seo?.og_image || null;
+
+/** JSON-LD `@graph`: Organization (site) + whatever the API ships. */
+const jsonLd = seo
+	? JSON.stringify({
+			'@context': 'https://schema.org',
+			'@graph': [
+				{
+					'@type': 'Organization',
+					name: siteName,
+					...(canonical ? { url: canonical } : {}),
+				},
+				seo.json_ld,
+			],
+		}).replace(/</g, '\\u003c')
+	: null;
+---
+
+<!doctype html>
+<html lang={locale.split('_')[0] ?? 'es'}>
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link
+			href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wdth,wght@0,62.5..100,100..900;1,62.5..100,100..900&display=swap"
+			rel="stylesheet"
+		/>
+		<meta name="generator" content={Astro.generator} />
+		<meta name="robots" content="index, follow" />
+		<title>{documentTitle}</title>
+		{description && <meta name="description" content={description} />}
+		{keywords.length > 0 && <meta name="keywords" content={keywords.join(', ')} />}
+		{canonical && <link rel="canonical" href={canonical} />}
+
+		<!-- Open Graph / Facebook / WhatsApp -->
+		<meta property="og:type" content="website" />
+		<meta property="og:site_name" content={siteName} />
+		<meta property="og:title" content={documentTitle} />
+		{description && <meta property="og:description" content={description} />}
+		<meta property="og:locale" content={locale} />
+		{ogImage && <meta property="og:image" content={ogImage} />}
+
+		<!-- Twitter -->
+		<meta name="twitter:card" content={twitterCard} />
+		<meta name="twitter:title" content={documentTitle} />
+		{description && <meta name="twitter:description" content={description} />}
+		{ogImage && <meta name="twitter:image" content={ogImage} />}
+
+		{jsonLd && <script type="application/ld+json" set:html={jsonLd} />}
+	</head>
+	<body>
+		<slot />
+	</body>
+</html>
+
+<style>
+	html,
+	body {
+		margin: 0;
+		width: 100%;
+		height: 100%;
+	}
+</style>

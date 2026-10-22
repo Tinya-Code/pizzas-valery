@@ -1,0 +1,91 @@
+---
+/**
+ * CartTrigger — floating "Tu Pedido" bar (bottom-right on desktop,
+ * full width on mobile).
+ *
+ * Port of Angular `src/app/components/cart-trigger/*`. It renders the shell
+ * only: the counter, the total and the empty-state visibility are painted by
+ * the script below from `cartService` (Astro has no signals).
+ *
+ * Decisions:
+ * - Angular called `cart.addItem({ id: 'dummy' }, 0)` when the restaurant was
+ *   closed ("dispara el modal global"); that only left a phantom line in the
+ *   cart. Here we open the closed-restaurant modal directly, which is what the
+ *   original comment promised.
+ * - `theme-{templateId}` was `theme-null` on this page (no input is passed),
+ *   so it is not ported.
+ */
+import ArrowRight from '../../icons/arrow-right.astro';
+import { precio } from '../../utils/format.js';
+---
+
+<!-- `hidden` until the cart has lines (the script toggles the very same class). -->
+<div data-cart-trigger class="hidden fixed bottom-0 left-0 right-0 p-4 z-40 md:min-w-100 md:max-w-lg md:left-auto transition-opacity duration-300">
+  <button
+    data-cart-trigger-button
+    type="button"
+    class="w-full bg-secondary text-primary p-4 rounded-2xl border border-primary/20 flex items-center justify-between group transition-all hover:scale-[1.02] active:scale-95"
+  >
+    <!-- Left: counter + labels -->
+    <div class="flex items-center gap-3">
+      <div class="relative">
+        <p
+          data-cart-trigger-count
+          class="bg-primary font-bold text-secondary w-8 h-8 rounded-full flex items-center justify-center font-display text-sm shadow-sm"
+        >
+          0
+        </p>
+        <div class="absolute inset-0 bg-primary/40 rounded-full animate-ping -z-10"></div>
+      </div>
+      <div class="text-left">
+        <p class="text-xs font-display font-bold uppercase tracking-wider">Ver Carrito</p>
+        <p class="text-sm font-body tracking-wide text-white">Tu Pedido</p>
+      </div>
+    </div>
+
+    <!-- Right: total + arrow -->
+    <div class="flex items-center gap-3">
+      <span data-cart-trigger-total class="text-lg font-display tracking-tight">{precio(0)}</span>
+      <div class="bg-primary/10 p-2 rounded-xl group-hover:bg-primary/20 transition-colors">
+        <ArrowRight class="w-5 h-5 text-primary" />
+      </div>
+    </div>
+  </button>
+</div>
+
+<script>
+  import { cartService } from '../../services/cart.service.js';
+  import { isOpenAt } from '../../services/business-hours.service.js';
+  import { precio } from '../../utils/format.js';
+  import { readBusinessHours } from '../../utils/dom';
+
+  // The cart totals include the delivery fee from the settings payload and the
+  // click checks the opening hours: the page ships both (the fee is seeded by
+  // the page script, the hours live in `#business-hours-data`), so the
+  // trigger paints synchronously (F5).
+  bootstrap();
+
+  function bootstrap() {
+    const root = document.querySelector<HTMLElement>('[data-cart-trigger]');
+    const count = document.querySelector<HTMLElement>('[data-cart-trigger-count]');
+    const total = document.querySelector<HTMLElement>('[data-cart-trigger-total]');
+    if (!root) return;
+
+    const render = () => {
+      const snapshot = cartService.snapshot;
+      root.classList.toggle('hidden', snapshot.isEmpty);
+      if (count) count.textContent = String(snapshot.count);
+      if (total) total.textContent = precio(snapshot.total);
+    };
+
+    cartService.subscribe(render, { immediate: true });
+
+    root.querySelector('[data-cart-trigger-button]')?.addEventListener('click', () => {
+      if (!isOpenAt(readBusinessHours())) {
+        cartService.showBusinessClosedModal();
+        return;
+      }
+      cartService.open();
+    });
+  }
+</script>

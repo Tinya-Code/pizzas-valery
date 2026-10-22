@@ -1,0 +1,47 @@
+---
+/**
+ * TemplatePromotionCard — promotion design router.
+ *
+ * States (price range is not a promotion concept, so only image drives
+ * dispatch):
+ *   flat-with-image → PromotionCard (default)
+ *   flat-no-image   → PromotionCard (default)
+ *
+ * Every design owns its root + the CLIENT CONTRACT `data-promotion-card`,
+ * `data-product` — the page's click delegation reads it. A custom design
+ * MUST carry both.
+ *
+ * Override per block (function children):
+ *
+ *   <TemplatePromotionCard promotion={promotion} canOrder={canOrder}>
+ *     <fragment slot="flat-with-image">
+ *       {(promotion, canOrder) => <MyPromoCard promotion={promotion} canOrder={canOrder} />}
+ *     </fragment>
+ *   </TemplatePromotionCard>
+ *
+ * Swap a default globally: change the import + fallback below (one line).
+ */
+import PromotionCard from './promotion-card.astro';
+import type { Promotion } from '../../types/menu';
+
+interface Props {
+  promotion: Promotion;
+  canOrder?: boolean;
+}
+
+const { promotion, canOrder = true } = Astro.props;
+
+const designSlot = promotion.image?.url ? 'flat-with-image' : 'flat-no-image';
+
+const customHtml = Astro.slots.has(designSlot)
+  ? await Astro.slots.render(designSlot, [promotion, canOrder])
+  : null;
+---
+
+{
+  customHtml !== null ? (
+    <Fragment set:html={customHtml} />
+  ) : (
+    <PromotionCard promotion={promotion} canOrder={canOrder} />
+  )
+}

@@ -1,0 +1,80 @@
+---
+/**
+ * Slider — horizontal scroll track with optional arrow controls.
+ *
+ * The slotted content becomes the track's children (Angular `<ng-content>`).
+ *
+ * Props:
+ * - `showArrows`       — render the prev/next buttons (default `true`)
+ *
+ * Client behaviour (scroll by one full page, smooth) lives in the `<script>` below.
+ */
+import ChevronLeft from '../icons/chevron-left.astro';
+import ChevronRight from '../icons/chevron-right.astro';
+
+interface Props {
+  showArrows?: boolean;
+}
+
+const { showArrows = true } = Astro.props;
+---
+
+<div data-slider class="relative">
+  <div
+    data-slider-track
+    class="flex gap-4 overflow-x-auto scroll-smooth snap-x snap-mandatory scrollbar-hide"
+    style="scrollbar-width: none; -ms-overflow-style: none;"
+  >
+    <slot />
+  </div>
+
+  {
+    showArrows && (
+      <>
+        <button
+          data-slider-prev
+          type="button"
+          class="absolute left-2 top-1/2 -translate-y-1/2 bg-secondary/80 hover:bg-secondary text-primary-text p-2 rounded-full transition-all z-10 shadow-lg"
+          aria-label="Anterior"
+          title="Anterior"
+        >
+          <ChevronLeft class="w-6 h-6" />
+        </button>
+
+        <button
+          data-slider-next
+          type="button"
+          class="absolute right-2 top-1/2 -translate-y-1/2 bg-secondary/80 hover:bg-secondary text-primary-text p-2 rounded-full transition-all z-10 shadow-lg"
+          aria-label="Siguiente"
+          title="Siguiente"
+        >
+          <ChevronRight class="w-6 h-6" />
+        </button>
+      </>
+    )
+  }
+</div>
+
+<script>
+  function scrollByPage(track: HTMLElement, direction: 1 | -1) {
+    track.scrollBy({ left: track.clientWidth * direction, behavior: 'smooth' });
+  }
+
+  function setup(slider: Element) {
+    if (slider.hasAttribute('data-slider-ready')) return;
+    slider.setAttribute('data-slider-ready', 'true');
+
+    const track = slider.querySelector<HTMLElement>('[data-slider-track]');
+    if (!track) return;
+
+    slider.querySelector('[data-slider-prev]')?.addEventListener('click', () => scrollByPage(track, -1));
+    slider.querySelector('[data-slider-next]')?.addEventListener('click', () => scrollByPage(track, 1));
+  }
+
+  const initAll = () => {
+    document.querySelectorAll('[data-slider]').forEach(setup);
+  };
+
+  initAll();
+  document.addEventListener('astro:page-load', initAll);
+</script>

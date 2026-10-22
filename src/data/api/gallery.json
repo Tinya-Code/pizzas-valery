@@ -1,0 +1,233 @@
+{
+  "data": [
+    {
+      "id": "c9b374f7-57f0-4a42-900b-7a238b6e7e60",
+      "title": "Acevichado",
+      "category": "Rolls",
+      "type": "image",
+      "url": "https://picsum.photos/seed/product_c9b374f7-57f0-4a42-900b-7a238b6e7e60/800/600",
+      "alt": "Acevichado — Sazón Digital",
+      "description": "Relleno de langostino y palta. Cubierto de pescado blanco y salsa acevichada."
+    },
+    {
+      "id": "79329406-07e3-4791-8433-9974e121faa9",
+      "title": "Furai",
+      "category": "Rolls",
+      "type": "image",
+      "url": "https://picsum.photos/seed/product_79329406-07e3-4791-8433-9974e121faa9/800/600",
+      "alt": "Furai — Sazón Digital",
+      "description": "Relleno de trucha, queso crema y palta. Cubierto de panko frito."
+    },
+    {
+      "id": "5b226190-1c64-4c28-b5ff-6f10af39b5a8",
+      "title": "BBQ",
+      "category": "Rolls",
+      "type": "image",
+      "url": "https://picsum.photos/seed/product_5b226190-1c64-4c28-b5ff-6f10af39b5a8/800/600",
+      "alt": "BBQ — Sazón Digital",
+      "description": "Relleno de langostino y palta. Cubierto de lomo, salsa BBQ y semillas de ajonjolí."
+    },
+    {
+      "id": "e1e2f9cd-843c-4604-8a6f-b7298f591996",
+      "title": "Avocado",
+      "category": "Rolls",
+      "type": "image",
+      "url": "https://picsum.photos/seed/product_e1e2f9cd-843c-4604-8a6f-b7298f591996/800/600",
+      "alt": "Avocado — Sazón Digital",
+      "description": "Relleno de langostino y queso crema. Cubierto de palta y salsa Tare."
+    },
+    {
+      "id": "681c05ec-cbed-44ae-afd4-563aabe9c75a",
+      "title": "Ikigai",
+      "category": "Rolls",
+      "type": "image",
+      "url": "https://picsum.photos/seed/product_681c05ec-cbed-44ae-afd4-563aabe9c75a/800/600",
+      "alt": "Ikigai — Sazón Digital",
+      "description": "Relleno de langostino y palta. Cubierto de tártara de pulpa de cangrejo, pulpo, queso parmesano y salsa Tare."
+    },
+    {
+      "id": "5ff36970-2632-4be0-a25a-9bb7d53fddfa",
+      "title": "Guacamole",
+      "category": "Rolls",
+      "type": "image",
+      "url": "https://picsum.photos/seed/product_5ff36970-2632-4be0-a25a-9bb7d53fddfa/800/600",
+      "alt": "Guacamole — Sazón Digital",
+      "description": "Relleno de langostino frito, queso crema. Cubierto de guacamole y hilos de camote."
+    },
+    {
+      "id": "28060a44-779e-4441-a545-473e4ccbd10c",
+      "title": "California",
+      "category": "Rolls",
+      "type": "image",
+      "url": "https://picsum.photos/seed/product_28060a44-779e-4441-a545-473e4ccbd10c/800/600",
+      "alt": "California — Sazón Digital",
+      "description": "Relleno de trucha, queso crema y palta. Cubierto de semillas de ajonjolí, salsa Tare o maracuyá."
+    },
+    {
+      "id": "fa9e4aab-2348-4ee0-b37e-f3e0384def3b",
+      "title": "Banana",
+      "category": "Rolls",
+      "type": "image",
+      "url": "https://picsum.photos/seed/product_fa9e4aab-2348-4ee0-b37e-f3e0384def3b/800/600",
+      "alt": "Banana — Sazón Digital",
+      "description": "Relleno de queso crema y langostino. Cubierto con plátano maduro frito y salsa Tare o maracuyá."
+    },
+    {
+      "id": "c792c818-6eef-4296-87f5-67153a805ebb",
+      "title": "Baby Maki",
+      "category": "Rolls",
+      "type": "image",
+      "url": "https://picsum.photos/seed/product_c792c818-6eef-4296-87f5-67153a805ebb/800/600",
+      "alt": "Baby Maki — Sazón Digital",
+      "description": "Relleno de queso crema y langostino. Cubierto de láminas de trucha y salsa Tare o maracuyá."
+    },
+    {
+      "id": "fc7f28e7-71f5-422f-8524-306c906597e9",
+      "title": "Olivo",
+      "category": "Rolls",
+      "type": "image",
+      "url": "https://picsum.photos/seed/product_fc7f28e7-71f5-422f-8524-306c906597e9/800/600",
+      "alt": "Olivo — Sazón Digital",
+      "description": "Relleno de langostino y palta. Cubierto de pulpo al olivo."
+    },
+    {
+      "id": "8e2ca50c-5761-4636-8e69-854daf5180ad",
+      "title": "Parrillero",
+      "category": "Rolls",
+      "type": "image",
+      "url": "https://picsum.photos/seed/product_8e2ca50c-5761-4636-8e69-854daf5180ad/800/600",
+      "alt": "Parrillero — Sazón Digital",
+      "description": "Relleno de langostino, queso crema y palta. Cubierto de lomo y salsa chimichurri."
+    },
+    {
+      "id": "c629f634-99c3-4320-b39a-41f876672b4d",
+      "title": "Maki Parmesano",
+      "category": "Rolls",
+      "type": "image",
+      "url": "https://picsum.photos/seed/product_c629f634-99c3-4320-b39a-41f876672b4d/800/600",
+      "alt": "Maki Parmesano — Sazón Digital",
+      "description": "Relleno de palta y langostino frito. Cubierto de salsa parmesano y gotas de limón."
+    },
+    {
+      "id": "02fc4260-aeaa-461f-a044-db0caa5337f6",
+      "title": "Tempura",
+      "category": "Rolls",
+      "type": "image",
+      "url": "https://picsum.photos/seed/product_02fc4260-aeaa-461f-a044-db0caa5337f6/800/600",
+      "alt": "Tempura — Sazón Digital",
+      "description": "Relleno de palta y langostino frito. Cubierto de salsa anticuchera y chalaquita."
+    },
+    {
+      "id": "975a41d2-ed19-41d7-b843-037d76e17d53",
+      "title": "Gyozas",
+      "category": "Piqueos",
+      "type": "image",
+      "url": "https://picsum.photos/seed/product_975a41d2-ed19-41d7-b843-037d76e17d53/800/600",
+      "alt": "Gyozas — Sazón Digital",
+      "description": "Empanizado japonés relleno de pollo, carne o langostino (vapor/frito)."
+    },
+    {
+      "id": "6fdefe5a-517a-4314-b0bb-ca78ab62c542",
+      "title": "Alitas Acevichado",
+      "category": "Alitas",
+      "type": "image",
+      "url": "https://picsum.photos/seed/product_6fdefe5a-517a-4314-b0bb-ca78ab62c542/800/600",
+      "alt": "Alitas Acevichado — Sazón Digital",
+      "description": "Alitas de pollo fritas en salsa Acevichado."
+    },
+    {
+      "id": "d7d4a512-7156-4eae-aeda-401e41277c8e",
+      "title": "Alitas BBQ",
+      "category": "Alitas",
+      "type": "image",
+      "url": "https://picsum.photos/seed/product_d7d4a512-7156-4eae-aeda-401e41277c8e/800/600",
+      "alt": "Alitas BBQ — Sazón Digital",
+      "description": "Alitas de pollo fritas en salsa BBQ."
+    },
+    {
+      "id": "f5463cb4-8298-409d-afcc-b85e81e63c79",
+      "title": "Alitas Buffalo",
+      "category": "Alitas",
+      "type": "image",
+      "url": "https://picsum.photos/seed/product_f5463cb4-8298-409d-afcc-b85e81e63c79/800/600",
+      "alt": "Alitas Buffalo — Sazón Digital",
+      "description": "Alitas de pollo fritas en salsa Buffalo."
+    },
+    {
+      "id": "73d62f9e-5c34-45b0-9587-bfcce3bbb807",
+      "title": "Alitas Charapita",
+      "category": "Alitas",
+      "type": "image",
+      "url": "https://picsum.photos/seed/product_73d62f9e-5c34-45b0-9587-bfcce3bbb807/800/600",
+      "alt": "Alitas Charapita — Sazón Digital",
+      "description": "Alitas de pollo fritas en salsa Charapita"
+    },
+    {
+      "id": "353635a1-b774-4c83-9258-c3f6f1b02c1d",
+      "title": "Alitas Crispy",
+      "category": "Alitas",
+      "type": "image",
+      "url": "https://picsum.photos/seed/product_353635a1-b774-4c83-9258-c3f6f1b02c1d/800/600",
+      "alt": "Alitas Crispy — Sazón Digital",
+      "description": "Alitas de pollo fritas en salsa Crispy."
+    },
+    {
+      "id": "7c8e2e1b-43db-485a-bf33-5d17404fde12",
+      "title": "Alitas Maracuyá",
+      "category": "Alitas",
+      "type": "image",
+      "url": "https://picsum.photos/seed/product_7c8e2e1b-43db-485a-bf33-5d17404fde12/800/600",
+      "alt": "Alitas Maracuyá — Sazón Digital",
+      "description": "Alitas de pollo fritas en salsa Maracuyá."
+    },
+    {
+      "id": "745c942e-8091-4b3e-86cc-4c51c7ba83d1",
+      "title": "Alitas Maracuyá Hot",
+      "category": "Alitas",
+      "type": "image",
+      "url": "https://picsum.photos/seed/product_745c942e-8091-4b3e-86cc-4c51c7ba83d1/800/600",
+      "alt": "Alitas Maracuyá Hot — Sazón Digital",
+      "description": "Alitas de pollo fritas en salsa Maracuyá Hot."
+    },
+    {
+      "id": "vid-1",
+      "title": "Preparación y Flameado en Barra",
+      "category": "Videos y Experiencia",
+      "type": "video",
+      "url": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
+      "poster": "https://picsum.photos/seed/product_c9b374f7-57f0-4a42-900b-7a238b6e7e60/800/600",
+      "alt": "Preparación y flameado de makis en vivo",
+      "description": "El arte y la técnica del flameado artesanal directo a tu mesa."
+    },
+    {
+      "id": "vid-2",
+      "title": "Experiencia gastronómica (YouTube)",
+      "category": "Videos y Experiencia",
+      "type": "embed",
+      "url": "https://www.youtube.com/embed/dQw4w9WgXcQ",
+      "aspect_ratio": "16/9",
+      "alt": "Video de preparación en YouTube",
+      "description": "Mirá cómo seleccionamos los ingredientes más frescos para cada pieza."
+    },
+    {
+      "id": "vid-3",
+      "title": "Reel en TikTok / Redes",
+      "category": "Videos y Experiencia",
+      "type": "embed",
+      "url": "https://www.youtube.com/embed/dQw4w9WgXcQ",
+      "aspect_ratio": "9/16",
+      "alt": "Reel vertical en redes",
+      "description": "Detalles y momentos favoritos de nuestros clientes."
+    },
+    {
+      "id": "vid-4",
+      "title": "Especial en Facebook",
+      "category": "Videos y Experiencia",
+      "type": "embed",
+      "embed_html": "<iframe src=\"https://www.facebook.com/plugins/video.php?href=https%3A%2F%2Fwww.facebook.com%2Ffacebook%2Fvideos%2F10153231379946729%2F&show_text=0\" width=\"100%\" height=\"100%\" style=\"border:none;overflow:hidden\" scrolling=\"no\" frameborder=\"0\" allowfullscreen=\"true\" allow=\"autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share\"></iframe>",
+      "aspect_ratio": "16/9",
+      "alt": "Clip de Facebook",
+      "description": "Cobertura y recetas especiales transmitidas en nuestras redes."
+    }
+  ]
+}

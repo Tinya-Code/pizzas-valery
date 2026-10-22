@@ -1,0 +1,105 @@
+---
+/**
+ * Home — Promotions section.
+ *
+ * Props:
+ *   promotions   — array of Promotion objects (v2 shape)
+ *   whatsappUrl  — string | null
+ */
+import ArrowRight from '../icons/arrow-right.astro';
+import Utensils from '../icons/utensils.astro';
+
+const {
+  block,
+  promotions: fallbackPromotions = [],
+  whatsappUrl: fallbackWaUrl = null,
+} = Astro.props;
+
+const promotions = block?._promotions ?? fallbackPromotions;
+const whatsappUrl = block?._resolved_whatsapp_href ?? fallbackWaUrl;
+const title = block?.title ?? 'Promociones';
+const badge = block?.badge ?? 'Ofertas';
+const seeAllLabel = block?.see_all_label ?? 'Ver todas';
+const seeAllHref = block?.see_all_href ?? '/menu';
+
+function formatPrice(p) {
+  return `S/ ${Number(p).toFixed(0)}`;
+}
+function discountPct(price, priceBefore) {
+  if (!priceBefore || priceBefore <= price) return null;
+  return Math.round(((priceBefore - price) / priceBefore) * 100);
+}
+---
+
+{promotions.length > 0 && (
+  <section class="px-6 pb-16 sm:pb-24" id={block?.id ?? "home-promotions"}>
+    <div class="max-w-5xl mx-auto space-y-8">
+      <div class="flex items-end justify-between">
+        <div>
+          {badge && <p class="text-xs font-semibold text-primary uppercase tracking-widest mb-1">{badge}</p>}
+          <h2 class="text-3xl sm:text-4xl font-display text-white leading-tight">
+            {title}<span class="text-primary">.</span>
+          </h2>
+        </div>
+        {seeAllHref && (
+          <a href={seeAllHref} class="text-sm text-primary font-semibold hover:underline underline-offset-2 hidden sm:flex items-center gap-1">
+            {seeAllLabel} <ArrowRight class="w-3.5 h-3.5" />
+          </a>
+        )}
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+        {promotions.map((promo) => {
+          const pct = discountPct(promo.price, promo.price_before);
+          return (
+            <div
+              data-promo-card={promo.id}
+              class="group relative rounded-3xl overflow-hidden border border-white/10 bg-surface/5 hover:border-primary/30 transition-all duration-300 hover:scale-[1.02] hover:shadow-[0_20px_40px_rgba(220,38,38,0.15)]"
+            >
+              {pct && (
+                <div class="absolute top-3 left-3 z-10 bg-primary text-white text-xs font-bold px-2.5 py-1 rounded-full shadow-lg">
+                  -{pct}%
+                </div>
+              )}
+              {promo.image?.url ? (
+                <div class="relative h-48 overflow-hidden bg-black/20">
+                  <img
+                    src={promo.image.url}
+                    alt={promo.image.alt ?? promo.name}
+                    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    loading="lazy"
+                  />
+                  <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                </div>
+              ) : (
+                <div class="h-48 bg-primary/5 flex items-center justify-center">
+                  <Utensils class="w-12 h-12 text-primary/30" />
+                </div>
+              )}
+              <div class="p-5 space-y-2">
+                <h3 class="text-lg font-bold text-white leading-tight">{promo.name}</h3>
+                {promo.description && (
+                  <p class="text-sm text-primary-text/65 leading-relaxed line-clamp-2">{promo.description}</p>
+                )}
+                <div class="flex items-center justify-between pt-1">
+                  <div class="flex items-baseline gap-2">
+                    <span class="text-2xl font-bold text-primary">{formatPrice(promo.price)}</span>
+                    {promo.price_before && (
+                      <span class="text-sm text-primary-text/40 line-through">{formatPrice(promo.price_before)}</span>
+                    )}
+                  </div>
+                  {whatsappUrl && (
+                    <a href={whatsappUrl} target="_blank" rel="noopener noreferrer"
+                      class="text-xs font-semibold text-emerald-400 hover:text-emerald-300 flex items-center gap-1 transition-colors">
+                      Pedir →
+                    </a>
+                  )}
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  </section>
+)}

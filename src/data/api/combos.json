@@ -1,0 +1,26 @@
+{
+  "data": [
+    {
+      "id": "43756cc2-b8ab-491c-a056-735dd8180b18",
+      "name": "Combo Maquilovers",
+      "description": "24 cortes (4 sabores a elección) + 6 alistas + 1 Gaseosa personal",
+      "image": {
+        "url": "https://picsum.photos/seed/combo_43756cc2-b8ab-491c-a056-735dd8180b18/800/600",
+        "alt": "Combo Maquilovers — Sazón Digital"
+      },
+      "price": 53,
+      "price_before": null
+    },
+    {
+      "id": "773fee12-347b-4855-93bf-8829cb66f58f",
+      "name": "Combo familiar",
+      "description": "48 cortes (4 sabores a elección) + 2 gaseosa (250ml)",
+      "image": {
+        "url": "https://picsum.photos/seed/combo_773fee12-347b-4855-93bf-8829cb66f58f/800/600",
+        "alt": "Combo familiar — Sazón Digital"
+      },
+      "price": 85,
+      "price_before": null
+    }
+  ]
+}

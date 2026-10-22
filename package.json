@@ -1,0 +1,24 @@
+{
+  "name": "pizza-valery",
+  "private": true,
+  "description": "Digital menu storefront scaffolded with create-digital-menu",
+  "type": "module",
+  "version": "0.0.1",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "smoke": "node scripts/smoke.mjs",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "@astrojs/sitemap": "^3.7.4",
+    "@tailwindcss/vite": "^4.3.3",
+    "astro": "^7.3.8",
+    "tailwindcss": "^4.3.3",
+    "zod": "^4.6.7"
+  }
+}

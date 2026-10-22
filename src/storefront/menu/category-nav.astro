@@ -1,0 +1,43 @@
+---
+/**
+ * CategoryNav — sticky horizontal pill bar that scrolls to each category.
+ *
+ * Port of Angular `src/app/components/category-nav/category-nav.component.ts`.
+ *
+ * Props:
+ * - `categories` — `Array<{ category }>` (the `allCategories` shape built by
+ *                  the page from `MenuBlock[]`): the component only reads
+ *                  `category.id` and `category.name`.
+ *
+ * The anchors keep their `#category-{id}` href so the nav works without
+ * JavaScript: native fragment navigation + the global smooth-scroll CSS rule,
+ * with the old 140 px Angular header offset provided by the
+ * `scroll-mt-[140px]` class on each category section (menu-block.astro).
+ */
+import type { MenuCategory } from '../types/menu';
+
+interface Props {
+  categories?: Array<{ category: MenuCategory }>;
+}
+
+const { categories = [] } = Astro.props;
+---
+
+<div
+  class="sticky top-0 z-40 bg-background/90 backdrop-blur-md border-b border-primary/10 shadow-sm py-4 px-4"
+>
+  <div
+    class="max-w-7xl mx-auto flex items-center gap-3 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+  >
+    {
+      categories.map(({ category }) => (
+        <a
+          href={`#category-${category.id}`}
+          class="whitespace-nowrap px-6 py-2.5 rounded-full text-sm font-bold uppercase tracking-wider transition-all bg-secondary/5 text-secondary hover:bg-primary/20 hover:text-primary active:scale-95 cursor-pointer"
+        >
+          {category.name}
+        </a>
+      ))
+    }
+  </div>
+</div>

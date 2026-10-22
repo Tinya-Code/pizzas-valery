@@ -1,0 +1,209 @@
+---
+/**
+ * FlyerModal — promotional modal displayed with a configurable delay.
+ *
+ * Configured via `src/data/api/flyers.json`:
+ * - `enabled`: toggles the modal on/off
+ * - `delay_seconds`: delay before opening (e.g. 20 seconds)
+ * - `show_once_per_session`: avoids annoying the user on refresh
+ * - `items`: list of promotional flyers to display
+ */
+import X from '../icons/x.astro';
+import ChevronLeft from '../icons/chevron-left.astro';
+import ChevronRight from '../icons/chevron-right.astro';
+import type { FlyersConfig } from '../types/menu';
+
+interface Props {
+  flyers?: FlyersConfig | null;
+}
+
+const { flyers = null } = Astro.props;
+
+const isEnabled = Boolean(flyers?.enabled && (flyers?.items?.length ?? 0) > 0);
+const items = flyers?.items ?? [];
+const delaySeconds = flyers?.delay_seconds ?? 20;
+const showOnce = flyers?.show_once_per_session ?? true;
+---
+
+{
+  isEnabled && (
+    <div
+      data-flyer-modal
+      data-delay-seconds={delaySeconds}
+      data-show-once={showOnce ? 'true' : 'false'}
+      class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 opacity-0 pointer-events-none transition-opacity duration-500 ease-out"
+      aria-hidden="true"
+    >
+      <!-- Backdrop -->
+      <div
+        data-flyer-backdrop
+        class="absolute inset-0 bg-slate-950/75 backdrop-blur-md cursor-pointer"
+      />
+
+      <!-- Modal Dialog -->
+      <div
+        data-flyer-dialog
+        class="relative max-w-md md:max-w-lg w-full bg-slate-900 border border-white/10 rounded-3xl overflow-hidden shadow-[0_25px_60px_-15px_rgba(0,0,0,0.7)] transform scale-90 transition-transform duration-500 ease-out z-10"
+      >
+        <!-- Close Button -->
+        <button
+          data-flyer-close
+          type="button"
+          class="absolute top-3 right-3 z-30 w-10 h-10 rounded-full bg-black/60 hover:bg-primary text-white backdrop-blur-md flex items-center justify-center transition-all duration-200 border border-white/20 shadow-lg cursor-pointer"
+          aria-label="Cerrar promoción"
+        >
+          <X class="w-5 h-5" />
+        </button>
+
+        <!-- Carousel / Flyer view -->
+        <div class="relative w-full aspect-[4/5] sm:aspect-square bg-slate-950 overflow-hidden">
+          {items.map((item, index) => {
+            const content = (
+              <img
+                src={item.image}
+                alt={item.alt || item.title || 'Promoción'}
+                class="w-full h-full object-cover select-none"
+                loading="lazy"
+              />
+            );
+
+            return (
+              <div
+                data-flyer-slide={index}
+                class:list={[
+                  'absolute inset-0 w-full h-full transition-opacity duration-300',
+                  index === 0 ? 'opacity-100 z-10' : 'opacity-0 z-0 pointer-events-none',
+                ]}
+              >
+                {item.link ? (
+                  <a href={item.link} data-flyer-link class="block w-full h-full cursor-pointer">
+                    {content}
+                  </a>
+                ) : (
+                  content
+                )}
+              </div>
+            );
+          })}
+
+          {items.length > 1 && (
+            <>
+              <button
+                data-flyer-prev
+                type="button"
+                class="absolute left-3 top-1/2 -translate-y-1/2 z-20 w-9 h-9 rounded-full bg-black/50 hover:bg-black/80 text-white flex items-center justify-center backdrop-blur-sm transition-colors border border-white/10"
+                aria-label="Anterior"
+              >
+                <ChevronLeft class="w-5 h-5" />
+              </button>
+              <button
+                data-flyer-next
+                type="button"
+                class="absolute right-3 top-1/2 -translate-y-1/2 z-20 w-9 h-9 rounded-full bg-black/50 hover:bg-black/80 text-white flex items-center justify-center backdrop-blur-sm transition-colors border border-white/10"
+                aria-label="Siguiente"
+              >
+                <ChevronRight class="w-5 h-5" />
+              </button>
+            </>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+<script>
+  function setupFlyerModal() {
+    const modal = document.querySelector<HTMLElement>('[data-flyer-modal]');
+    if (!modal) return;
+
+    const delay = Number(modal.dataset.delaySeconds ?? 20) * 1000;
+    const showOnce = modal.dataset.showOnce === 'true';
+    const storageKey = 'dm_flyer_dismissed';
+
+    if (showOnce && sessionStorage.getItem(storageKey)) {
+      return;
+    }
+
+    const dialog = modal.querySelector<HTMLElement>('[data-flyer-dialog]');
+    const closeBtn = modal.querySelector('[data-flyer-close]');
+    const backdrop = modal.querySelector('[data-flyer-backdrop]');
+    const flyerLinks = modal.querySelectorAll('[data-flyer-link]');
+    const slides = modal.querySelectorAll<HTMLElement>('[data-flyer-slide]');
+    const prevBtn = modal.querySelector('[data-flyer-prev]');
+    const nextBtn = modal.querySelector('[data-flyer-next]');
+
+    let currentSlide = 0;
+
+    const showSlide = (index: number) => {
+      slides.forEach((slide, i) => {
+        if (i === index) {
+          slide.classList.remove('opacity-0', 'pointer-events-none');
+          slide.classList.add('opacity-100', 'z-10');
+        } else {
+          slide.classList.remove('opacity-100', 'z-10');
+          slide.classList.add('opacity-0', 'pointer-events-none');
+        }
+      });
+      currentSlide = index;
+    };
+
+    if (prevBtn) {
+      prevBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const next = (currentSlide - 1 + slides.length) % slides.length;
+        showSlide(next);
+      });
+    }
+
+    if (nextBtn) {
+      nextBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const next = (currentSlide + 1) % slides.length;
+        showSlide(next);
+      });
+    }
+
+    const openModal = () => {
+      modal.classList.remove('opacity-0', 'pointer-events-none');
+      modal.classList.add('opacity-100');
+      modal.setAttribute('aria-hidden', 'false');
+      if (dialog) {
+        dialog.classList.remove('scale-90');
+        dialog.classList.add('scale-100');
+      }
+    };
+
+    const closeModal = () => {
+      modal.classList.remove('opacity-100');
+      modal.classList.add('opacity-0', 'pointer-events-none');
+      modal.setAttribute('aria-hidden', 'true');
+      if (dialog) {
+        dialog.classList.remove('scale-100');
+        dialog.classList.add('scale-90');
+      }
+      if (showOnce) {
+        sessionStorage.setItem(storageKey, 'true');
+      }
+    };
+
+    const timer = window.setTimeout(openModal, delay);
+
+    closeBtn?.addEventListener('click', closeModal);
+    backdrop?.addEventListener('click', closeModal);
+    flyerLinks.forEach((link) => link.addEventListener('click', closeModal));
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && modal.getAttribute('aria-hidden') === 'false') {
+        closeModal();
+      }
+    };
+    window.addEventListener('keydown', onKeyDown);
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', setupFlyerModal);
+  } else {
+    setupFlyerModal();
+  }
+</script>

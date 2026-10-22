@@ -1,0 +1,7 @@
+# Update zones — template updates (upstream merges) never overwrite the
+# owner's app zone: data, brand, assets, and smoke expectations always win.
+# See doc/template-guide.md → "Update zones".
+src/data/api/** merge=ours
+src/styles/** merge=ours
+scripts/smoke-data.json merge=ours
+public/** merge=ours

@@ -1,0 +1,1199 @@
+{
+  "data": {
+    "blocks": [
+      {
+        "id": "block-1",
+        "categories": [
+          {
+            "id": "b93ca21c-70c0-4aa9-b56f-44d4a11ba15b",
+            "name": "Rolls",
+            "description": "",
+            "block_id": "block-1",
+            "products": [
+              {
+                "id": "c9b374f7-57f0-4a42-900b-7a238b6e7e60",
+                "name": "Acevichado",
+                "description": "Relleno de langostino y palta. Cubierto de pescado blanco y salsa acevichada.",
+                "image": {
+                  "url": "https://picsum.photos/seed/product_c9b374f7-57f0-4a42-900b-7a238b6e7e60/800/600",
+                  "alt": "Acevichado — Sazón Digital"
+                },
+                "price": 18,
+                "price_range": {
+                  "id": "1df8cce0-f826-43c9-9ead-0b87f6c02a91",
+                  "name": "Makis",
+                  "entries": [
+                    {
+                      "qty": 12,
+                      "price": 18
+                    },
+                    {
+                      "qty": 24,
+                      "price": 33
+                    },
+                    {
+                      "qty": 36,
+                      "price": 49
+                    },
+                    {
+                      "qty": 48,
+                      "price": 63
+                    }
+                  ],
+                  "min_price": 18,
+                  "max_price": 63,
+                  "units_label": {
+                    "one": "Unidad",
+                    "other": "Unidades"
+                  }
+                },
+                "qty_label": null,
+                "is_recommended": true,
+                "is_hidden": false,
+                "category_id": "b93ca21c-70c0-4aa9-b56f-44d4a11ba15b"
+              },
+              {
+                "id": "79329406-07e3-4791-8433-9974e121faa9",
+                "name": "Furai",
+                "description": "Relleno de trucha, queso crema y palta. Cubierto de panko frito.",
+                "image": {
+                  "url": "https://picsum.photos/seed/product_79329406-07e3-4791-8433-9974e121faa9/800/600",
+                  "alt": "Furai — Sazón Digital"
+                },
+                "price": 15.5,
+                "price_range": {
+                  "id": "9047cfce-9a74-4193-a83c-c0be68dc4ae6",
+                  "name": "sushi",
+                  "entries": [
+                    {
+                      "qty": 12,
+                      "price": 15.5
+                    }
+                  ],
+                  "min_price": 15.5,
+                  "max_price": 15.5,
+                  "units_label": {
+                    "one": "Unidad",
+                    "other": "Unidades"
+                  }
+                },
+                "qty_label": null,
+                "is_recommended": false,
+                "is_hidden": false,
+                "category_id": "b93ca21c-70c0-4aa9-b56f-44d4a11ba15b"
+              },
+              {
+                "id": "5b226190-1c64-4c28-b5ff-6f10af39b5a8",
+                "name": "BBQ",
+                "description": "Relleno de langostino y palta. Cubierto de lomo, salsa BBQ y semillas de ajonjolí.",
+                "image": {
+                  "url": "https://picsum.photos/seed/product_5b226190-1c64-4c28-b5ff-6f10af39b5a8/800/600",
+                  "alt": "BBQ — Sazón Digital"
+                },
+                "price": 18,
+                "price_range": {
+                  "id": "1df8cce0-f826-43c9-9ead-0b87f6c02a91",
+                  "name": "Makis",
+                  "entries": [
+                    {
+                      "qty": 12,
+                      "price": 18
+                    },
+                    {
+                      "qty": 24,
+                      "price": 33
+                    },
+                    {
+                      "qty": 36,
+                      "price": 49
+                    },
+                    {
+                      "qty": 48,
+                      "price": 63
+                    }
+                  ],
+                  "min_price": 18,
+                  "max_price": 63,
+                  "units_label": {
+                    "one": "Unidad",
+                    "other": "Unidades"
+                  }
+                },
+                "qty_label": null,
+                "is_recommended": false,
+                "is_hidden": false,
+                "category_id": "b93ca21c-70c0-4aa9-b56f-44d4a11ba15b"
+              },
+              {
+                "id": "e1e2f9cd-843c-4604-8a6f-b7298f591996",
+                "name": "Avocado",
+                "description": "Relleno de langostino y queso crema. Cubierto de palta y salsa Tare.",
+                "image": {
+                  "url": "https://picsum.photos/seed/product_e1e2f9cd-843c-4604-8a6f-b7298f591996/800/600",
+                  "alt": "Avocado — Sazón Digital"
+                },
+                "price": 18,
+                "price_range": {
+                  "id": "1df8cce0-f826-43c9-9ead-0b87f6c02a91",
+                  "name": "Makis",
+                  "entries": [
+                    {
+                      "qty": 12,
+                      "price": 18
+                    },
+                    {
+                      "qty": 24,
+                      "price": 33
+                    },
+                    {
+                      "qty": 36,
+                      "price": 49
+                    },
+                    {
+                      "qty": 48,
+                      "price": 63
+                    }
+                  ],
+                  "min_price": 18,
+                  "max_price": 63,
+                  "units_label": {
+                    "one": "Unidad",
+                    "other": "Unidades"
+                  }
+                },
+                "qty_label": null,
+                "is_recommended": false,
+                "is_hidden": false,
+                "category_id": "b93ca21c-70c0-4aa9-b56f-44d4a11ba15b"
+              },
+              {
+                "id": "681c05ec-cbed-44ae-afd4-563aabe9c75a",
+                "name": "Ikigai",
+                "description": "Relleno de langostino y palta. Cubierto de tártara de pulpa de cangrejo, pulpo, queso parmesano y salsa Tare.",
+                "image": {
+                  "url": "https://picsum.photos/seed/product_681c05ec-cbed-44ae-afd4-563aabe9c75a/800/600",
+                  "alt": "Ikigai — Sazón Digital"
+                },
+                "price": 18,
+                "price_range": {
+                  "id": "1df8cce0-f826-43c9-9ead-0b87f6c02a91",
+                  "name": "Makis",
+                  "entries": [
+                    {
+                      "qty": 12,
+                      "price": 18
+                    },
+                    {
+                      "qty": 24,
+                      "price": 33
+                    },
+                    {
+                      "qty": 36,
+                      "price": 49
+                    },
+                    {
+                      "qty": 48,
+                      "price": 63
+                    }
+                  ],
+                  "min_price": 18,
+                  "max_price": 63,
+                  "units_label": {
+                    "one": "Unidad",
+                    "other": "Unidades"
+                  }
+                },
+                "qty_label": null,
+                "is_recommended": true,
+                "is_hidden": false,
+                "category_id": "b93ca21c-70c0-4aa9-b56f-44d4a11ba15b"
+              },
+              {
+                "id": "5ff36970-2632-4be0-a25a-9bb7d53fddfa",
+                "name": "Guacamole",
+                "description": "Relleno de langostino frito, queso crema. Cubierto de guacamole y hilos de camote.",
+                "image": {
+                  "url": "https://picsum.photos/seed/product_5ff36970-2632-4be0-a25a-9bb7d53fddfa/800/600",
+                  "alt": "Guacamole — Sazón Digital"
+                },
+                "price": 18,
+                "price_range": {
+                  "id": "1df8cce0-f826-43c9-9ead-0b87f6c02a91",
+                  "name": "Makis",
+                  "entries": [
+                    {
+                      "qty": 12,
+                      "price": 18
+                    },
+                    {
+                      "qty": 24,
+                      "price": 33
+                    },
+                    {
+                      "qty": 36,
+                      "price": 49
+                    },
+                    {
+                      "qty": 48,
+                      "price": 63
+                    }
+                  ],
+                  "min_price": 18,
+                  "max_price": 63,
+                  "units_label": {
+                    "one": "Unidad",
+                    "other": "Unidades"
+                  }
+                },
+                "qty_label": null,
+                "is_recommended": false,
+                "is_hidden": false,
+                "category_id": "b93ca21c-70c0-4aa9-b56f-44d4a11ba15b"
+              },
+              {
+                "id": "28060a44-779e-4441-a545-473e4ccbd10c",
+                "name": "California",
+                "description": "Relleno de trucha, queso crema y palta. Cubierto de semillas de ajonjolí, salsa Tare o maracuyá.",
+                "image": {
+                  "url": "https://picsum.photos/seed/product_28060a44-779e-4441-a545-473e4ccbd10c/800/600",
+                  "alt": "California — Sazón Digital"
+                },
+                "price": 18,
+                "price_range": {
+                  "id": "1df8cce0-f826-43c9-9ead-0b87f6c02a91",
+                  "name": "Makis",
+                  "entries": [
+                    {
+                      "qty": 12,
+                      "price": 18
+                    },
+                    {
+                      "qty": 24,
+                      "price": 33
+                    },
+                    {
+                      "qty": 36,
+                      "price": 49
+                    },
+                    {
+                      "qty": 48,
+                      "price": 63
+                    }
+                  ],
+                  "min_price": 18,
+                  "max_price": 63,
+                  "units_label": {
+                    "one": "Unidad",
+                    "other": "Unidades"
+                  }
+                },
+                "qty_label": null,
+                "is_recommended": false,
+                "is_hidden": false,
+                "category_id": "b93ca21c-70c0-4aa9-b56f-44d4a11ba15b"
+              },
+              {
+                "id": "fa9e4aab-2348-4ee0-b37e-f3e0384def3b",
+                "name": "Banana",
+                "description": "Relleno de queso crema y langostino. Cubierto con plátano maduro frito y salsa Tare o maracuyá.",
+                "image": {
+                  "url": "https://picsum.photos/seed/product_fa9e4aab-2348-4ee0-b37e-f3e0384def3b/800/600",
+                  "alt": "Banana — Sazón Digital"
+                },
+                "price": 18,
+                "price_range": {
+                  "id": "1df8cce0-f826-43c9-9ead-0b87f6c02a91",
+                  "name": "Makis",
+                  "entries": [
+                    {
+                      "qty": 12,
+                      "price": 18
+                    },
+                    {
+                      "qty": 24,
+                      "price": 33
+                    },
+                    {
+                      "qty": 36,
+                      "price": 49
+                    },
+                    {
+                      "qty": 48,
+                      "price": 63
+                    }
+                  ],
+                  "min_price": 18,
+                  "max_price": 63,
+                  "units_label": {
+                    "one": "Unidad",
+                    "other": "Unidades"
+                  }
+                },
+                "qty_label": null,
+                "is_recommended": false,
+                "is_hidden": false,
+                "category_id": "b93ca21c-70c0-4aa9-b56f-44d4a11ba15b"
+              },
+              {
+                "id": "c792c818-6eef-4296-87f5-67153a805ebb",
+                "name": "Baby Maki",
+                "description": "Relleno de queso crema y langostino. Cubierto de láminas de trucha y salsa Tare o maracuyá.",
+                "image": {
+                  "url": "https://picsum.photos/seed/product_c792c818-6eef-4296-87f5-67153a805ebb/800/600",
+                  "alt": "Baby Maki — Sazón Digital"
+                },
+                "price": 18,
+                "price_range": {
+                  "id": "1df8cce0-f826-43c9-9ead-0b87f6c02a91",
+                  "name": "Makis",
+                  "entries": [
+                    {
+                      "qty": 12,
+                      "price": 18
+                    },
+                    {
+                      "qty": 24,
+                      "price": 33
+                    },
+                    {
+                      "qty": 36,
+                      "price": 49
+                    },
+                    {
+                      "qty": 48,
+                      "price": 63
+                    }
+                  ],
+                  "min_price": 18,
+                  "max_price": 63,
+                  "units_label": {
+                    "one": "Unidad",
+                    "other": "Unidades"
+                  }
+                },
+                "qty_label": null,
+                "is_recommended": false,
+                "is_hidden": false,
+                "category_id": "b93ca21c-70c0-4aa9-b56f-44d4a11ba15b"
+              },
+              {
+                "id": "fc7f28e7-71f5-422f-8524-306c906597e9",
+                "name": "Olivo",
+                "description": "Relleno de langostino y palta. Cubierto de pulpo al olivo.",
+                "image": {
+                  "url": "https://picsum.photos/seed/product_fc7f28e7-71f5-422f-8524-306c906597e9/800/600",
+                  "alt": "Olivo — Sazón Digital"
+                },
+                "price": 18,
+                "price_range": {
+                  "id": "1df8cce0-f826-43c9-9ead-0b87f6c02a91",
+                  "name": "Makis",
+                  "entries": [
+                    {
+                      "qty": 12,
+                      "price": 18
+                    },
+                    {
+                      "qty": 24,
+                      "price": 33
+                    },
+                    {
+                      "qty": 36,
+                      "price": 49
+                    },
+                    {
+                      "qty": 48,
+                      "price": 63
+                    }
+                  ],
+                  "min_price": 18,
+                  "max_price": 63,
+                  "units_label": {
+                    "one": "Unidad",
+                    "other": "Unidades"
+                  }
+                },
+                "qty_label": null,
+                "is_recommended": false,
+                "is_hidden": false,
+                "category_id": "b93ca21c-70c0-4aa9-b56f-44d4a11ba15b"
+              },
+              {
+                "id": "8e2ca50c-5761-4636-8e69-854daf5180ad",
+                "name": "Parrillero",
+                "description": "Relleno de langostino, queso crema y palta. Cubierto de lomo y salsa chimichurri.",
+                "image": {
+                  "url": "https://picsum.photos/seed/product_8e2ca50c-5761-4636-8e69-854daf5180ad/800/600",
+                  "alt": "Parrillero — Sazón Digital"
+                },
+                "price": 18,
+                "price_range": {
+                  "id": "1df8cce0-f826-43c9-9ead-0b87f6c02a91",
+                  "name": "Makis",
+                  "entries": [
+                    {
+                      "qty": 12,
+                      "price": 18
+                    },
+                    {
+                      "qty": 24,
+                      "price": 33
+                    },
+                    {
+                      "qty": 36,
+                      "price": 49
+                    },
+                    {
+                      "qty": 48,
+                      "price": 63
+                    }
+                  ],
+                  "min_price": 18,
+                  "max_price": 63,
+                  "units_label": {
+                    "one": "Unidad",
+                    "other": "Unidades"
+                  }
+                },
+                "qty_label": null,
+                "is_recommended": false,
+                "is_hidden": false,
+                "category_id": "b93ca21c-70c0-4aa9-b56f-44d4a11ba15b"
+              },
+              {
+                "id": "c629f634-99c3-4320-b39a-41f876672b4d",
+                "name": "Maki Parmesano",
+                "description": "Relleno de palta y langostino frito. Cubierto de salsa parmesano y gotas de limón.",
+                "image": {
+                  "url": "https://picsum.photos/seed/product_c629f634-99c3-4320-b39a-41f876672b4d/800/600",
+                  "alt": "Maki Parmesano — Sazón Digital"
+                },
+                "price": 18,
+                "price_range": {
+                  "id": "1df8cce0-f826-43c9-9ead-0b87f6c02a91",
+                  "name": "Makis",
+                  "entries": [
+                    {
+                      "qty": 12,
+                      "price": 18
+                    },
+                    {
+                      "qty": 24,
+                      "price": 33
+                    },
+                    {
+                      "qty": 36,
+                      "price": 49
+                    },
+                    {
+                      "qty": 48,
+                      "price": 63
+                    }
+                  ],
+                  "min_price": 18,
+                  "max_price": 63,
+                  "units_label": {
+                    "one": "Unidad",
+                    "other": "Unidades"
+                  }
+                },
+                "qty_label": null,
+                "is_recommended": false,
+                "is_hidden": false,
+                "category_id": "b93ca21c-70c0-4aa9-b56f-44d4a11ba15b"
+              },
+              {
+                "id": "02fc4260-aeaa-461f-a044-db0caa5337f6",
+                "name": "Tempura",
+                "description": "Relleno de palta y langostino frito. Cubierto de salsa anticuchera y chalaquita.",
+                "image": {
+                  "url": "https://picsum.photos/seed/product_02fc4260-aeaa-461f-a044-db0caa5337f6/800/600",
+                  "alt": "Tempura — Sazón Digital"
+                },
+                "price": 18,
+                "price_range": {
+                  "id": "1df8cce0-f826-43c9-9ead-0b87f6c02a91",
+                  "name": "Makis",
+                  "entries": [
+                    {
+                      "qty": 12,
+                      "price": 18
+                    },
+                    {
+                      "qty": 24,
+                      "price": 33
+                    },
+                    {
+                      "qty": 36,
+                      "price": 49
+                    },
+                    {
+                      "qty": 48,
+                      "price": 63
+                    }
+                  ],
+                  "min_price": 18,
+                  "max_price": 63,
+                  "units_label": {
+                    "one": "Unidad",
+                    "other": "Unidades"
+                  }
+                },
+                "qty_label": null,
+                "is_recommended": false,
+                "is_hidden": false,
+                "category_id": "b93ca21c-70c0-4aa9-b56f-44d4a11ba15b"
+              },
+              {
+                "id": "62d54735-6c49-4b82-9ee2-e14f63de2c34",
+                "name": "roll de leche de tigre",
+                "description": "relleno de langostino  ,palta cubierto con hojas de lechuga y pescado fresco bañado con leche de tigre y finos cortes de camote \n",
+                "image": {
+                  "url": "",
+                  "alt": "roll de leche de tigre — Sazón Digital"
+                },
+                "price": 18,
+                "price_range": null,
+                "qty_label": "12 piezas",
+                "is_recommended": false,
+                "is_hidden": false,
+                "category_id": "b93ca21c-70c0-4aa9-b56f-44d4a11ba15b"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "block-2",
+        "categories": [
+          {
+            "id": "5ab7bb62-43c0-45b5-92ca-9df00e2405ad",
+            "name": "Piqueos",
+            "description": "",
+            "block_id": "block-2",
+            "products": [
+              {
+                "id": "975a41d2-ed19-41d7-b843-037d76e17d53",
+                "name": "Gyozas",
+                "description": "Empanizado japonés relleno de pollo, carne o langostino (vapor/frito).",
+                "image": {
+                  "url": "https://picsum.photos/seed/product_975a41d2-ed19-41d7-b843-037d76e17d53/800/600",
+                  "alt": "Gyozas — Sazón Digital"
+                },
+                "price": 15,
+                "price_range": null,
+                "qty_label": "8 unidades",
+                "is_recommended": false,
+                "is_hidden": false,
+                "category_id": "5ab7bb62-43c0-45b5-92ca-9df00e2405ad"
+              },
+              {
+                "id": "2363be6f-ac9e-42ba-b341-2291a0406d65",
+                "name": "Torikatzu",
+                "description": "Filete de pollo apanado y frito, acompañado con arroz blanco, col y zanahoria rallada.",
+                "image": {
+                  "url": "",
+                  "alt": "Torikatzu — Sazón Digital"
+                },
+                "price": 18,
+                "price_range": null,
+                "qty_label": null,
+                "is_recommended": false,
+                "is_hidden": false,
+                "category_id": "5ab7bb62-43c0-45b5-92ca-9df00e2405ad"
+              },
+              {
+                "id": "c48a11ee-4e73-4e4c-abbf-1bf1ee4ed44b",
+                "name": "Ebi Furai",
+                "description": "Langostinos apanados con harina, huevo y panko, acompañado con fideos de arroz frito.",
+                "image": {
+                  "url": "",
+                  "alt": "Ebi Furai — Sazón Digital"
+                },
+                "price": 20,
+                "price_range": null,
+                "qty_label": "8 unidades",
+                "is_recommended": true,
+                "is_hidden": false,
+                "category_id": "5ab7bb62-43c0-45b5-92ca-9df00e2405ad"
+              },
+              {
+                "id": "7963ddcd-a9f2-4218-a454-df1879237fec",
+                "name": "Taco Nikkei",
+                "description": "Tacos de wantan frito rellenos de tartar de pescado y cebolla acaramelizada.",
+                "image": {
+                  "url": "",
+                  "alt": "Taco Nikkei — Sazón Digital"
+                },
+                "price": 20,
+                "price_range": null,
+                "qty_label": "6 unidades",
+                "is_recommended": false,
+                "is_hidden": false,
+                "category_id": "5ab7bb62-43c0-45b5-92ca-9df00e2405ad"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "block-3",
+        "categories": [
+          {
+            "id": "e74e6d2d-4a21-417e-b350-6bb0f2add877",
+            "name": "Alitas",
+            "description": "",
+            "block_id": "block-3",
+            "products": [
+              {
+                "id": "6fdefe5a-517a-4314-b0bb-ca78ab62c542",
+                "name": "Alitas Acevichado",
+                "description": "Alitas de pollo fritas en salsa Acevichado.",
+                "image": {
+                  "url": "https://picsum.photos/seed/product_6fdefe5a-517a-4314-b0bb-ca78ab62c542/800/600",
+                  "alt": "Alitas Acevichado — Sazón Digital"
+                },
+                "price": 17,
+                "price_range": {
+                  "id": "7cd0cbe1-9815-45c1-8798-e5ddec2f2c6f",
+                  "name": "Alitas",
+                  "entries": [
+                    {
+                      "qty": 6,
+                      "price": 17
+                    },
+                    {
+                      "qty": 12,
+                      "price": 32
+                    },
+                    {
+                      "qty": 18,
+                      "price": 46
+                    }
+                  ],
+                  "min_price": 17,
+                  "max_price": 46,
+                  "units_label": {
+                    "one": "Unidad",
+                    "other": "Unidades"
+                  }
+                },
+                "qty_label": null,
+                "is_recommended": true,
+                "is_hidden": false,
+                "category_id": "e74e6d2d-4a21-417e-b350-6bb0f2add877"
+              },
+              {
+                "id": "d7d4a512-7156-4eae-aeda-401e41277c8e",
+                "name": "Alitas BBQ",
+                "description": "Alitas de pollo fritas en salsa BBQ.",
+                "image": {
+                  "url": "https://picsum.photos/seed/product_d7d4a512-7156-4eae-aeda-401e41277c8e/800/600",
+                  "alt": "Alitas BBQ — Sazón Digital"
+                },
+                "price": 17,
+                "price_range": {
+                  "id": "7cd0cbe1-9815-45c1-8798-e5ddec2f2c6f",
+                  "name": "Alitas",
+                  "entries": [
+                    {
+                      "qty": 6,
+                      "price": 17
+                    },
+                    {
+                      "qty": 12,
+                      "price": 32
+                    },
+                    {
+                      "qty": 18,
+                      "price": 46
+                    }
+                  ],
+                  "min_price": 17,
+                  "max_price": 46,
+                  "units_label": {
+                    "one": "Unidad",
+                    "other": "Unidades"
+                  }
+                },
+                "qty_label": null,
+                "is_recommended": true,
+                "is_hidden": false,
+                "category_id": "e74e6d2d-4a21-417e-b350-6bb0f2add877"
+              },
+              {
+                "id": "f5463cb4-8298-409d-afcc-b85e81e63c79",
+                "name": "Alitas Buffalo",
+                "description": "Alitas de pollo fritas en salsa Buffalo.",
+                "image": {
+                  "url": "https://picsum.photos/seed/product_f5463cb4-8298-409d-afcc-b85e81e63c79/800/600",
+                  "alt": "Alitas Buffalo — Sazón Digital"
+                },
+                "price": 17,
+                "price_range": {
+                  "id": "7cd0cbe1-9815-45c1-8798-e5ddec2f2c6f",
+                  "name": "Alitas",
+                  "entries": [
+                    {
+                      "qty": 6,
+                      "price": 17
+                    },
+                    {
+                      "qty": 12,
+                      "price": 32
+                    },
+                    {
+                      "qty": 18,
+                      "price": 46
+                    }
+                  ],
+                  "min_price": 17,
+                  "max_price": 46,
+                  "units_label": {
+                    "one": "Unidad",
+                    "other": "Unidades"
+                  }
+                },
+                "qty_label": null,
+                "is_recommended": false,
+                "is_hidden": false,
+                "category_id": "e74e6d2d-4a21-417e-b350-6bb0f2add877"
+              },
+              {
+                "id": "73d62f9e-5c34-45b0-9587-bfcce3bbb807",
+                "name": "Alitas Charapita",
+                "description": "Alitas de pollo fritas en salsa Charapita",
+                "image": {
+                  "url": "https://picsum.photos/seed/product_73d62f9e-5c34-45b0-9587-bfcce3bbb807/800/600",
+                  "alt": "Alitas Charapita — Sazón Digital"
+                },
+                "price": 17,
+                "price_range": {
+                  "id": "7cd0cbe1-9815-45c1-8798-e5ddec2f2c6f",
+                  "name": "Alitas",
+                  "entries": [
+                    {
+                      "qty": 6,
+                      "price": 17
+                    },
+                    {
+                      "qty": 12,
+                      "price": 32
+                    },
+                    {
+                      "qty": 18,
+                      "price": 46
+                    }
+                  ],
+                  "min_price": 17,
+                  "max_price": 46,
+                  "units_label": {
+                    "one": "Unidad",
+                    "other": "Unidades"
+                  }
+                },
+                "qty_label": null,
+                "is_recommended": false,
+                "is_hidden": false,
+                "category_id": "e74e6d2d-4a21-417e-b350-6bb0f2add877"
+              },
+              {
+                "id": "353635a1-b774-4c83-9258-c3f6f1b02c1d",
+                "name": "Alitas Crispy",
+                "description": "Alitas de pollo fritas en salsa Crispy.",
+                "image": {
+                  "url": "https://picsum.photos/seed/product_353635a1-b774-4c83-9258-c3f6f1b02c1d/800/600",
+                  "alt": "Alitas Crispy — Sazón Digital"
+                },
+                "price": 17,
+                "price_range": {
+                  "id": "7cd0cbe1-9815-45c1-8798-e5ddec2f2c6f",
+                  "name": "Alitas",
+                  "entries": [
+                    {
+                      "qty": 6,
+                      "price": 17
+                    },
+                    {
+                      "qty": 12,
+                      "price": 32
+                    },
+                    {
+                      "qty": 18,
+                      "price": 46
+                    }
+                  ],
+                  "min_price": 17,
+                  "max_price": 46,
+                  "units_label": {
+                    "one": "Unidad",
+                    "other": "Unidades"
+                  }
+                },
+                "qty_label": null,
+                "is_recommended": false,
+                "is_hidden": false,
+                "category_id": "e74e6d2d-4a21-417e-b350-6bb0f2add877"
+              },
+              {
+                "id": "7c8e2e1b-43db-485a-bf33-5d17404fde12",
+                "name": "Alitas Maracuyá",
+                "description": "Alitas de pollo fritas en salsa Maracuyá.",
+                "image": {
+                  "url": "https://picsum.photos/seed/product_7c8e2e1b-43db-485a-bf33-5d17404fde12/800/600",
+                  "alt": "Alitas Maracuyá — Sazón Digital"
+                },
+                "price": 17,
+                "price_range": {
+                  "id": "7cd0cbe1-9815-45c1-8798-e5ddec2f2c6f",
+                  "name": "Alitas",
+                  "entries": [
+                    {
+                      "qty": 6,
+                      "price": 17
+                    },
+                    {
+                      "qty": 12,
+                      "price": 32
+                    },
+                    {
+                      "qty": 18,
+                      "price": 46
+                    }
+                  ],
+                  "min_price": 17,
+                  "max_price": 46,
+                  "units_label": {
+                    "one": "Unidad",
+                    "other": "Unidades"
+                  }
+                },
+                "qty_label": null,
+                "is_recommended": false,
+                "is_hidden": false,
+                "category_id": "e74e6d2d-4a21-417e-b350-6bb0f2add877"
+              },
+              {
+                "id": "745c942e-8091-4b3e-86cc-4c51c7ba83d1",
+                "name": "Alitas Maracuyá Hot",
+                "description": "Alitas de pollo fritas en salsa Maracuyá Hot.",
+                "image": {
+                  "url": "https://picsum.photos/seed/product_745c942e-8091-4b3e-86cc-4c51c7ba83d1/800/600",
+                  "alt": "Alitas Maracuyá Hot — Sazón Digital"
+                },
+                "price": 17,
+                "price_range": {
+                  "id": "7cd0cbe1-9815-45c1-8798-e5ddec2f2c6f",
+                  "name": "Alitas",
+                  "entries": [
+                    {
+                      "qty": 6,
+                      "price": 17
+                    },
+                    {
+                      "qty": 12,
+                      "price": 32
+                    },
+                    {
+                      "qty": 18,
+                      "price": 46
+                    }
+                  ],
+                  "min_price": 17,
+                  "max_price": 46,
+                  "units_label": {
+                    "one": "Unidad",
+                    "other": "Unidades"
+                  }
+                },
+                "qty_label": null,
+                "is_recommended": false,
+                "is_hidden": false,
+                "category_id": "e74e6d2d-4a21-417e-b350-6bb0f2add877"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "block-4",
+        "categories": [
+          {
+            "id": "56aa5fa3-b7d6-48cf-8368-d0c341bdd486",
+            "name": "Bebidas",
+            "description": "",
+            "block_id": "block-4",
+            "products": [
+              {
+                "id": "dde4beef-06d3-46e8-95f0-bcda51a79c19",
+                "name": "Inca Kola",
+                "description": "",
+                "image": {
+                  "url": "",
+                  "alt": "Inca Kola — Sazón Digital"
+                },
+                "price": 4,
+                "price_range": null,
+                "qty_label": "600 ml",
+                "is_recommended": false,
+                "is_hidden": false,
+                "category_id": "56aa5fa3-b7d6-48cf-8368-d0c341bdd486"
+              },
+              {
+                "id": "8a0d7d2a-ed83-4a6d-8834-9897eadd97fe",
+                "name": "Coca-Cola",
+                "description": "",
+                "image": {
+                  "url": "",
+                  "alt": "Coca-Cola — Sazón Digital"
+                },
+                "price": 4,
+                "price_range": null,
+                "qty_label": "600 ml",
+                "is_recommended": false,
+                "is_hidden": false,
+                "category_id": "56aa5fa3-b7d6-48cf-8368-d0c341bdd486"
+              },
+              {
+                "id": "ac082679-5584-4632-9683-94f1f125cda4",
+                "name": "Pepsi",
+                "description": "",
+                "image": {
+                  "url": "",
+                  "alt": "Pepsi — Sazón Digital"
+                },
+                "price": 2,
+                "price_range": null,
+                "qty_label": "350 ml",
+                "is_recommended": false,
+                "is_hidden": false,
+                "category_id": "56aa5fa3-b7d6-48cf-8368-d0c341bdd486"
+              },
+              {
+                "id": "a156cd15-5016-4548-9d16-c168514b156c",
+                "name": "Agua Cielo",
+                "description": "",
+                "image": {
+                  "url": "",
+                  "alt": "Agua Cielo — Sazón Digital"
+                },
+                "price": 3,
+                "price_range": null,
+                "qty_label": "500 ml",
+                "is_recommended": false,
+                "is_hidden": false,
+                "category_id": "56aa5fa3-b7d6-48cf-8368-d0c341bdd486"
+              },
+              {
+                "id": "46a2f770-3235-4999-bf20-4caa1cd9a8a8",
+                "name": "Gordita",
+                "description": "",
+                "image": {
+                  "url": "",
+                  "alt": "Gordita — Sazón Digital"
+                },
+                "price": 6,
+                "price_range": null,
+                "qty_label": null,
+                "is_recommended": false,
+                "is_hidden": false,
+                "category_id": "56aa5fa3-b7d6-48cf-8368-d0c341bdd486"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "block-5",
+        "categories": [
+          {
+            "id": "b9668118-9669-4854-b47a-7b62e8f81206",
+            "name": "Bebidas Chinas",
+            "description": "",
+            "block_id": "block-5",
+            "products": [
+              {
+                "id": "89c6f1f6-447f-41dd-aa4a-31a05b9f3780",
+                "name": "Bebidas china 1",
+                "description": "Latas importadas",
+                "image": {
+                  "url": "",
+                  "alt": "Bebidas china 1 — Sazón Digital"
+                },
+                "price": 3,
+                "price_range": null,
+                "qty_label": "lata",
+                "is_recommended": false,
+                "is_hidden": false,
+                "category_id": "b9668118-9669-4854-b47a-7b62e8f81206"
+              },
+              {
+                "id": "d120b142-1f34-4fa8-8e6e-3b4fa756fd3c",
+                "name": "Bebidas china 2",
+                "description": "Latas importadas",
+                "image": {
+                  "url": "",
+                  "alt": "Bebidas china 2 — Sazón Digital"
+                },
+                "price": 3,
+                "price_range": null,
+                "qty_label": "lata",
+                "is_recommended": false,
+                "is_hidden": false,
+                "category_id": "b9668118-9669-4854-b47a-7b62e8f81206"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "block-6",
+        "categories": [
+          {
+            "id": "192a2192-c9b8-4525-bf31-a529e3bbdf7d",
+            "name": "Cócteles",
+            "description": "",
+            "block_id": "block-6",
+            "products": [
+              {
+                "id": "88d0bdd0-b316-41c5-b762-9f245b3ae8c4",
+                "name": "Maracuyá",
+                "description": "Ginger, limón, pisco",
+                "image": {
+                  "url": "",
+                  "alt": "Maracuyá — Sazón Digital"
+                },
+                "price": 15,
+                "price_range": null,
+                "qty_label": "Vaso",
+                "is_recommended": false,
+                "is_hidden": false,
+                "category_id": "192a2192-c9b8-4525-bf31-a529e3bbdf7d"
+              },
+              {
+                "id": "f174c066-6f13-4c23-a773-db098bafb40c",
+                "name": "Limón",
+                "description": "Ginger, pisco, amargo de angostura, granadina.",
+                "image": {
+                  "url": "",
+                  "alt": "Limón — Sazón Digital"
+                },
+                "price": 15,
+                "price_range": null,
+                "qty_label": "Vaso",
+                "is_recommended": false,
+                "is_hidden": false,
+                "category_id": "192a2192-c9b8-4525-bf31-a529e3bbdf7d"
+              },
+              {
+                "id": "e003f8ef-e21b-41d9-9a11-7a7183fa823c",
+                "name": "La Peligrosa",
+                "description": "Maracuyá, limón, granadina, amargo de angostura, pisco.",
+                "image": {
+                  "url": "",
+                  "alt": "La Peligrosa — Sazón Digital"
+                },
+                "price": 15,
+                "price_range": null,
+                "qty_label": "Vaso",
+                "is_recommended": false,
+                "is_hidden": false,
+                "category_id": "192a2192-c9b8-4525-bf31-a529e3bbdf7d"
+              },
+              {
+                "id": "33b83ddd-8de4-48df-9355-2d15d9daed86",
+                "name": "Laguna Azul",
+                "description": "Curacao, amargo de angostura, pisco, ginger.",
+                "image": {
+                  "url": "",
+                  "alt": "Laguna Azul — Sazón Digital"
+                },
+                "price": 15,
+                "price_range": null,
+                "qty_label": "Vaso",
+                "is_recommended": false,
+                "is_hidden": false,
+                "category_id": "192a2192-c9b8-4525-bf31-a529e3bbdf7d"
+              },
+              {
+                "id": "25e74875-7289-4f3e-a7bb-3e2106069197",
+                "name": "Día y Noche",
+                "description": "Maracuyá, limón, curacao, pisco, amargo de angostura.",
+                "image": {
+                  "url": "",
+                  "alt": "Día y Noche — Sazón Digital"
+                },
+                "price": 15,
+                "price_range": null,
+                "qty_label": "Vaso",
+                "is_recommended": false,
+                "is_hidden": false,
+                "category_id": "192a2192-c9b8-4525-bf31-a529e3bbdf7d"
+              },
+              {
+                "id": "0d078535-04dc-4129-a8a6-7a39d014ffde",
+                "name": "A lo Salvaje",
+                "description": "Menta, maracuyá, pisco, limón, ginger, amargo de angostura.",
+                "image": {
+                  "url": "",
+                  "alt": "A lo Salvaje — Sazón Digital"
+                },
+                "price": 15,
+                "price_range": null,
+                "qty_label": "Vaso",
+                "is_recommended": false,
+                "is_hidden": false,
+                "category_id": "192a2192-c9b8-4525-bf31-a529e3bbdf7d"
+              },
+              {
+                "id": "fb83544d-e27e-4f64-a0f7-e2ee2e9bd368",
+                "name": "Machupichu",
+                "description": "Cóctel destacado.",
+                "image": {
+                  "url": "",
+                  "alt": "Machupichu — Sazón Digital"
+                },
+                "price": 15,
+                "price_range": null,
+                "qty_label": "Vaso",
+                "is_recommended": true,
+                "is_hidden": false,
+                "category_id": "192a2192-c9b8-4525-bf31-a529e3bbdf7d"
+              },
+              {
+                "id": "96acda7a-6105-4a85-b88d-6fdd2c05d760",
+                "name": "Cara y Sello",
+                "description": "Cóctel destacado",
+                "image": {
+                  "url": "",
+                  "alt": "Cara y Sello — Sazón Digital"
+                },
+                "price": 15,
+                "price_range": null,
+                "qty_label": "Vaso",
+                "is_recommended": true,
+                "is_hidden": false,
+                "category_id": "192a2192-c9b8-4525-bf31-a529e3bbdf7d"
+              },
+              {
+                "id": "14ca21ae-96ac-4341-913d-05359a5b3f72",
+                "name": "La Diabla",
+                "description": "Cóctel destacado",
+                "image": {
+                  "url": "",
+                  "alt": "La Diabla — Sazón Digital"
+                },
+                "price": 15,
+                "price_range": null,
+                "qty_label": "Vaso",
+                "is_recommended": true,
+                "is_hidden": false,
+                "category_id": "192a2192-c9b8-4525-bf31-a529e3bbdf7d"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

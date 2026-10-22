@@ -1,0 +1,165 @@
+---
+/**
+ * Home Hero section.
+ *
+ * Props:
+ *   restaurantName  — brand name
+ *   tagline         — SEO description / subtitle
+ *   isOpen          — boolean|null  (null = unknown)
+ *   openLabel       — "11:00 – 22:30" | null
+ *   whatsappUrl     — string | null
+ */
+import ArrowRight from "../icons/arrow-right.astro";
+import WhatsApp from "../icons/whatsapp.astro";
+
+const {
+  block,
+  restaurantName: fallbackName,
+  tagline: fallbackTagline,
+  isOpen = null,
+  openLabel = null,
+  whatsappUrl: fallbackWaUrl = null,
+} = Astro.props;
+
+const restaurantName = block?.title || fallbackName;
+const tagline = block?.tagline || fallbackTagline;
+const whatsappUrl = block?._resolved_whatsapp_href ?? fallbackWaUrl;
+const whatsappLabel = block?.cta_whatsapp?.label ?? "Pedir por WhatsApp";
+const showWhatsapp = block?.cta_whatsapp
+  ? block.cta_whatsapp.enabled !== false && !!whatsappUrl
+  : !!whatsappUrl;
+const menuHref = block?._resolved_menu_href ?? "/menu";
+const menuLabel = block?.cta_menu?.label ?? "Ver menú completo";
+const showMenu = block?.cta_menu ? block.cta_menu.enabled !== false : true;
+const showBadge = block?.show_hours_badge ?? true;
+---
+
+<section
+  class="relative flex flex-col items-center justify-center text-center px-6 pt-20 pb-16 sm:pt-28 sm:pb-24 overflow-hidden"
+>
+  <div class="relative z-10 max-w-3xl mx-auto space-y-6">
+    <!-- Brand headline -->
+    <h1
+      class="text-6xl md:text-8xl font-display text-white leading-none tracking-tighter"
+    >
+      {restaurantName}
+    </h1>
+
+    <p
+      class="text-lg md:text-xl text-primary-text/75 font-normal max-w-lg mx-auto leading-relaxed"
+    >
+      {tagline}
+    </p>
+
+    {
+      showBadge && isOpen !== null && (
+        <div
+          id="hero-hours-badge"
+          data-state={isOpen ? "open" : "closed"}
+          class="inline-flex items-center px-4 py-2 rounded-full border border-white/10 bg-white/5 text-xs font-bold tracking-wider uppercase"
+        >
+          {/* Both states are pre-rendered; the client script flips [hidden]
+              so no Tailwind display utility ever fights the hidden attribute. */}
+          <span data-part="open" hidden={isOpen !== true}>
+            <span class="inline-flex items-center gap-2.5 text-emerald-300">
+              <span class="relative flex h-2 w-2">
+                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-60" />
+                <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-400" />
+              </span>
+              Abierto
+              {openLabel && (
+                <span
+                  data-hours="open"
+                  class="text-primary-text/60 font-medium normal-case tracking-normal"
+                >
+                  {openLabel}
+                </span>
+              )}
+            </span>
+          </span>
+          <span data-part="closed" hidden={isOpen !== false}>
+            <span class="inline-flex items-center gap-2.5 text-red-300">
+              <span class="relative inline-flex rounded-full h-2 w-2 bg-red-400" />
+              Cerrado
+              {openLabel && (
+                <span
+                  data-hours="closed"
+                  class="text-primary-text/60 font-medium normal-case tracking-normal"
+                >
+                  {openLabel}
+                </span>
+              )}
+            </span>
+          </span>
+        </div>
+      )
+    }
+
+    <!-- Dual CTA -->
+    <div class="flex flex-col sm:flex-row gap-3 justify-center pt-2">
+      {
+        showWhatsapp && whatsappUrl && (
+          <a
+            href={whatsappUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            id="hero-whatsapp-cta"
+            class="group inline-flex items-center justify-center gap-2.5 px-7 py-3.5 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-bold rounded-2xl shadow-[0_8px_24px_rgba(16,185,129,0.3)] hover:shadow-[0_12px_30px_rgba(16,185,129,0.4)] hover:scale-[1.03] active:scale-[0.97] transition-all duration-200"
+          >
+            <WhatsApp class="w-5 h-5" />
+            {whatsappLabel}
+          </a>
+        )
+      }
+      {
+        showMenu && (
+          <a
+            href={menuHref}
+            id="hero-menu-cta"
+            class="group inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-white/5 hover:bg-white/10 border border-white/15 hover:border-primary/50 text-white text-sm font-bold rounded-2xl hover:scale-[1.03] active:scale-[0.97] transition-all duration-200"
+          >
+            {menuLabel}
+            <ArrowRight class="w-4 h-4 transition-transform group-hover:translate-x-1" />
+          </a>
+        )
+      }
+    </div>
+  </div>
+</section>
+
+<script>
+  import { readBusinessHours } from "../utils/dom";
+  import { isOpenAt, weekDayKey } from "../services/business-hours.service.js";
+
+  // Static build: the badge ships with the build-time state. Recompute it
+  // against the visitor's clock on load and every minute (closing time
+  // passes while the tab stays open).
+  const badge = document.getElementById("hero-hours-badge");
+  const hours = readBusinessHours();
+
+  if (badge && hours) {
+    const openPart = badge.querySelector('[data-part="open"]');
+    const closedPart = badge.querySelector('[data-part="closed"]');
+    const openHours = badge.querySelector('[data-hours="open"]');
+    const closedHours = badge.querySelector('[data-hours="closed"]');
+
+    const refresh = () => {
+      const now = new Date();
+      const open = isOpenAt(hours, now);
+      const today = hours[weekDayKey(now)];
+      const label =
+        today?.isOpen && today.open && today.close
+          ? `${today.open} – ${today.close}`
+          : "";
+
+      if (openPart instanceof HTMLElement) openPart.hidden = !open;
+      if (closedPart instanceof HTMLElement) closedPart.hidden = open;
+      if (openHours) openHours.textContent = label;
+      if (closedHours) closedHours.textContent = label;
+      badge.dataset.state = open ? "open" : "closed";
+    };
+
+    refresh();
+    window.setInterval(refresh, 60_000);
+  }
+</script>

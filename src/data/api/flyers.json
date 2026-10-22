@@ -1,0 +1,14 @@
+{
+  "enabled": true,
+  "delay_seconds": 3,
+  "show_once_per_session": true,
+  "items": [
+    {
+      "id": "flyer-promocion",
+      "title": "Sábado de Promo",
+      "image": "https://picsum.photos/seed/promo_cffb90df-8bdd-4e74-8191-e8da455ec5d0/800/600",
+      "link": "#category-cffb90df-8bdd-4e74-8191-e8da455ec5d0",
+      "alt": "Sábado de Promo — 4 piezas de tus makis favoritos"
+    }
+  ]
+}

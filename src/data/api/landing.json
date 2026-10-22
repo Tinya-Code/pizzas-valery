@@ -1,0 +1,123 @@
+{
+  "meta": {
+    "title": "SAZÓN DIGITAL",
+    "tagline": "Tu carta digital en línea: menú, combos, promociones y reservas."
+  },
+  "blocks": [
+    {
+      "id": "hero-main",
+      "type": "hero",
+      "enabled": true,
+      "title": null,
+      "tagline": null,
+      "show_hours_badge": true,
+      "cta_whatsapp": {
+        "enabled": true,
+        "label": "Pedir por WhatsApp",
+        "href": "whatsapp",
+        "message": "Hola, quiero hacer un pedido 🍱"
+      },
+      "cta_menu": {
+        "enabled": true,
+        "label": "Ver menú completo",
+        "href": "/menu"
+      }
+    },
+    {
+      "id": "promotions-strip",
+      "type": "promotions",
+      "enabled": true,
+      "title": "Promociones",
+      "badge": "Ofertas",
+      "max_items": 4,
+      "see_all_label": "Ver todas",
+      "see_all_href": "/menu"
+    },
+    {
+      "id": "recommended-strip",
+      "type": "recommended",
+      "enabled": true,
+      "title": "Recomendados",
+      "badge": "Lo mejor",
+      "max_items": 10,
+      "see_all_label": "Ver menú",
+      "see_all_href": "/menu"
+    },
+    {
+      "id": "featured-media",
+      "type": "media",
+      "enabled": true,
+      "title": "Destacados",
+      "badge": "Novedades",
+      "items": [
+        {
+          "id": "banner-promo-sabado",
+          "type": "banner",
+          "enabled": true,
+          "layout": "full",
+          "image_url": "https://picsum.photos/seed/promo_cffb90df-8bdd-4e74-8191-e8da455ec5d0/800/600",
+          "alt": "Sábado de Promo — Sazón Digital",
+          "title": "¡Sábado de Promo!",
+          "description": "4 piezas de tus makis favoritos al mejor precio. Solo los sábados.",
+          "min_height": "260px",
+          "cta_label": "Pedir ahora",
+          "cta_href": "whatsapp",
+          "cta_message": "Hola, quiero el Combo Sábado de Promo",
+          "cta_target": "_blank"
+        },
+        {
+          "id": "flyer-makilovers",
+          "type": "flyer",
+          "enabled": true,
+          "layout": "half",
+          "image_url": "https://picsum.photos/seed/promo_40d7da13-a42e-4543-aa3f-ec423feaa719/800/600",
+          "alt": "Makilovers — 12 cortes + 6 Ebi furai",
+          "href": "whatsapp",
+          "message": "Hola, quiero el Makilovers",
+          "target": "_blank"
+        },
+        {
+          "id": "video-preparacion",
+          "type": "video",
+          "enabled": true,
+          "layout": "half",
+          "provider": "youtube",
+          "video_id": "dQw4w9WgXcQ",
+          "title": "Cómo preparamos nuestros rolls",
+          "caption": "Proceso artesanal de nuestras piezas."
+        }
+      ]
+    },
+    {
+      "id": "home-navigation",
+      "type": "nav-cards",
+      "enabled": true,
+      "cards": [
+        {
+          "id": "card-menu",
+          "icon": "utensils",
+          "title": "Ver menú",
+          "description": "Explorá nuestra carta completa de makis, combos especiales y promociones.",
+          "cta_label": "Explorar carta",
+          "href": "/menu"
+        },
+        {
+          "id": "card-galeria",
+          "icon": "images",
+          "title": "Galería",
+          "description": "Descubrí cada plato y la presentación artesanal de nuestras variedades.",
+          "cta_label": "Ver fotos",
+          "href": "/galeria"
+        },
+        {
+          "id": "card-contacto",
+          "icon": "share-2",
+          "title": "Contacto",
+          "description": "Pedidos por WhatsApp, redes sociales, horarios y ubicación en mapa.",
+          "cta_label": "Contactar",
+          "href": "/enlaces"
+        }
+      ]
+    }
+  ]
+}

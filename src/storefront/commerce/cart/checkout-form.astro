@@ -1,0 +1,252 @@
+---
+/**
+ * CheckoutForm — the "order details" step of the sidebar cart.
+ *
+ * Port of Angular `src/app/components/checkout-form/*`. There is no backend
+ * step: on submit it validates the fields, persists the name/address and opens
+ * WhatsApp with the very same message the Angular component built.
+ *
+ * Server-side it only renders the static shape: the page resolves the settings
+ * and passes them as props (F5), while validation, persistence and the
+ * WhatsApp hand-off happen in the script below from `data-*` attributes.
+ */
+import MessageCircle from '../../icons/message-circle.astro';
+import Banknote from '../../icons/banknote.astro';
+import CreditCard from '../../icons/credit-card.astro';
+import Smartphone from '../../icons/smartphone.astro';
+import { OrderMessage } from '../../utils/whatsapp.js';
+import type { RestaurantSettings } from '../../types/menu';
+
+interface Props {
+  settings?: RestaurantSettings | null;
+}
+
+const { settings = null } = Astro.props;
+
+const deliveryEnabled = settings?.delivery?.enabled ?? true;
+const paymentMethods: string[] = settings?.payment_methods ?? [];
+
+const PAYMENT_ICONS: Record<string, typeof CreditCard> = {
+  cash: Banknote,
+  efectivo: Banknote,
+  card: CreditCard,
+  tarjeta: CreditCard,
+  yape: Smartphone,
+  plin: Smartphone,
+};
+
+const PAYMENT_COLORS: Record<string, string> = {
+  yape: '#742284',
+  plin: '#00d4d8',
+  cash: '#22c55e',
+  efectivo: '#22c55e',
+};
+
+const fieldClass =
+  'w-full font-body bg-gray-100 border border-primary/20 rounded-sm px-4 py-3 text-sm transition-all focus:outline-none focus:ring-2 focus:ring-primary/40 focus:bg-secondary/50';
+---
+
+<form
+  data-checkout-form
+  data-delivery-enabled={String(deliveryEnabled)}
+  data-whatsapp={settings?.whatsapp?.number ?? ''}
+  data-whatsapp-template={settings?.whatsapp?.message_template ?? ''}
+  class="space-y-4 p-2"
+  novalidate
+>
+  <!-- Name -->
+  <div class="flex flex-col gap-1">
+    <label class="text-sm font-display text-secondary mb-1" for="checkout-name">Nombre Completo</label>
+    <input
+      id="checkout-name"
+      data-checkout-name
+      type="text"
+      name="name"
+      autocomplete="name"
+      placeholder="¿Cómo te llamas?"
+      class={fieldClass}
+    />
+    <div data-error-name hidden class="text-xs text-red-500 mt-1 ml-1">El nombre es obligatorio</div>
+  </div>
+
+  {
+    deliveryEnabled && (
+      <div class="flex flex-col gap-1">
+        <label class="text-sm font-display text-secondary mb-1" for="checkout-address">
+          Dirección de Entrega
+        </label>
+        <input
+          id="checkout-address"
+          data-checkout-address
+          type="text"
+          name="address"
+          autocomplete="street-address"
+          placeholder="Ej: Av. Los Olivos 123"
+          class={fieldClass}
+        />
+        <div data-error-address hidden class="text-xs text-red-500 mt-1 ml-1">
+          La dirección es obligatoria
+        </div>
+      </div>
+    )
+  }
+
+  <!-- Payment method -->
+  <div class="flex flex-col gap-1">
+    <label class="text-sm font-display text-secondary mb-2">Método de Pago</label>
+    <div class="grid grid-cols-2 gap-3">
+      {
+        paymentMethods.map((method) => {
+          const color = PAYMENT_COLORS[method] ?? 'var(--color-primary)';
+          const PaymentIcon = PAYMENT_ICONS[method] ?? CreditCard;
+          return (
+            <label
+              data-payment-option={method}
+              class="relative flex flex-col items-center justify-center p-4 rounded-sm border-2 transition-all cursor-pointer group border-primary/10 hover:border-primary/30"
+            >
+              <input
+                type="radio"
+                name="paymentMethod"
+                value={method}
+                data-payment-input
+                class="absolute opacity-0"
+              />
+              <div
+                class="w-10 h-10 rounded-full flex items-center justify-center mb-2 transition-transform group-hover:scale-110"
+                style={`background-color:${color}20;color:${color}`}
+              >
+                <PaymentIcon class="w-6 h-6" />
+              </div>
+              <span class="text-xs font-black uppercase tracking-tighter">
+                {OrderMessage.paymentLabel(method)}
+              </span>
+            </label>
+          );
+        })
+      }
+    </div>
+
+    <div data-error-payment hidden class="text-xs text-red-500 mt-2 ml-1 flex items-center gap-1">
+      <span class="w-1 h-1 bg-red-500 rounded-full"></span>
+      Selecciona un método de pago
+    </div>
+  </div>
+
+  <button
+    type="submit"
+    data-checkout-submit
+    disabled
+    class="w-full bg-green-600 text-white font-display py-4 rounded-sm flex items-center justify-center gap-2 transition-all active:scale-95 disabled:bg-transparent disabled:text-secondary/40 disabled:border-2 border-gray-100 disabled:cursor-not-allowed mt-6"
+  >
+    <MessageCircle class="w-5 h-5" />
+    <span>PEDIR POR WHATSAPP</span>
+  </button>
+</form>
+
+<script>
+  import { cartService } from '../../services/cart.service.js';
+  import { isOpenAt } from '../../services/business-hours.service.js';
+  import { OrderMessage } from '../../utils/whatsapp.js';
+  import { readBusinessHours } from '../../utils/dom';
+  import { local } from '../../utils/local-storage.js';
+
+  const STORAGE_KEYS = { NAME: 'user_name', ADDRESS: 'user_address' };
+  const MIN_NAME = 3;
+  const MIN_ADDRESS = 5;
+
+  const form = document.querySelector<HTMLFormElement>('[data-checkout-form]');
+  if (form) {
+    // Everything this form needs (`settings` → WhatsApp number/template, the
+    // delivery flag and the hours) is page-rendered data: the form attributes
+    // plus `#business-hours-data` (F5), so there is nothing to await.
+    init(form);
+  }
+
+  function init(form: HTMLFormElement) {
+    const nameInput = form.querySelector<HTMLInputElement>('[data-checkout-name]');
+    const addressInput = form.querySelector<HTMLInputElement>('[data-checkout-address]');
+    const errorName = form.querySelector<HTMLElement>('[data-error-name]');
+    const errorAddress = form.querySelector<HTMLElement>('[data-error-address]');
+    const errorPayment = form.querySelector<HTMLElement>('[data-error-payment]');
+    const submit = form.querySelector<HTMLButtonElement>('[data-checkout-submit]');
+
+    // Restore the previous customer data, like Angular `ngOnInit`.
+    const savedName = local.get<string>(STORAGE_KEYS.NAME);
+    const savedAddress = local.get<string>(STORAGE_KEYS.ADDRESS);
+    if (savedName && nameInput) nameInput.value = savedName;
+    if (savedAddress && addressInput) addressInput.value = savedAddress;
+
+    const deliveryEnabled = form.dataset.deliveryEnabled === 'true';
+
+    const selectedPayment = () =>
+      form.querySelector<HTMLInputElement>('[data-payment-input]:checked')?.value ?? '';
+
+    /** Enable the submit button only when every rule from Angular holds. */
+    const validate = () => {
+      const name = (nameInput?.value ?? '').trim();
+      const address = (addressInput?.value ?? '').trim();
+      const payment = selectedPayment();
+
+      const nameOk = name.length >= MIN_NAME;
+      const addressOk = !deliveryEnabled || address.length >= MIN_ADDRESS;
+      const paymentOk = payment !== '';
+
+      if (submit) submit.disabled = !(nameOk && addressOk && paymentOk);
+
+      return { name, address, payment, nameOk, addressOk, paymentOk };
+    };
+
+    form.addEventListener('input', validate);
+    form.addEventListener('change', (event) => {
+      const target = event.target instanceof Element ? event.target : null;
+      const option = target?.closest<HTMLElement>('[data-payment-option]');
+      if (option) {
+        form.querySelectorAll('[data-payment-option]').forEach((node) => {
+          node.classList.remove('border-primary', 'bg-primary/5');
+          node.classList.add('border-primary/10');
+        });
+        option.classList.remove('border-primary/10');
+        option.classList.add('border-primary', 'bg-primary/5');
+      }
+      validate();
+    });
+
+    // Prefill highlight when a payment was restored (none is persisted).
+    validate();
+
+    form.addEventListener('submit', (event) => {
+      event.preventDefault();
+
+      const { name, address, payment, nameOk, addressOk, paymentOk } = validate();
+
+      if (errorName) errorName.hidden = nameOk;
+      if (errorAddress) errorAddress.hidden = addressOk;
+      if (errorPayment) errorPayment.hidden = paymentOk;
+      if (!nameOk || !addressOk || !paymentOk) return;
+
+      if (cartService.isEmpty) return;
+
+      if (!isOpenAt(readBusinessHours())) {
+        cartService.showBusinessClosedModal();
+        return;
+      }
+
+      const phoneNumber = form.dataset.whatsapp;
+      if (!phoneNumber) return;
+
+      local.set(STORAGE_KEYS.NAME, name);
+      if (deliveryEnabled) local.set(STORAGE_KEYS.ADDRESS, address);
+
+      const { subtotal, deliveryFee, total, items } = cartService.snapshot;
+
+      new OrderMessage({
+        template: form.dataset.whatsappTemplate || 'Hola, me gustaría ordenar:',
+        deliveryEnabled,
+      })
+        .withItems(items)
+        .withTotals({ subtotal, deliveryFee, total })
+        .withCustomer({ name, address, paymentMethod: payment })
+        .open(phoneNumber);
+    });
+  }
+</script>

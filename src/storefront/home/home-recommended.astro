@@ -1,0 +1,80 @@
+---
+/**
+ * Home — Recommended products horizontal scroll.
+ *
+ * Props:
+ *   products — array of MenuProduct objects
+ */
+import ArrowRight from '../icons/arrow-right.astro';
+import Utensils from '../icons/utensils.astro';
+
+const {
+  block,
+  products: fallbackProducts = [],
+} = Astro.props;
+
+const products = block?._products ?? fallbackProducts;
+const title = block?.title ?? 'Recomendados';
+const badge = block?.badge ?? 'Lo mejor';
+const seeAllLabel = block?.see_all_label ?? 'Ver menú';
+const seeAllHref = block?.see_all_href ?? '/menu';
+
+function formatPrice(p) {
+  return `S/ ${Number(p).toFixed(0)}`;
+}
+---
+
+{products.length > 0 && (
+  <section class="pb-16 sm:pb-24" id={block?.id ?? "home-recommended"}>
+    <div class="max-w-5xl mx-auto space-y-8">
+      <div class="px-6 flex items-end justify-between">
+        <div>
+          {badge && <p class="text-xs font-semibold text-primary uppercase tracking-widest mb-1">{badge}</p>}
+          <h2 class="text-3xl sm:text-4xl font-display text-white leading-tight">
+            {title}<span class="text-primary">.</span>
+          </h2>
+        </div>
+        {seeAllHref && (
+          <a href={seeAllHref} class="text-sm text-primary font-semibold hover:underline underline-offset-2 hidden sm:flex items-center gap-1">
+            {seeAllLabel} <ArrowRight class="w-3.5 h-3.5" />
+          </a>
+        )}
+      </div>
+
+      <div
+        class="flex gap-4 overflow-x-auto px-6 pb-2 snap-x snap-mandatory scroll-smooth"
+        style="scrollbar-width: none; -ms-overflow-style: none;"
+      >
+        {products.map((product) => (
+          <a
+            href="/menu"
+            class="group flex-shrink-0 w-44 snap-start rounded-2xl border border-white/8 bg-surface/5 overflow-hidden hover:border-primary/40 hover:scale-[1.03] transition-all duration-200"
+          >
+            <div class="w-full h-32 overflow-hidden bg-white/5">
+              {product.image?.url ? (
+                <img
+                  src={product.image.url}
+                  alt={product.image.alt ?? product.name}
+                  class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-400"
+                  loading="lazy"
+                />
+              ) : (
+                <div class="w-full h-full flex items-center justify-center text-primary/20">
+                  <Utensils class="w-8 h-8" />
+                </div>
+              )}
+            </div>
+            <div class="p-3 space-y-1">
+              <p class="text-sm font-semibold text-white line-clamp-2 leading-tight">{product.name}</p>
+              {(product.price_range?.min_price ?? product.price) > 0 && (
+                <p class="text-xs text-primary font-bold">
+                  desde {formatPrice(product.price_range?.min_price ?? product.price)}
+                </p>
+              )}
+            </div>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+)}

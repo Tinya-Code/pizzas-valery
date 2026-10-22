@@ -1,0 +1,52 @@
+---
+/**
+ * Block: video
+ * Embeds a video from YouTube, TikTok, or Facebook via iframe.
+ * Supports autoplay + muted controls.
+ */
+const { block } = Astro.props;
+const { title, provider, video_id, autoplay, muted, caption, id } = block;
+
+function buildSrc(provider, videoId, autoplay, muted) {
+  const auto = autoplay ? 1 : 0;
+  const muteParam = muted ? 1 : 0;
+
+  switch (provider) {
+    case 'youtube':
+      return `https://www.youtube.com/embed/${videoId}?rel=0&autoplay=${auto}&mute=${muteParam}&modestbranding=1`;
+    case 'tiktok':
+      // TikTok embed uses a different format
+      return `https://www.tiktok.com/embed/v2/${videoId}`;
+    case 'facebook':
+      // Facebook video embed
+      return `https://www.facebook.com/plugins/video.php?href=https%3A%2F%2Fwww.facebook.com%2Fvideo%2F${videoId}&autoplay=${auto}&mute=${muteParam}`;
+    default:
+      return null;
+  }
+}
+
+const src = buildSrc(provider, video_id, autoplay, muted);
+const providerLabel = { youtube: 'YouTube', tiktok: 'TikTok', facebook: 'Facebook' }[provider] ?? provider;
+---
+
+{src && (
+  <div data-block-video={id} class="space-y-2">
+    {title && (
+      <h2 class="text-base font-bold text-white px-0.5">{title}</h2>
+    )}
+    <div class="relative w-full rounded-2xl overflow-hidden border border-white/10 bg-black/30" style="padding-top: 56.25%;">
+      <iframe
+        src={src}
+        title={title ?? `${providerLabel} video`}
+        class="absolute inset-0 w-full h-full"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowfullscreen
+        loading="lazy"
+        frameborder="0"
+      />
+    </div>
+    {caption && (
+      <p class="text-xs text-primary-text/50 px-0.5 leading-relaxed">{caption}</p>
+    )}
+  </div>
+)}

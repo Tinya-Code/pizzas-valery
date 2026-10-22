@@ -1,0 +1,68 @@
+---
+/**
+ * Block: gallery-grid
+ * Compact masonry-style grid preview of gallery items with a CTA to /galeria.
+ */
+const { block } = Astro.props;
+const { title, resolved_cta_href, cta_label, _gallery: items = [], id } = block;
+---
+
+<div data-block-gallery-grid={id} class="space-y-3">
+  {title && (
+    <div class="flex items-center justify-between px-0.5">
+      <h2 class="text-base font-bold text-white">{title}</h2>
+      {resolved_cta_href && cta_label && (
+        <a href={resolved_cta_href} class="text-xs text-primary font-semibold hover:underline underline-offset-2">
+          {cta_label} →
+        </a>
+      )}
+    </div>
+  )}
+
+  {items.length > 0 ? (
+    <div class="grid grid-cols-3 gap-1.5">
+      {items.map((item) => (
+        <a
+          href={resolved_cta_href ?? '/galeria'}
+          class="group relative aspect-square rounded-xl overflow-hidden bg-white/5 border border-white/8 hover:border-primary/40 transition-all duration-200"
+        >
+          {item.type === 'image' && item.url && (
+            <img
+              src={item.url}
+              alt={item.alt ?? item.title ?? ''}
+              class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+              loading="lazy"
+            />
+          )}
+          {(item.type === 'video' || item.type === 'iframe') && (
+            <div class="w-full h-full flex items-center justify-center bg-black/40">
+              {item.thumbnail_url ? (
+                <img
+                  src={item.thumbnail_url}
+                  alt={item.title ?? ''}
+                  class="absolute inset-0 w-full h-full object-cover"
+                  loading="lazy"
+                />
+              ) : (
+                <svg class="w-8 h-8 text-white/30" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M8 5v14l11-7z"/>
+                </svg>
+              )}
+              <div class="absolute inset-0 flex items-center justify-center">
+                <div class="w-10 h-10 rounded-full bg-black/60 flex items-center justify-center backdrop-blur-sm">
+                  <svg class="w-5 h-5 text-white ml-0.5" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M8 5v14l11-7z"/>
+                  </svg>
+                </div>
+              </div>
+            </div>
+          )}
+          {/* Hover overlay */}
+          <div class="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-200 pointer-events-none" />
+        </a>
+      ))}
+    </div>
+  ) : (
+    <p class="text-xs text-primary-text/40 italic px-0.5">No hay elementos de galería.</p>
+  )}
+</div>

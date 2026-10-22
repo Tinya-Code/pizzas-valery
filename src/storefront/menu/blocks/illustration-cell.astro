@@ -1,0 +1,60 @@
+---
+/**
+ * IllustrationCell — decorative image cell rendered alongside a block's
+ * category cards (the "Postres" cell of block-7).
+ *
+ * The caller resolves the illustration list (service data + fallbacks) and
+ * passes it in; this component only renders it: an image list plus a label,
+ * laid out with the same grid classes the Angular `getImageGridClass()`
+ * produced. It knows nothing about blocks, ids or services — drop it into any
+ * MenuBlock slot (`extra`, `decoration-left`, …).
+ *
+ * Props:
+ * - `images` — illustration entries (`{ url }`), default `[]`
+ * - `label`  — caption under the images, default `'Postres'`
+ *
+ * Note: the wrapper spans both grid columns when the image list is even
+ * (Angular balanced the cell against the block's category count; a slot
+ * cell can't see categories, so it balances against its own list).
+ */
+interface Props {
+  images?: { url?: string }[];
+  label?: string;
+}
+
+const { images = [], label = 'Postres' } = Astro.props;
+
+/** Ported verbatim from the Angular `getImageGridClass()`. */
+function getImageGridClass(count: number): string {
+  if (count === 1) return 'flex flex-row justify-center items-center gap-4';
+  if (count === 2) return 'flex flex-row md:flex-col justify-center items-center gap-4';
+  return 'grid grid-cols-1 md:grid-cols-2 gap-4';
+}
+
+/** Spans both columns when the number of images is even, like Angular. */
+const isEven = images.length % 2 === 0;
+const illustrationClass = [
+  'flex justify-center items-center p-4 bg-secondary-muted rounded-sm self-stretch',
+  isEven ? 'md:col-span-2' : 'md:h-full',
+].join(' ');
+---
+
+{
+  images.length > 0 && (
+    <div class={illustrationClass}>
+      <div class="flex flex-col w-full items-center text-center">
+        <ul class={getImageGridClass(images.length)}>
+          {images.map((img) => (
+            <li>
+              <img src={img?.url} alt="Imagen" class="w-full md:w-100 h-auto mb-4" />
+            </li>
+          ))}
+        </ul>
+
+        <p class="text-sm font-bungee text-accent object-cover uppercase tracking-widest">
+          {label}
+        </p>
+      </div>
+    </div>
+  )
+}

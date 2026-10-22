@@ -1,0 +1,37 @@
+---
+/**
+ * `trash-2` icon — Lucide geometry (24×24). One component per glyph, so consumers
+ * import exactly the icon they use instead of a name-based dispatcher.
+ *
+ * Props:
+ * - `class` — sizing / colouring classes applied to the `<svg>`
+ * - any extra attribute (`aria-label`, `data-*`, …) is forwarded to the `<svg>`
+ */
+interface Props {
+  class?: string;
+  [key: string]: unknown;
+}
+
+const { class: className, ...attrs } = Astro.props;
+---
+
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  width="24"
+  height="24"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+  aria-hidden="true"
+  class={className}
+  {...attrs}
+>
+  <path d="M3 6h18"/>
+  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/>
+  <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+  <line x1="10" x2="10" y1="11" y2="17"/>
+  <line x1="14" x2="14" y1="11" y2="17"/>
+</svg>

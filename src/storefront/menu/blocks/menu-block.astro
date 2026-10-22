@@ -1,0 +1,147 @@
+---
+/**
+ * MenuBlock — generic skeleton for one menu section.
+ *
+ * Zero block-specific knowledge: grid classes, section attributes and
+ * decoration markup all arrive from the caller (props + NAMED SLOTS). The
+ * component owns only the shared skeleton (category sections + cards) and
+ * the client-side animation bootstrap.
+ *
+ * Props:
+ * - `categories`      — categories rendered as sections; when empty the
+ *                       block renders NOTHING (rendering guard).
+ * - `sectionAttrs`    — extra section attributes (e.g. `data-block-1`,
+ *                       `data-maki-urls` for the client-side maki rail).
+ * - `outerClass` / `cardsClass` / `categorySectionClass` — per-block grids
+ * - `canOrder`         — card flag the page resolves once (F5)
+ *
+ * Named slots:
+ * - `decoration-left`  — grid cell(s) BEFORE the categories
+ * - `decoration-right` — grid cell(s) AFTER the categories
+ * - `extra`            — extra grid cell(s) after the decorations
+ * - `card`             — per-product design override (function child
+ *                        receiving `(product, canOrder)`); falls back to
+ *                        TemplateCard per product
+ * - default            — content at the end of the section
+ */
+import TemplateCard from '../cards/template-card.astro';
+import TemplateSectionTitle from '../template-section-title.astro';
+import DecorationRenderer from './decoration-renderer.astro';
+import type { MenuCategory, DecorationItem, RailDecorationItem } from '../../types/menu';
+
+interface Props {
+  categories?: MenuCategory[];
+  decorations?: DecorationItem[];
+  sectionAttrs?: Record<string, string>;
+  outerClass?: string;
+  cardsClass?: string;
+  categorySectionClass?: string;
+  canOrder?: boolean;
+}
+
+const {
+  categories = [],
+  decorations = [],
+  sectionAttrs = {},
+  outerClass = '',
+  cardsClass = '',
+  categorySectionClass = '',
+  canOrder = true,
+} = Astro.props;
+
+const leftDecorations = decorations.filter((d) => d.slot === 'left');
+const rightDecorations = decorations.filter((d) => d.slot === 'right');
+const extraDecorations = decorations.filter((d) => d.slot === 'extra');
+
+const railItem = decorations.find((d) => d.type === 'rail') as RailDecorationItem | undefined;
+const resolvedSectionAttrs = {
+  ...sectionAttrs,
+  ...(railItem && !sectionAttrs['data-maki-urls']
+    ? { 'data-maki-urls': JSON.stringify(railItem.items ?? []) }
+    : {}),
+};
+
+const hasLeft = Astro.slots.has('decoration-left') || leftDecorations.length > 0;
+const hasRight = Astro.slots.has('decoration-right') || rightDecorations.length > 0;
+const hasDecorations = hasLeft || hasRight;
+const hasCustomSlot = Astro.slots.has('default');
+
+// Per-product override: render the `card` function-child once per product.
+const customCards = new Map<string, string>();
+if (Astro.slots.has('card')) {
+  for (const cat of categories) {
+    for (const product of cat.products ?? []) {
+      customCards.set(
+        `${cat.id}:${product.id}`,
+        await Astro.slots.render('card', [product, canOrder]),
+      );
+    }
+  }
+}
+---
+
+{
+  (categories.length > 0 || hasCustomSlot) && (
+    <section
+      {...resolvedSectionAttrs}
+      class={`relative py-12 px-8${hasDecorations ? ' overflow-hidden' : ''}`}
+    >
+      <div class={`grid ${outerClass}`}>
+        {Astro.slots.has('decoration-left') ? (
+          <slot name="decoration-left" />
+        ) : (
+          leftDecorations.length > 0 && <DecorationRenderer items={leftDecorations} />
+        )}
+
+        {categories.map((cat) => (
+          <section
+            id={`category-${cat.id}`}
+            class={`flex flex-col scroll-mt-[140px] ${categorySectionClass}`.trim()}
+          >
+            <TemplateSectionTitle title={cat.name ?? ''} description={cat.description || ''} />
+
+            <div class={`grid ${cardsClass}`}>
+              {(cat.products ?? []).map((product) => {
+                const html = customCards.get(`${cat.id}:${product.id}`);
+                return html !== undefined ? (
+                  <Fragment set:html={html} />
+                ) : (
+                  <TemplateCard product={product} canOrder={canOrder} />
+                );
+              })}
+            </div>
+          </section>
+        ))}
+
+        {Astro.slots.has('decoration-right') ? (
+          <slot name="decoration-right" />
+        ) : (
+          rightDecorations.length > 0 && <DecorationRenderer items={rightDecorations} />
+        )}
+
+        {Astro.slots.has('extra') ? (
+          <slot name="extra" />
+        ) : (
+          extraDecorations.length > 0 && <DecorationRenderer items={extraDecorations} />
+        )}
+      </div>
+
+      <slot />
+    </section>
+  )
+}
+
+<script>
+  import { initAnimations } from '../../scripts/animations';
+
+  const initAll = () => initAnimations(document);
+
+  // Wait for full paint so images have real offsetHeight before calculating.
+  if (document.readyState === 'complete') {
+    initAll();
+  } else {
+    window.addEventListener('load', initAll, { once: true });
+  }
+  // Covers Astro's client-side navigation as well as the initial render.
+  document.addEventListener('astro:page-load', initAll);
+</script>

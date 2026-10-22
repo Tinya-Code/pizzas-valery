@@ -1,0 +1,46 @@
+---
+/**
+ * TemplateComboCard — combo design router.
+ *
+ * States (price range is not a combo concept, so only image drives dispatch):
+ *   flat-with-image → ComboCard (default)
+ *   flat-no-image   → ComboCard (default)
+ *
+ * Every design owns its root + the CLIENT CONTRACT `data-combo-card`,
+ * `data-combo` — the page's click delegation reads it (a combo never opens
+ * the product dialog). A custom design MUST carry both.
+ *
+ * Override per block (function children):
+ *
+ *   <TemplateComboCard combo={combo} canOrder={canOrder}>
+ *     <fragment slot="flat-with-image">
+ *       {(combo, canOrder) => <MyComboCard combo={combo} canOrder={canOrder} />}
+ *     </fragment>
+ *   </TemplateComboCard>
+ *
+ * Swap a default globally: change the import + fallback below (one line).
+ */
+import ComboCard from './combo-card.astro';
+import type { Combo } from '../../types/menu';
+
+interface Props {
+  combo: Combo;
+  canOrder?: boolean;
+}
+
+const { combo, canOrder = true } = Astro.props;
+
+const designSlot = combo.image?.url ? 'flat-with-image' : 'flat-no-image';
+
+const customHtml = Astro.slots.has(designSlot)
+  ? await Astro.slots.render(designSlot, [combo, canOrder])
+  : null;
+---
+
+{
+  customHtml !== null ? (
+    <Fragment set:html={customHtml} />
+  ) : (
+    <ComboCard combo={combo} canOrder={canOrder} />
+  )
+}

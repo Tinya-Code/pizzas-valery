@@ -1,0 +1,54 @@
+---
+/**
+ * Block: banner
+ * A highlighted promotional band with optional image, title, description, and CTA.
+ */
+const { block } = Astro.props;
+const { title, description, image_url, cta_label, resolved_cta_href, accent, id } = block;
+const accentColor = accent ?? '#ef4444';
+---
+
+<div
+  data-block-banner={id}
+  class="relative overflow-hidden rounded-2xl border border-white/10 p-5 flex flex-col gap-3"
+  style={`background: linear-gradient(135deg, ${accentColor}22 0%, ${accentColor}08 100%); border-color: ${accentColor}33;`}
+>
+  {/* Decorative glow */}
+  <div
+    class="absolute -top-12 -right-12 w-40 h-40 rounded-full blur-3xl opacity-20 pointer-events-none"
+    style={`background: ${accentColor};`}
+  />
+
+  {image_url && (
+    <img
+      src={image_url}
+      alt={title}
+      class="w-full h-36 object-cover rounded-xl mb-1"
+      loading="lazy"
+    />
+  )}
+
+  <div class="relative z-10 space-y-1">
+    {title && (
+      <p class="text-base font-bold text-white leading-tight">{title}</p>
+    )}
+    {description && (
+      <p class="text-sm text-primary-text/70 leading-relaxed">{description}</p>
+    )}
+  </div>
+
+  {resolved_cta_href && cta_label && (
+    <a
+      href={resolved_cta_href}
+      target="_blank"
+      rel="noopener noreferrer"
+      class="relative z-10 inline-flex items-center gap-2 self-start mt-1 px-4 py-2 rounded-xl text-sm font-semibold text-white transition-all duration-200 hover:scale-105 active:scale-95"
+      style={`background: ${accentColor};`}
+    >
+      {cta_label}
+      <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M7 7h10v10"/><path d="M7 17 17 7"/>
+      </svg>
+    </a>
+  )}
+</div>

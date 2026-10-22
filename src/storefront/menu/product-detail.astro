@@ -1,0 +1,441 @@
+---
+/**
+ * ProductDetail — modal with image, price-range options, quantity stepper and
+ * the two order actions (cart / WhatsApp).
+ *
+ * Props (every value resolved by the page, F5):
+ * - `product`       — v2 product or promotion payload; the price range is
+ *                     embedded when present (promotions have a flat price)
+ * - `maxQuantity`   — `settings.max_order_quantity`
+ * - `canOrder`      — `settings.delivery.enabled`
+ * - `whatsappPhone` — `settings.whatsapp.number`
+ *
+ * Announces its actions as bubbling CustomEvents: `add-to-cart` (the page is
+ * the single owner of the cart mutation) and `close-product-detail`; the
+ * dialog always closes after adding, like the Angular version.
+ *
+ * Client state (quantity, selected price entry) is handled locally in the
+ * `<script>` below — it never touches the cart until the user adds the item.
+ */
+import MessageCircle from "../icons/message-circle.astro";
+import Minus from "../icons/minus.astro";
+import Plus from "../icons/plus.astro";
+import ShoppingBag from "../icons/shopping-bag.astro";
+import X from "../icons/x.astro";
+import { precio } from "../utils/format.js";
+import { entryLabel } from "../utils/entry-label";
+import type { MenuProduct, PriceRangeEntry, Promotion } from "../types/menu";
+
+interface Props {
+  /** A menu product or a promotion — both carry id/name/price/image. */
+  product: MenuProduct | Promotion;
+  maxQuantity?: number;
+  canOrder?: boolean;
+  whatsappPhone?: string;
+}
+
+const {
+  product,
+  maxQuantity = 99,
+  canOrder = true,
+  whatsappPhone = "",
+} = Astro.props;
+
+const priceRange = product?.price_range ?? null;
+
+/** Defaults to the first entry, exactly like the Angular `selectedEntry`. */
+const selectedEntry = priceRange?.entries?.[0] ?? null;
+
+const currentPrice = selectedEntry
+  ? selectedEntry.price
+  : (product?.price ?? 0);
+
+const hasImage = Boolean(product?.image?.url);
+
+const rootAttributes = {
+  "data-product-detail": "",
+  "data-product-id": product?.id ?? "",
+  "data-product": JSON.stringify(product ?? {}),
+  "data-max-qty": String(maxQuantity),
+  "data-whatsapp": String(whatsappPhone),
+};
+---
+
+<div
+  {...rootAttributes}
+  class="fixed inset-0 z-50 flex items-end md:items-center justify-center p-0 md:p-6 overflow-hidden"
+>
+  <!-- Overlay -->
+  <div data-close-overlay class="absolute inset-0 bg-black/70 backdrop-blur-md">
+  </div>
+
+  <!-- Modal Container -->
+  <!-- Mobile: Bottom Sheet (Rounded Top) | Desktop: Centered Modal (Full Rounded) -->
+  <div
+    data-detail-dialog
+    class={`relative w-full max-w-4xl md:max-h-[90vh] bg-white rounded-t-sm md:rounded-sm shadow-2xl overflow-hidden grid grid-cols-1 ${hasImage ? "md:grid-cols-2" : "md:grid-cols-1"} duration-300`}
+  >
+    <!-- Close Button (Top Right Floating - Mobile Only) -->
+    <button
+      data-close-overlay
+      type="button"
+      class="absolute top-4 right-4 p-2.5 rounded-full bg-white/90 shadow-lg hover:bg-white transition-all z-50 md:hidden"
+    >
+      <X class="w-6 h-6 text-secondary" />
+    </button>
+
+    {
+      /* Always present (hidden when the product has no image) so a client
+         script can refill this dialog for any product. */
+    }
+    <div
+      data-detail-image-section
+      hidden={!hasImage}
+      class="w-full h-62 bg-[url('https://picsum.photos/seed/menu-bg/400/400')] bg-contain md:h-auto bg-neutral-200 relative overflow-hidden flex-shrink-0"
+    >
+      {
+        hasImage && (
+          <img
+            data-detail-image
+            src={product?.image?.url}
+            alt={product?.image?.alt ?? product?.name ?? ""}
+            class="w-full h-full object-contain"
+          />
+        )
+      }
+    </div>
+
+    <!-- 2. CONTENT & ACTIONS SECTION -->
+    <div
+      class="w-full min-w-50 flex flex-col relative bg-white md:bg-transparent overflow-hidden"
+    >
+      <!-- Scrollable Body (Only if content exceeds space) -->
+      <div class="flex-1 overflow-y-auto p-5 pb-4">
+        <!-- Close Button (Desktop Only) -->
+        <button
+          data-close-overlay
+          type="button"
+          class="hidden md:flex absolute top-6 right-6 p-2 rounded-full hover:bg-black/5 transition-colors z-20"
+        >
+          <X class="w-8 h-8 text-secondary" />
+        </button>
+
+        <div class="space-y-4">
+          <!-- Title & Description (More compact on mobile) -->
+          <div class="space-y-1 md:space-y-4">
+            <h2
+              data-detail-name
+              class="text-3xl md:text-5xl font-display text-secondary tracking-tight leading-tight"
+            >
+              {product.name}
+            </h2>
+            <div class="w-10 md:w-20 h-1 bg-accent rounded-full"></div>
+            <p
+              data-detail-description
+              class="text-secondary/60 font-body leading-snug text-xs md:text-lg italic line-clamp-2 md:line-clamp-none"
+            >
+              {
+                product.description ||
+                  "Un clásico preparado con los secretos mejor guardados de nuestra cocina."
+              }
+            </p>
+          </div>
+
+          <!-- Price Range Options (Compact List) -->
+          <div
+            data-entry-list
+            hidden={!priceRange}
+            class="space-y-2 md:space-y-3"
+            data-selected-index={selectedEntry ? "0" : ""}
+          >
+            <span
+              class="text-xs font-body font-bold uppercase tracking-[0.2em] text-secondary/60"
+            >
+              Opciones disponibles
+            </span>
+            <div data-entry-grid class="grid grid-cols-1 gap-2">
+              {
+                priceRange?.entries?.map(
+                  (entry: PriceRangeEntry, index: number) => (
+                    <button
+                      data-entry-index={String(index)}
+                      data-entry={JSON.stringify(entry)}
+                      type="button"
+                      class={`flex items-center justify-between p-2.5 rounded-xl md:rounded-2xl border-2 border-secondary/5 hover:border-accent/30 transition-all text-left group ${
+                        index === 0 ? "border-accent bg-accent/5" : ""
+                      }`}
+                    >
+                      <div class="flex flex-col">
+                        <span class="font-display text-sm md:text-lg text-secondary group-hover:text-accent transition-colors">
+                          {entryLabel(entry, priceRange?.units_label)}
+                        </span>
+                        {entry.bonus && (
+                          <span class="text-[9px] md:text-[10px] font-bold text-accent-muted">
+                            {entry.bonus}
+                          </span>
+                        )}
+                      </div>
+                      <span class="font-display text-base md:text-xl text-secondary">
+                        {precio(entry.price)}
+                      </span>
+                    </button>
+                  ),
+                )
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STICKY ACTION BAR (Footer) -->
+      <div
+        class="p-4 bg-white md:bg-white/95 backdrop-blur-md border-t border-secondary/5 shadow-[0_-10px_20px_-5px_rgba(0,0,0,0.05)] flex-shrink-0 z-30"
+      >
+        <!-- Row 1: Price & Quantity -->
+        <div class="flex items-start justify-between mb-4 px-1">
+          <div class="flex flex-col">
+            <span
+              data-current-price
+              class="text-3xl md:text-5xl font-display text-accent tracking-tighter leading-none"
+            >
+              {precio(currentPrice)}
+            </span>
+            {
+              (
+                <span
+                  data-entry-label
+                  hidden={!selectedEntry}
+                  class="text-[10px] font-bold text-secondary/40 uppercase tracking-widest mt-1"
+                >
+                  {entryLabel(selectedEntry, priceRange?.units_label)}
+                </span>
+              )
+            }
+          </div>
+
+          <!-- Quantity Selector -->
+          <div
+            data-quantity
+            data-qty-value="1"
+            class="flex items-center gap-2 bg-secondary/5 p-1 rounded-xl border border-secondary/5"
+          >
+            <button
+              data-qty-dec
+              type="button"
+              disabled={1 <= 1}
+              class="w-8 h-8 flex items-center justify-center bg-white rounded-lg md:rounded-xl shadow-sm hover:text-accent disabled:opacity-30 transition-all"
+            >
+              <Minus class="w-3.5 md:w-5 h-3.5" />
+            </button>
+            <span
+              data-qty-label
+              class="w-4 md:w-6 text-center font-display text-lg md:text-2xl text-secondary"
+              >1</span
+            >
+            <button
+              data-qty-inc
+              type="button"
+              disabled={1 >= maxQuantity}
+              class="w-8 h-8 flex items-center justify-center bg-white rounded-lg md:rounded-xl shadow-sm hover:text-accent disabled:opacity-30 transition-all"
+            >
+              <Plus class="w-3.5 md:w-5 h-3.5" />
+            </button>
+          </div>
+        </div>
+
+        <!-- Row 2: Action Buttons -->
+        {
+          canOrder && (
+            <div class="flex gap-2">
+              <button
+                data-add-to-cart
+                type="button"
+                class="flex-1 bg-accent hover:bg-accent-muted text-white py-3 rounded-sm font-display text-lg md:text-xl shadow-lg shadow-accent/20 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+              >
+                <ShoppingBag class="w-5 h-5 md:w-6 h-6" />
+                <span>Agregar</span>
+              </button>
+
+              <button
+                data-whatsapp-order
+                type="button"
+                class="flex-1 bg-emerald-500 hover:bg-emerald-700 text-white py-3 rounded-sm font-display text-lg md:text-xl active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                title="Pedir por WhatsApp"
+              >
+                <MessageCircle class="w-6 h-6 md:w-7 h-7" />
+                <span>WhatsApp</span>
+              </button>
+            </div>
+          )
+        }
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  import { cartService } from "../services/cart.service.js";
+  import { readJson, readBusinessHours } from "../utils/dom";
+  import { isOpenAt } from "../services/business-hours.service.js";
+  import { precio } from "../utils/format.js";
+  import { entryLabel } from "../utils/entry-label";
+  import { OrderMessage, WhatsApp } from "../utils/whatsapp.js";
+
+  const SELECTED_CLASSES = ["border-accent", "bg-accent/5"];
+
+  /** Unified interaction handler for product dialogs. */
+  document.addEventListener("click", (event) => {
+    const target = event.target instanceof Element ? event.target : null;
+    if (!target) return;
+
+    // 1. Close overlay
+    if (target.closest("[data-close-overlay]")) {
+      const host = target.closest<HTMLElement>("[data-product-detail-host]");
+      if (host) {
+        host.hidden = true;
+        document.documentElement.style.overflow = "";
+      }
+      return;
+    }
+
+    // 2. Price entry selection: move highlight and refresh price + label
+    const entryButton = target.closest<HTMLElement>("[data-entry-index]");
+    if (entryButton) {
+      const root = entryButton.closest("[data-product-detail]");
+      const list = entryButton.closest("[data-entry-list]");
+      if (!root || !list) return;
+
+      list.querySelectorAll("[data-entry-index]").forEach((node) => {
+        node.classList.remove(...SELECTED_CLASSES);
+      });
+      entryButton.classList.add(...SELECTED_CLASSES);
+      list.setAttribute(
+        "data-selected-index",
+        entryButton.getAttribute("data-entry-index") ?? "",
+      );
+
+      const entry = readJson(entryButton, "data-entry");
+      if (!entry) return;
+
+      const product = readJson(root, "data-product");
+
+      const price = root.querySelector("[data-current-price]");
+      if (price) price.textContent = precio(entry.price);
+
+      const label = root.querySelector("[data-entry-label]");
+      if (label)
+        label.textContent = entryLabel(
+          entry,
+          product?.price_range?.units_label,
+        );
+      return;
+    }
+
+    // 3. Quantity stepper: 1 … max
+    const stepper = target.closest("[data-quantity]");
+    if (stepper) {
+      const change = target.closest("[data-qty-inc]")
+        ? 1
+        : target.closest("[data-qty-dec]")
+          ? -1
+          : 0;
+      if (change === 0) return;
+
+      const root = stepper.closest("[data-product-detail]");
+      const max = Number(root?.getAttribute("data-max-qty") || 99);
+
+      const current = Number(stepper.getAttribute("data-qty-value") || 1);
+      const next = Math.min(Math.max(current + change, 1), max);
+
+      stepper.setAttribute("data-qty-value", String(next));
+      const label = stepper.querySelector("[data-qty-label]");
+      if (label) label.textContent = String(next);
+
+      const decrease =
+        stepper.querySelector<HTMLButtonElement>("[data-qty-dec]");
+      const increase =
+        stepper.querySelector<HTMLButtonElement>("[data-qty-inc]");
+      if (decrease) decrease.disabled = next <= 1;
+      if (increase) increase.disabled = next >= max;
+      return;
+    }
+
+    // 4. Add to cart: mutate cart directly and close modal
+    const addBtn = target.closest<HTMLButtonElement>("[data-add-to-cart]");
+    if (addBtn && !addBtn.disabled) {
+      if (!isOpenAt(readBusinessHours())) {
+        cartService.showBusinessClosedModal();
+        return;
+      }
+
+      const root = addBtn.closest("[data-product-detail]");
+      if (!root) return;
+
+      const product = readJson(root, "data-product");
+      if (!product) return;
+
+      const step = root.querySelector("[data-quantity]");
+      const quantity = Number(step?.getAttribute("data-qty-value") || 1);
+
+      const list = root.querySelector("[data-entry-list]");
+      const selectedIndex = list?.getAttribute("data-selected-index");
+      const selectedButton =
+        selectedIndex !== null &&
+        selectedIndex !== undefined &&
+        selectedIndex !== ""
+          ? list?.querySelector(`[data-entry-index="${selectedIndex}"]`)
+          : null;
+      const selectedEntry =
+        readJson(selectedButton ?? null, "data-entry") ?? undefined;
+
+      cartService.addItem(product, quantity, selectedEntry);
+
+      const host = root.closest<HTMLElement>("[data-product-detail-host]");
+      if (host) {
+        host.hidden = true;
+        document.documentElement.style.overflow = "";
+      }
+      return;
+    }
+
+    // 5. WhatsApp single-product order
+    const waBtn = target.closest<HTMLButtonElement>("[data-whatsapp-order]");
+    if (waBtn && !waBtn.disabled) {
+      if (!isOpenAt(readBusinessHours())) {
+        cartService.showBusinessClosedModal();
+        return;
+      }
+
+      const root = waBtn.closest("[data-product-detail]");
+      if (!root) return;
+
+      const phone = root.getAttribute("data-whatsapp");
+      const product = readJson(root, "data-product");
+      if (!phone || !product) return;
+
+      const step = root.querySelector("[data-quantity]");
+      const quantity = Number(step?.getAttribute("data-qty-value") || 1);
+
+      const list = root.querySelector("[data-entry-list]");
+      const selectedIndex = list?.getAttribute("data-selected-index");
+      const selectedButton =
+        selectedIndex !== null &&
+        selectedIndex !== undefined &&
+        selectedIndex !== ""
+          ? list?.querySelector(`[data-entry-index="${selectedIndex}"]`)
+          : null;
+      const selectedEntry =
+        readJson(selectedButton ?? null, "data-entry") ?? null;
+
+      WhatsApp.open(
+        phone,
+        OrderMessage.forProduct({
+          name: product.name,
+          quantity,
+          entry: selectedEntry,
+          unitsLabel: product?.price_range?.units_label,
+        }),
+      );
+    }
+  });
+</script>

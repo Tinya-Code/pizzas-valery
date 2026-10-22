@@ -1,0 +1,333 @@
+---
+/**
+ * SidebarCart — slide-in cart drawer with the checkout step.
+ *
+ * Port of Angular `src/app/components/sidebar-cart/*` + `cart-item/*`
+ * (the item row lives in the `<template>` below and is cloned per line).
+ *
+ * State model: the drawer, the lines and every total are painted by the script
+ * from `cartService`; `showCheckout` (Angular `signal`) is plain local state
+ * inside that script. Nothing here needs a client framework.
+ *
+ * Props (passed through to the checkout step, resolved by the page, F5):
+ * - `settings` — v2 settings payload (delivery flag, payment methods,
+ *                WhatsApp number + message template)
+ *
+ * The Angular `theme-{templateId}` class carried a null input on this page, so
+ * it is not ported.
+ */
+import ArrowLeft from '../../icons/arrow-left.astro';
+import ArrowRight from '../../icons/arrow-right.astro';
+import Minus from '../../icons/minus.astro';
+import Plus from '../../icons/plus.astro';
+import ShoppingBag from '../../icons/shopping-bag.astro';
+import Trash2 from '../../icons/trash-2.astro';
+import X from '../../icons/x.astro';
+import CheckoutForm from './checkout-form.astro';
+import type { RestaurantSettings } from '../../types/menu';
+
+interface Props {
+  settings?: RestaurantSettings | null;
+}
+
+const { settings = null } = Astro.props;
+---
+
+<!-- Backdrop -->
+<div
+  data-cart-backdrop
+  hidden
+  class="fixed inset-0 bg-secondary/60 backdrop-blur-sm z-50 transition-opacity duration-300"
+></div>
+
+<!-- Drawer -->
+<div
+  data-cart-drawer
+  data-delivery-fee={settings?.delivery?.fee ?? 0}
+  data-max-quantity={settings?.max_order_quantity ?? 99}
+  class="fixed top-0 bg-white right-0 h-full w-full max-w-md z-[60] shadow-2xl flex flex-col transition-transform duration-500 ease-out translate-x-full"
+>
+  <!-- Header -->
+  <div class="p-6 border-b border-gray-100 flex items-center justify-between bg-white">
+    <div class="flex items-center gap-2">
+      <button
+        data-cart-back
+        type="button"
+        hidden
+        class="p-2 hover:bg-gray-100 rounded-full mr-2"
+        aria-label="Volver al carrito"
+      >
+        <ArrowLeft class="w-5 h-5 text-secondary" />
+      </button>
+      <h2 data-cart-title class="text-xl font-display text-secondary">Tu Carrito</h2>
+      <span
+        data-cart-count
+        class="bg-primary text-white px-2 py-0.5 rounded-full text-xs font-body font-semibold"
+      >
+        0
+      </span>
+    </div>
+    <button
+      data-cart-close
+      type="button"
+      class="p-2 hover:bg-gray-100 rounded-full transition-colors text-secondary"
+      aria-label="Cerrar carrito"
+    >
+      <X class="w-6 h-6" />
+    </button>
+  </div>
+
+  <!-- Content -->
+  <div class="grow overflow-y-auto p-6 scroll-smooth">
+    <!-- Cart view -->
+    <div data-cart-view>
+      <!-- Empty state -->
+      <div data-cart-empty class="h-full flex flex-col items-center justify-center text-center">
+        <div class="w-24 h-24 bg-gray-50 rounded-full flex items-center justify-center mb-4 text-gray-300">
+          <ShoppingBag class="w-12 h-12" />
+        </div>
+        <h3 class="text-lg font-bold text-secondary mb-2">¡Tu carrito está vacío!</h3>
+        <p class="text-sm text-secondary/60 mb-6">
+          Parece que aún no has agregado nada delicioso a tu pedido.
+        </p>
+        <button
+          data-cart-close
+          type="button"
+          class="px-6 py-3 bg-secondary text-primary font-bold rounded-xl hover:scale-105 active:scale-95 transition-all"
+        >
+          Explorar Menú
+        </button>
+      </div>
+
+      <!-- Lines -->
+      <div data-cart-items hidden class="space-y-4"></div>
+    </div>
+
+    <!-- Checkout view -->
+    <div data-checkout-view hidden>
+      <CheckoutForm settings={settings} />
+    </div>
+  </div>
+
+  <!-- Footer (cart view only) -->
+  <div data-cart-footer hidden class="p-6 bg-white border-t border-gray-100">
+    <div class="space-y-3 mb-6">
+      <div class="flex justify-between items-center text-sm font-medium text-secondary/60">
+        <span>Subtotal</span>
+        <span data-cart-subtotal>S/ 0.00</span>
+      </div>
+
+      <div data-cart-delivery-row hidden class="flex justify-between items-center text-sm font-medium text-secondary/60">
+        <span>Delivery</span>
+        <span data-cart-delivery>S/ 0.00</span>
+      </div>
+
+      <div class="flex justify-between items-center pt-3 border-t border-gray-100">
+        <span class="text-lg font-bold text-secondary uppercase tracking-tight">Total</span>
+        <span data-cart-total class="text-2xl font-body font-bold text-primary">S/ 0.00</span>
+      </div>
+    </div>
+
+    <div class="flex flex-col gap-3">
+      <button
+        data-cart-checkout
+        type="button"
+        class="w-full bg-secondary text-white py-4 rounded-sm font-bold text-lg shadow-lg hover:shadow-primary/10 hover:scale-[1.01] active:scale-[0.99] transition-all flex items-center justify-center gap-2"
+      >
+        <span>Finalizar Pedido</span>
+        <ArrowRight class="w-5 h-5" />
+      </button>
+      <button
+        data-cart-clear
+        type="button"
+        class="w-full text-red-400 hover:text-red-500 text-xs font-bold uppercase tracking-widest py-2 transition-colors"
+      >
+        Vaciar Carrito
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- One cart line, cloned per item (the Angular `app-cart-item`). -->
+<template data-cart-item-template>
+  <div
+    data-cart-item
+    class="flex items-center gap-4 p-4 bg-white rounded-xl shadow-sm border border-gray-100 mb-2 transition-all hover:shadow-md"
+  >
+    <div class="grow min-w-0">
+      <h4 data-item-name class="text-sm font-bold text-secondary truncate"></h4>
+      <p data-item-unit class="text-xs text-secondary/60 font-medium mb-1"></p>
+
+      <div class="flex items-center gap-3 mt-2">
+        <div class="flex items-center bg-gray-50 rounded-full border border-gray-200 p-0.5">
+          <button
+            data-item-dec
+            type="button"
+            class="w-7 h-7 flex items-center justify-center rounded-full hover:bg-white hover:shadow-sm text-secondary transition-all active:scale-95 disabled:opacity-30"
+            title="Disminuir cantidad"
+          >
+            <Minus class="w-4 h-4" />
+          </button>
+          <span data-item-qty class="w-6 text-center text-xs font-bold text-secondary">1</span>
+          <button
+            data-item-inc
+            type="button"
+            class="w-7 h-7 flex items-center justify-center rounded-full hover:bg-white hover:shadow-sm text-secondary transition-all active:scale-95"
+            title="Aumentar cantidad"
+          >
+            <Plus class="w-4 h-4" />
+          </button>
+        </div>
+
+        <span data-item-total class="text-sm font-bold text-primary ml-auto"></span>
+      </div>
+    </div>
+
+    <button
+      data-item-remove
+      type="button"
+      class="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-all active:scale-90"
+      aria-label="Eliminar producto"
+      title="Eliminar producto"
+    >
+      <Trash2 class="w-5 h-5" />
+    </button>
+  </div>
+</template>
+
+<script>
+  import { cartService } from '../../services/cart.service.js';
+  import { isOpenAt } from '../../services/business-hours.service.js';
+  import { precio } from '../../utils/format.js';
+  import { readBusinessHours } from '../../utils/dom';
+  import type { CartLine } from '../../types/cart';
+
+  // The totals need the delivery fee and max quantity from the drawer attributes,
+  // and the closed check needs the opening hours from `#business-hours-data`.
+  // Everything is pre-rendered in HTML (F5), so the drawer boots synchronously.
+  bootstrap();
+
+  function bootstrap() {
+    const drawer = document.querySelector<HTMLElement>('[data-cart-drawer]');
+    const backdrop = document.querySelector<HTMLElement>('[data-cart-backdrop]');
+    const list = document.querySelector<HTMLElement>('[data-cart-items]');
+    const template = document.querySelector<HTMLTemplateElement>('[data-cart-item-template]');
+    if (!drawer || !list || !template) return;
+
+    cartService.configure({
+      deliveryFee: Number(drawer.dataset.deliveryFee ?? 0),
+      maxQuantity: Number(drawer.dataset.maxQuantity ?? 99),
+    });
+
+    const emptyState = drawer.querySelector<HTMLElement>('[data-cart-empty]');
+    const footer = drawer.querySelector<HTMLElement>('[data-cart-footer]');
+    const countBadge = drawer.querySelector<HTMLElement>('[data-cart-count]');
+    const title = drawer.querySelector<HTMLElement>('[data-cart-title]');
+    const back = drawer.querySelector<HTMLElement>('[data-cart-back]');
+    const cartView = drawer.querySelector<HTMLElement>('[data-cart-view]');
+    const checkoutView = drawer.querySelector<HTMLElement>('[data-checkout-view]');
+    const subtotalEl = drawer.querySelector<HTMLElement>('[data-cart-subtotal]');
+    const deliveryEl = drawer.querySelector<HTMLElement>('[data-cart-delivery]');
+    const deliveryRow = drawer.querySelector<HTMLElement>('[data-cart-delivery-row]');
+    const totalEl = drawer.querySelector<HTMLElement>('[data-cart-total]');
+
+    let showCheckout = false;
+
+    const renderItems = (items: CartLine[]) => {
+      list.replaceChildren();
+
+      for (const item of items) {
+        const node = template.content.firstElementChild?.cloneNode(true) as HTMLElement | null;
+        if (!node) continue;
+
+        node.dataset.id = String(item.id);
+        const name = node.querySelector<HTMLElement>('[data-item-name]');
+        const unit = node.querySelector<HTMLElement>('[data-item-unit]');
+        const qty = node.querySelector<HTMLElement>('[data-item-qty]');
+        const lineTotal = node.querySelector<HTMLElement>('[data-item-total]');
+        const dec = node.querySelector<HTMLButtonElement>('[data-item-dec]');
+
+        if (name) name.textContent = item.name;
+        if (unit) unit.textContent = `${precio(item.price)} c/u`;
+        if (qty) qty.textContent = String(item.quantity);
+        if (lineTotal) lineTotal.textContent = precio(item.price * item.quantity);
+        if (dec) dec.disabled = item.quantity <= 1;
+
+        list.append(node);
+      }
+    };
+
+    const renderView = () => {
+      if (back) back.hidden = !showCheckout;
+      if (title) title.textContent = showCheckout ? 'Finalizar Pedido' : 'Tu Carrito';
+      if (countBadge) countBadge.hidden = showCheckout;
+      if (cartView) cartView.hidden = showCheckout;
+      if (checkoutView) checkoutView.hidden = !showCheckout;
+    };
+
+    const render = () => {
+      const snapshot = cartService.snapshot;
+
+      if (backdrop) backdrop.hidden = !snapshot.isOpen;
+      drawer.classList.toggle('translate-x-0', snapshot.isOpen);
+      drawer.classList.toggle('translate-x-full', !snapshot.isOpen);
+
+      if (emptyState) emptyState.hidden = !snapshot.isEmpty || showCheckout;
+      if (list) list.hidden = snapshot.isEmpty || showCheckout;
+      if (footer) footer.hidden = snapshot.isEmpty || showCheckout;
+
+      if (countBadge) countBadge.textContent = String(snapshot.count);
+      if (subtotalEl) subtotalEl.textContent = precio(snapshot.subtotal);
+      if (deliveryEl) deliveryEl.textContent = precio(snapshot.deliveryFee);
+      if (deliveryRow) deliveryRow.hidden = !(snapshot.deliveryFee > 0);
+      if (totalEl) totalEl.textContent = precio(snapshot.total);
+
+      renderItems(snapshot.items);
+      renderView();
+    };
+
+    cartService.subscribe(render, { immediate: true });
+
+    const close = () => {
+      showCheckout = false;
+      cartService.close();
+    };
+
+    drawer.addEventListener('click', (event) => {
+      const target = event.target instanceof Element ? event.target : null;
+      if (!target) return;
+
+      if (target.closest('[data-cart-close]')) return close();
+
+      if (target.closest('[data-cart-clear]')) return void cartService.clear();
+
+      if (target.closest('[data-cart-checkout]')) {
+        if (!isOpenAt(readBusinessHours())) {
+          cartService.showBusinessClosedModal();
+          return;
+        }
+        showCheckout = true;
+        render();
+        return;
+      }
+
+      if (target.closest('[data-cart-back]')) {
+        showCheckout = false;
+        render();
+        return;
+      }
+
+      const line = target.closest<HTMLElement>('[data-cart-item]');
+      if (!line?.dataset.id) return;
+      const id = line.dataset.id;
+      const item = cartService.items.get().find((entry) => entry.id === id);
+      if (!item) return;
+
+      if (target.closest('[data-item-inc]')) cartService.updateQuantity(id, item.quantity + 1);
+      else if (target.closest('[data-item-dec]')) cartService.updateQuantity(id, item.quantity - 1);
+      else if (target.closest('[data-item-remove]')) cartService.removeItem(id);
+    });
+
+    backdrop?.addEventListener('click', close);
+  }
+</script>

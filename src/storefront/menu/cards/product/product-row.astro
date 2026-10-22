@@ -1,0 +1,70 @@
+---
+/**
+ * ProductRow — flat-price product design (minimalist list row).
+ * State coverage: `flat-with-image` and `flat-no-image` (thumbnail is
+ * optional inside this design).
+ *
+ * Props:
+ * - `product`  — v2 product payload (required)
+ * - `canOrder` — whether the storefront accepts orders right now
+ *
+ * Owns its root + the CLIENT CONTRACT `data-template-card`, `data-has-range`,
+ * `data-product` — the page's click delegation reads it from the root.
+ */
+import Star from '../../../icons/star.astro';
+import AddButton from '../../../commerce/add-button.astro';
+import { precio } from '../../../utils/format.js';
+import type { MenuProduct } from '../../../types/menu';
+
+interface Props {
+  product: MenuProduct;
+  canOrder?: boolean;
+}
+
+const { product, canOrder = true } = Astro.props;
+
+/** Minimum price (the API computes it); the flat price otherwise. */
+const startingPrice = product.price;
+---
+
+<!-- DISEÑO: Producto Estándar (Estilo Lista / Minimalista) -->
+<div
+  data-template-card
+  data-has-range="false"
+  data-product={JSON.stringify(product ?? {})}
+  class="group relative py-6 px-4 md:px-6 transition-all duration-300 cursor-pointer hover:bg-secondary/5 border-b border-secondary/10 flex items-start gap-6"
+>
+  <!-- Contenido Izquierdo (Info) -->
+  <div class="flex-1 space-y-2">
+    <div class="flex items-start gap-2">
+      <h3 class="text-4xl font-display text-primary-text tracking-tight group-hover:text-accent transition-colors">
+        {product.name}
+      </h3>
+      {product.is_recommended && <Star class="w-5 h-5 text-accent fill-accent" />}
+    </div>
+
+    <div class="flex items-center gap-4 pt-1">
+      <span class="text-3xl font-display text-accent tracking-tighter">{precio(startingPrice)}</span>
+      {product.qty_label && (
+        <span class="text-[10px] font-bold text-secondary/40 uppercase tracking-widest">
+          {product.qty_label}
+        </span>
+      )}
+    </div>
+  </div>
+
+  <!-- Contenido Derecho (Imagen opcional y Botón) -->
+  <div class="flex items-start gap-6">
+    {product.image.url && (
+      <div class="relative w-20 h-20 overflow-hidden rounded-xl bg-secondary/5">
+        <img
+          src={product.image.url}
+          class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500"
+          alt={product.image.alt}
+        />
+      </div>
+    )}
+
+    {canOrder && <AddButton text="" class="transform group-hover:scale-110 transition-transform" />}
+  </div>
+</div>

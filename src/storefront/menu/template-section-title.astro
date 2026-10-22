@@ -1,0 +1,36 @@
+---
+/**
+ * TemplateSectionTitle — decorative section heading with the wave glyphs.
+ *
+ * Props:
+ * - `title`       — heading text (required)
+ * - `description` — optional sub-text rendered below the title
+ *
+ * The default slot is projected between title and description
+ * (Angular `<ng-content>`).
+ */
+import Waves from '../icons/waves.astro';
+
+interface Props {
+  title: string;
+  description?: string;
+}
+
+const { title, description = '' } = Astro.props;
+---
+
+<div class="flex flex-col items-center justify-center z-10 gap-2 md:gap-4 mb-8">
+  <div class="flex flex-col items-center justify-center mx-auto text-center">
+    <h3 class="text-6xl md:text-7xl flex gap-4 items-center font-display text-transparent bg-clip-text bg-gradient-to-b from-accent from-50% to-accent-muted to-50% uppercase tracking-tight">
+      <Waves class="w-6 h-6 text-accent shrink-0" />
+      {title}
+      <Waves class="w-6 h-6 text-accent shrink-0 rotate-180" />
+    </h3>
+    <slot />
+    {
+      description && (
+        <p class="text-xl text-primary-text mt-1 font-display">{description}</p>
+      )
+    }
+  </div>
+</div>

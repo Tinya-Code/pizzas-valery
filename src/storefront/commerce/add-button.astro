@@ -1,0 +1,53 @@
+---
+/**
+ * AddButton — the small "＋" action button used by every card.
+ *
+ * It is presentational: the click is interpreted by the card that contains it
+ * (the card knows the product), so this file only renders the button and
+ * announces the click.
+ *
+ * Props:
+ * - `text`        — button label; empty by default (icon only)
+ * - `customClass` — extra classes appended to the button (Angular `customClass`)
+ * - `class`       — extra classes for the root (Angular projected host class)
+ * - `disabled`    — disables the button
+ *
+ * Emits: `add-button-click` → detail `{ event }`
+ */
+import Plus from '../icons/plus.astro';
+
+interface Props {
+  text?: string;
+  customClass?: string;
+  class?: string;
+  disabled?: boolean;
+}
+
+const { text = '', customClass = '', disabled = false, class: hostClass = '' } = Astro.props;
+
+const classes = [
+  'bg-accent',
+  'px-1',
+  'py-1',
+  'cursor-pointer',
+  'text-primary-text',
+  'text-2xl',
+  'uppercase',
+  'font-display',
+  'active:scale-95',
+  'transition-all',
+  'duration-300',
+  'rounded-sm',
+  'disabled:opacity-50',
+  'disabled:cursor-not-allowed',
+  customClass,
+  hostClass,
+]
+  .filter(Boolean)
+  .join(' ');
+---
+
+<button data-add-button type="button" disabled={disabled} class={classes}>
+  {text}
+  <Plus class="" />
+</button>

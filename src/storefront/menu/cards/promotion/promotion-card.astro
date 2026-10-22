@@ -1,0 +1,79 @@
+---
+/**
+ * PromotionCard — discounted item with an expandable description.
+ *
+ * Props:
+ * - `promotion` — v2 `Promotion` (effective `price`, compare-at `price_before`)
+ * - `canOrder`  — whether the storefront accepts orders right now (page-loaded)
+ *
+ * Markup + `data-*` payloads (`data-promotion`, `data-product`) plus the
+ * "Ver más" toggle: a hidden checkbox + `peer-checked` swaps the clamp with
+ * pure CSS (no script in this card). The page owns the click delegation and
+ * announces `product-click` / `add-to-cart` for the `data-promotion-card`
+ * root; the input and label keep `data-toggle-description` so the page's
+ * guard knows the toggle must never open the dialog. `data-product` carries
+ * the same real `Promotion` payload the dialog renders from — no fabricated
+ * product projection anymore.
+ */
+import AddButton from '../../../commerce/add-button.astro';
+import { precio } from '../../../utils/format.js';
+import type { Promotion } from '../../../types/menu';
+
+interface Props {
+  promotion: Promotion;
+  canOrder?: boolean;
+}
+
+const { promotion, canOrder = true } = Astro.props;
+---
+
+<div
+  data-promotion-card
+  data-promotion={JSON.stringify(promotion ?? {})}
+  data-product={JSON.stringify(promotion ?? {})}
+  class="group relative space-y-4 items-center w-120 min-h-50 border border-transparent hover:border-accent rounded-sm p-4 flex flex-col cursor-pointer"
+>
+  <div class="w-full col-span-1 h-auto grid grid-cols-2 gap-8 items-start justify-between">
+    <div class="bg-secondary relative rounded-full w-50 h-50">
+      <img src={promotion.image.url} alt={promotion.image.alt} title={promotion.name} class="h-50 w-50 duration-300" />
+      {
+        canOrder && (
+          <AddButton class="absolute bottom-0 -right-3" />
+        )
+      }
+    </div>
+
+    <div class="flex flex-col items-start max-w-50 gap-4">
+      <h3 class="text-4xl font-display text-white">{promotion.name}</h3>
+
+      <div class="flex w-full items-start mx-auto flex-col relative">
+        <span class="text-lg font-display text-primary-text/50 line-through">
+          {precio(promotion.price_before)}
+        </span>
+        <span class="text-3xl py-1 px-3 rounded-sm bg-primary font-display text-white">
+          {precio(promotion.price)}
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <div class="flex flex-col items-start px-4">
+    <input
+      type="checkbox"
+      id={`promo-desc-${promotion.id}`}
+      data-toggle-description
+      class="peer sr-only"
+    />
+    <p class="line-clamp-1 peer-checked:line-clamp-none text-lg text-white/80">
+      {promotion.description}
+    </p>
+
+    <label
+      for={`promo-desc-${promotion.id}`}
+      data-toggle-description
+      class="text-white bg-primary px-3 py-1 rounded-sm cursor-pointer peer-focus-visible:outline-2 peer-focus-visible:outline-current peer-focus-visible:outline-offset-2"
+    >
+      Ver más
+    </label>
+  </div>
+</div>

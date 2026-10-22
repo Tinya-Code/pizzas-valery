@@ -1,0 +1,32 @@
+/* ─── Brand tokens (APP zone) ──────────────────────────────────────────────
+   The single app-owned style file: brand fonts + the Tailwind v4 theme.
+   Owned by the site that copies the template — template updates never
+   overwrite it (.gitattributes marks it merge=ours). Consumed by
+   `src/storefront/styles/global.css` via @import.
+
+   Change your brand HERE, never in global.css (that file is template core).
+
+   Typography loads from Google Fonts (see the <link> in Layout.astro);
+   swap the family there if you self-host your brand fonts instead. */
+
+@theme {
+  /* Tipografías */
+  --font-display: 'Noto Sans', system-ui, sans-serif;
+  --font-body: 'Noto Sans', sans-serif;
+  /* Colores base */
+  --color-primary: #dc2626; /* Rojo vibrante, moderno */
+  --color-secondary: #0a0a0a; /* Negro Zinc 950, premium */
+
+  /* Complementario */
+  --color-background: #fafafa; /* Blanco suave para balance */
+  --color-surface: #f4f4f5; /* Gris Zinc 100 para secciones */
+
+  /* Acentos */
+  --color-accent: #f59e0b; /* Ámbar/Dorado, toque de elegancia */
+  --color-accent-muted: #fbbf24; /* Ámbar suave para detalles */
+
+  /* Texto */
+  --color-primary-text: #ffffff; /* Texto sobre fondos oscuros */
+  --color-secondary-text: #0a0a0a; /* Texto sobre fondos claros */
+  --color-text-accent: #dc2626; /* Destacar títulos o precios */
+}

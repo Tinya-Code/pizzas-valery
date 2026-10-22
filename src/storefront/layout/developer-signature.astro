@@ -1,0 +1,62 @@
+---
+/**
+ * DeveloperSignature — footer credit badge with avatar, glow effect and WhatsApp link.
+ *
+ * Props:
+ *   name   — developer name (default: "Pedro Alejandro")
+ *   phone  — developer WhatsApp phone (default: "51924932128")
+ *   image  — developer avatar image URL (remote URL by default)
+ *   class  — extra container classes
+ */
+import ArrowUpRight from '../icons/arrow-up-right.astro';
+import { WhatsApp } from '../utils/whatsapp.js';
+
+interface Props {
+  name?: string;
+  phone?: string;
+  image?: string;
+  class?: string;
+}
+
+const {
+  name = 'Pedro Alejandro',
+  phone = '51924932128',
+  image = 'https://picsum.photos/seed/dev-avatar/112/112',
+  class: className = '',
+} = Astro.props;
+
+const href = WhatsApp.link(phone);
+---
+
+<div class={`w-full flex flex-col sm:flex-row justify-between items-center gap-6 pt-8 ${className}`}>
+  <div class="flex items-center gap-4 group">
+    <a href={href} target="_blank" rel="noopener noreferrer" class="relative" aria-label={`Contactar a ${name}`}>
+      <div
+        class="absolute -inset-1 bg-gradient-to-r from-primary to-accent rounded-full blur opacity-20 group-hover:opacity-70 transition duration-500"
+      >
+      </div>
+      <img
+        src={image}
+        alt={name}
+        class="relative w-11 h-11 rounded-full object-cover grayscale group-hover:grayscale-0 ring-2 ring-white/10 group-hover:ring-primary transition-all duration-500 cursor-pointer"
+        loading="lazy"
+      />
+    </a>
+    <div class="flex flex-col">
+      <span class="text-white/40 text-[10px] uppercase tracking-[0.2em] font-bold mb-0.5">
+        Diseño & Desarrollo
+      </span>
+      <a
+        href={href}
+        target="_blank"
+        rel="noopener noreferrer"
+        class="text-white/90 font-display tracking-wide hover:text-white transition-colors flex items-center gap-1.5"
+      >
+        {name}
+        <ArrowUpRight
+          class="w-3.5 h-3.5 text-primary opacity-0 -translate-y-1 translate-x-1 group-hover:opacity-100 group-hover:translate-y-0 group-hover:translate-x-0 transition-all duration-300"
+        />
+      </a>
+    </div>
+  </div>
+</div>

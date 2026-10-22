@@ -1,0 +1,75 @@
+{
+  "background": "https://picsum.photos/seed/menu-bg/400/400",
+  "header_background": null,
+  "footer_background": null,
+  "blocks": {
+    "block-1": [
+      {
+        "slot": "left",
+        "type": "rail",
+        "containerClass": "relative hidden md:block col-span-0 md:col-span-2 h-full",
+        "items": [
+          "https://res.cloudinary.com/dztatdahl/image/upload/v1779052072/fila-maki1_y0rfvc.png",
+          "https://res.cloudinary.com/dztatdahl/image/upload/v1779052080/fila-maki2_a4btbu.png",
+          "https://res.cloudinary.com/dztatdahl/image/upload/v1779052085/fila-maki3_uaivny.png"
+        ]
+      },
+      {
+        "slot": "right",
+        "type": "image",
+        "src": "https://res.cloudinary.com/dztatdahl/image/upload/v1779051451/fila-barco_vghckz.png",
+        "alt": "Barco Decoración",
+        "containerClass": "relative md:block col-span-1 md:col-span-2 h-full",
+        "class": "absolute top-0 -right-28 md:-right-48 min-w-[300px] md:min-w-[400px] object-contain will-change-transform transition-transform duration-75 ease-out",
+        "animation": "parallax",
+        "attrs": {
+          "data-barco": ""
+        }
+      }
+    ],
+    "block-3": [
+      {
+        "slot": "left",
+        "type": "group",
+        "containerClass": "justify-between flex col-span-12 h-60 md:col-span-12 md:h-0",
+        "images": [
+          {
+            "src": "https://picsum.photos/seed/wings-bg/800/600",
+            "alt": "Alitas Fondo",
+            "class": "h-full md:h-auto md:w-130 md:absolute top-10 -right-35"
+          },
+          {
+            "src": "https://picsum.photos/seed/wings-bg-2/800/600",
+            "alt": "Alitas 2 Fondo",
+            "class": "h-full md:h-auto md:w-130 md:absolute bottom-10 -right-35"
+          }
+        ]
+      }
+    ],
+    "block-6": [
+      {
+        "slot": "left",
+        "type": "image",
+        "src": "https://picsum.photos/seed/cocktails-bg/600/900",
+        "alt": "Cócteles Vertical",
+        "containerClass": "w-full relative h-full col-span-1 flex justify-center items-center md:col-span-4",
+        "class": "absolute md:static -left-70 min-w-[500px] md:min-w-[450px] h-auto"
+      }
+    ]
+  },
+  "block1": {
+    "barco": "https://res.cloudinary.com/dztatdahl/image/upload/v1779051451/fila-barco_vghckz.png",
+    "makis": [
+      "https://res.cloudinary.com/dztatdahl/image/upload/v1779052072/fila-maki1_y0rfvc.png",
+      "https://res.cloudinary.com/dztatdahl/image/upload/v1779052080/fila-maki2_a4btbu.png",
+      "https://res.cloudinary.com/dztatdahl/image/upload/v1779052085/fila-maki3_uaivny.png"
+    ]
+  },
+  "block3": {
+    "alitasFondo": "https://picsum.photos/seed/wings-bg/800/600",
+    "alitas2Fondo": "https://picsum.photos/seed/wings-bg-2/800/600"
+  },
+  "block6": {
+    "coctelesVertical": "https://picsum.photos/seed/cocktails-bg/600/900"
+  }
+}

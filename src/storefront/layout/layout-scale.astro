@@ -1,0 +1,128 @@
+---
+/**
+ * LayoutScale — fixed-width design canvas that scales down to the viewport.
+ *
+ * The wrapper keeps the scaled height in flow while the inner box keeps its
+ * design width and is transformed with `scale()`.
+ *
+ * The canvas is fixed: breakpoint widths and paddings are constants, handed
+ * to the client script through the `data-*` attributes below.
+ *
+ * Client only: measurement, debounced re-layout, `ResizeObserver`,
+ * `MutationObserver` and `window.resize` all live in the `<script>` below and
+ * are scoped to `[data-layout-scale]` so several instances are safe.
+ */
+
+/** Width per breakpoint (design canvas): mobile / tablet / desktop / wide. */
+const BREAKPOINTS = { mobile: 256, tablet: 768, desktop: 1280, wide: 1280 };
+
+/** Horizontal padding per breakpoint (none on any breakpoint). */
+const PADDINGS = { mobile: 0, tablet: 0, desktop: 0, wide: 0 };
+
+const defaultWidth = BREAKPOINTS.desktop;
+---
+
+<div
+  data-layout-scale
+  data-breakpoints={JSON.stringify(BREAKPOINTS)}
+  data-paddings={JSON.stringify(PADDINGS)}
+  class="w-full overflow-hidden flex justify-center"
+>
+  <div
+    data-layout-scale-inner
+    class="shrink-0 origin-top transition-transform duration-200 ease-out"
+    style={`width:${defaultWidth}px;padding:0px;transform:scale(1)`}
+  >
+    <slot />
+  </div>
+</div>
+
+<script>
+  import { readJson } from '../utils/dom';
+
+  type Breakpoints = { mobile: number; tablet: number; desktop: number; wide: number };
+
+  const DEBOUNCE_MS = 60;
+
+  function setup(wrapper: Element) {
+    if (wrapper.hasAttribute('data-scale-ready')) return;
+    wrapper.setAttribute('data-scale-ready', 'true');
+
+    const inner = wrapper.querySelector('[data-layout-scale-inner]');
+    if (!inner) return;
+
+    const breakpoints = readJson<Breakpoints>(wrapper, 'data-breakpoints', {
+      mobile: 256,
+      tablet: 768,
+      desktop: 1280,
+      wide: 1280,
+    });
+    const paddings = readJson<Breakpoints>(wrapper, 'data-paddings', {
+      mobile: 0,
+      tablet: 0,
+      desktop: 0,
+      wide: 0,
+    });
+
+    let viewportWidth = window.innerWidth;
+    let debounceTimer: ReturnType<typeof setTimeout> | null = null;
+
+    const activeKey = (): keyof Breakpoints => {
+      if (viewportWidth <= breakpoints.mobile) return 'mobile';
+      if (viewportWidth <= breakpoints.tablet) return 'tablet';
+      if (viewportWidth <= breakpoints.desktop) return 'desktop';
+      return 'wide';
+    };
+
+    const designWidth = () => breakpoints[activeKey()];
+
+    const measureAndUpdate = () => {
+      viewportWidth = window.innerWidth;
+
+      const width = designWidth();
+      const scale = viewportWidth < width ? viewportWidth / width : 1;
+
+      inner.style.width = `${width}px`;
+      inner.style.padding = `${paddings[activeKey()] ?? 0}px`;
+      inner.style.transform = `scale(${scale})`;
+
+      requestAnimationFrame(() => {
+        // `scrollHeight` is the unscaled layout height, so it has to be
+        // multiplied by the current scale to keep the wrapper in flow.
+        const compensated = inner.scrollHeight * scale;
+        const next = `${compensated}px`;
+        if (wrapper.style.height !== next) wrapper.style.height = next;
+      });
+    };
+
+    const schedule = () => {
+      if (debounceTimer) clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(measureAndUpdate, DEBOUNCE_MS);
+    };
+
+    if (typeof ResizeObserver !== 'undefined') {
+      // Observe both the wrapper AND the inner element so content growth from
+      // async data arriving after the first render is caught as well.
+      const resizeObserver = new ResizeObserver(schedule);
+      resizeObserver.observe(wrapper);
+      resizeObserver.observe(inner);
+    }
+
+    if (typeof MutationObserver !== 'undefined') {
+      const mutationObserver = new MutationObserver(schedule);
+      mutationObserver.observe(inner, { childList: true, subtree: true });
+    }
+
+    window.addEventListener('resize', schedule, { passive: true });
+
+    measureAndUpdate();
+  }
+
+  const initAll = () => {
+    document.querySelectorAll('[data-layout-scale]').forEach(setup);
+  };
+
+  initAll();
+  // Covers Astro's client-side navigation as well as the initial render.
+  document.addEventListener('astro:page-load', initAll);
+</script>

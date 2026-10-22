@@ -1,0 +1,56 @@
+---
+/**
+ * MenuPage — pure page shell: header, scaled content canvas with the
+ * background, and footer. It renders no menu content of its own: the page
+ * (`src/pages/index.astro`) assembles the promotions, combos, the seven
+ * block declarations and the empty state, and projects them through the
+ * default slot (F7).
+ *
+ * Construction order mirrors Angular `src/app/base-template/index.ts`:
+ * header → layout-scale → background → [slot content] → footer.
+ *
+ * Props (chrome data only — no blocks, combos or price data):
+ * - `restaurant`    — restaurant profile forwarded to the header and footer
+ * - `settings`      — restaurant settings forwarded to the footer
+ * - `businessHours` — raw schedule forwarded to the footer
+ * - `background`    — background image URL (a remote URL by default)
+ */
+import Header from './header.astro';
+import Footer from './footer.astro';
+import LayoutScale from './layout-scale.astro';
+import type { BusinessHours, RestaurantProfile, RestaurantSettings } from '../types/menu';
+
+interface Props {
+  restaurant?: RestaurantProfile | null;
+  settings?: RestaurantSettings | null;
+  businessHours?: BusinessHours;
+  background?: string;
+  headerBg?: string | null;
+  footerBg?: string | null;
+}
+
+const {
+  restaurant = null,
+  settings = null,
+  businessHours = {},
+  background = 'https://picsum.photos/seed/menu-bg/400/400',
+  headerBg = null,
+  footerBg = null,
+} = Astro.props;
+---
+
+<Header restaurant={restaurant} settings={settings} headerBg={headerBg} />
+
+<LayoutScale>
+  <div style={`background-image: url(${background})`} class="bg-repeat relative mx-2">
+    <slot />
+  </div>
+</LayoutScale>
+
+<Footer
+  restaurant={restaurant}
+  settings={settings}
+  businessHours={businessHours}
+  footerBg={footerBg}
+  class="mt-20 block"
+/>

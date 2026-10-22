@@ -1,0 +1,154 @@
+---
+/**
+ * ReviewModal — Google Maps review prompt that appears after a delay (default 2 min).
+ *
+ * Consumes the `google_maps` URL declared in `src/data/api/settings.json`.
+ *
+ * Props:
+ * - `googleMapsUrl`: Google Maps URL configured in settings
+ * - `restaurantName`: Name of the restaurant
+ * - `delaySeconds`: Time before appearance in seconds (default 120s = 2 min)
+ */
+import Star from '../icons/star.astro';
+import X from '../icons/x.astro';
+import ArrowUpRight from '../icons/arrow-up-right.astro';
+
+interface Props {
+  googleMapsUrl?: string | null;
+  restaurantName?: string;
+  delaySeconds?: number;
+}
+
+const {
+  googleMapsUrl = null,
+  restaurantName = 'Sazón Digital',
+  delaySeconds = 120,
+} = Astro.props;
+
+const isAvailable = Boolean(googleMapsUrl);
+---
+
+{
+  isAvailable && (
+    <div
+      data-review-prompt
+      data-delay-seconds={delaySeconds}
+      data-review-url={googleMapsUrl}
+      class="fixed bottom-6 right-6 z-40 max-w-sm w-[calc(100%-3rem)] mx-auto md:mx-0 opacity-0 pointer-events-none translate-y-8 transition-all duration-500 ease-out"
+      aria-hidden="true"
+    >
+      <div class="relative bg-slate-900/95 border border-white/15 rounded-3xl p-6 shadow-[0_20px_50px_rgba(0,0,0,0.6)] backdrop-blur-xl overflow-hidden">
+        <!-- Background Ambient Glow -->
+        <div class="absolute -top-12 -right-12 w-32 h-32 bg-amber-500/15 rounded-full blur-2xl pointer-events-none" />
+
+        <!-- Dismiss button -->
+        <button
+          data-review-close
+          type="button"
+          class="absolute top-4 right-4 text-white/50 hover:text-white p-1.5 rounded-full hover:bg-white/10 transition-colors"
+          aria-label="Cerrar aviso"
+        >
+          <X class="w-4 h-4" />
+        </button>
+
+        <div class="flex flex-col items-start gap-3">
+          <!-- 5 Stars Icon Row -->
+          <div class="flex items-center gap-1 text-amber-400">
+            {Array.from({ length: 5 }).map(() => (
+              <Star class="w-5 h-5 fill-amber-400 text-amber-400" />
+            ))}
+          </div>
+
+          <!-- Header / Copy -->
+          <div>
+            <h3 class="font-bungee text-white text-base tracking-wide">
+              ¿Disfrutás {restaurantName}?
+            </h3>
+            <p class="text-xs text-white/70 mt-1 leading-relaxed">
+              Tu opinión nos ayuda a seguir creciendo. Dejanos una reseña de 5 estrellas en Google Maps.
+            </p>
+          </div>
+
+          <!-- Actions -->
+          <div class="flex items-center gap-3 w-full mt-2">
+            <a
+              data-review-cta
+              href={googleMapsUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="flex-1 inline-flex items-center justify-center gap-2 bg-gradient-to-r from-primary to-accent hover:opacity-95 text-white font-bold text-xs uppercase tracking-wider px-4 py-3 rounded-xl shadow-lg shadow-primary/20 transition-all hover:scale-[1.02] active:scale-[0.98]"
+            >
+              <span>Dejar reseña</span>
+              <ArrowUpRight class="w-4 h-4" />
+            </a>
+
+            <button
+              data-review-dismiss-btn
+              type="button"
+              class="text-xs text-white/50 hover:text-white px-3 py-3 font-medium transition-colors cursor-pointer"
+            >
+              Más tarde
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+<script>
+  function setupReviewPrompt() {
+    const prompt = document.querySelector<HTMLElement>('[data-review-prompt]');
+    if (!prompt) return;
+
+    const delay = Number(prompt.dataset.delaySeconds ?? 120) * 1000;
+    const sessionKey = 'dm_review_dismissed';
+    const permanentKey = 'dm_review_completed';
+
+    const closeBtn = prompt.querySelector('[data-review-close]');
+    const dismissBtn = prompt.querySelector('[data-review-dismiss-btn]');
+    const ctaBtn = prompt.querySelector('[data-review-cta]');
+
+    const showPrompt = () => {
+      prompt.classList.remove('opacity-0', 'pointer-events-none', 'translate-y-8');
+      prompt.classList.add('opacity-100', 'translate-y-0');
+      prompt.setAttribute('aria-hidden', 'false');
+    };
+
+    const hidePrompt = (permanent = false) => {
+      prompt.classList.remove('opacity-100', 'translate-y-0');
+      prompt.classList.add('opacity-0', 'pointer-events-none', 'translate-y-8');
+      prompt.setAttribute('aria-hidden', 'true');
+
+      if (permanent) {
+        localStorage.setItem(permanentKey, 'true');
+      } else {
+        sessionStorage.setItem(sessionKey, 'true');
+      }
+    };
+
+    const timer = window.setTimeout(() => {
+      if (!localStorage.getItem(permanentKey) && !sessionStorage.getItem(sessionKey)) {
+        showPrompt();
+      }
+    }, delay);
+
+    window.addEventListener('open-review-modal', showPrompt);
+    document.querySelectorAll('[data-open-review-modal]').forEach((el) => {
+      el.addEventListener('click', (e) => {
+        e.preventDefault();
+        showPrompt();
+      });
+    });
+
+    closeBtn?.addEventListener('click', () => hidePrompt(false));
+    dismissBtn?.addEventListener('click', () => hidePrompt(false));
+    ctaBtn?.addEventListener('click', () => hidePrompt(true));
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', setupReviewPrompt);
+  } else {
+    setupReviewPrompt();
+  }
+</script>

@@ -1,0 +1,6 @@
+# Robots.txt for your storefront
+User-agent: *
+Allow: /
+
+# Sitemap (active once `site` is set in astro.config.mjs)
+# Sitemap: https://your-domain.example/sitemap-index.xml

@@ -1,0 +1,99 @@
+---
+/**
+ * Links page (`src/pages/enlaces.astro`, route `/enlaces`).
+ *
+ * Fully driven by `src/data/api/enlaces.json` via the enlaces service.
+ * The JSON defines which blocks appear, in what order, and with what content.
+ * Supported block types: link | banner | product-carousel | video | gallery-grid | divider
+ */
+import Layout from '../storefront/layout/Layout.astro';
+import SiteHeader from '../storefront/layout/site-header.astro';
+
+import Footer from '../storefront/layout/footer.astro';
+import Utensils from '../storefront/icons/utensils.astro';
+
+import { loadStorefront, getEnlaces } from '../storefront/services/index.js';
+
+import BlockLink from '../storefront/enlaces/block-link.astro';
+import BlockBanner from '../storefront/enlaces/block-banner.astro';
+import BlockProductCarousel from '../storefront/enlaces/block-product-carousel.astro';
+import BlockVideo from '../storefront/enlaces/block-video.astro';
+import BlockGalleryGrid from '../storefront/enlaces/block-gallery-grid.astro';
+import BlockDivider from '../storefront/enlaces/block-divider.astro';
+
+const {
+  restaurant,
+  settings,
+  businessHours,
+  decorations,
+  blocks: menuBlocks,
+  gallery,
+} = await loadStorefront();
+
+const { meta, blocks } = await getEnlaces(settings, gallery, menuBlocks);
+
+const restaurantName = meta.title || restaurant?.name || settings?.name || 'Sazón Digital';
+const tagline = meta.tagline || settings?.seo?.description || '';
+const logoUrl = meta.logo_url || settings?.logo_url || null;
+---
+
+<Layout title="Enlaces" seo={settings?.seo}>
+  <div class="min-h-screen flex flex-col bg-secondary text-primary-text font-body selection:bg-primary selection:text-white">
+    <SiteHeader restaurant={restaurant} settings={settings} />
+
+    <main class="flex-1 flex flex-col items-center px-4 py-12 sm:py-20 relative overflow-hidden">
+      <!-- Ambient glow -->
+      <div class="absolute inset-0 pointer-events-none flex items-center justify-center">
+        <div class="w-96 h-96 bg-primary/10 blur-[130px] rounded-full" />
+      </div>
+
+      <div class="relative z-10 w-full max-w-md mx-auto flex flex-col items-center text-center">
+        <!-- Brand avatar -->
+        <div class="w-24 h-24 bg-gradient-to-br from-primary to-primary/80 rounded-3xl flex items-center justify-center shadow-[0_15px_35px_rgba(220,38,38,0.3)] mb-5 overflow-hidden border-2 border-white/10">
+          {logoUrl ? (
+            <img src={logoUrl} alt={restaurantName} class="w-full h-full object-cover" />
+          ) : (
+            <Utensils class="w-12 h-12 text-white" />
+          )}
+        </div>
+
+        <h1 class="text-3xl sm:text-4xl font-display text-white tracking-tight leading-none mb-2">
+          {restaurantName}<span class="text-primary">.</span>
+        </h1>
+        {tagline && (
+          <p class="text-xs sm:text-sm text-primary-text/70 max-w-xs mb-8 leading-relaxed">{tagline}</p>
+        )}
+
+        <!-- Dynamic block list -->
+        <div class="w-full flex flex-col gap-3.5 text-left">
+          {blocks.map((block) => {
+            switch (block.type) {
+              case 'link':
+                return <BlockLink block={block} />;
+              case 'banner':
+                return <BlockBanner block={block} />;
+              case 'product-carousel':
+                return <BlockProductCarousel block={block} />;
+              case 'video':
+                return <BlockVideo block={block} />;
+              case 'gallery-grid':
+                return <BlockGalleryGrid block={block} />;
+              case 'divider':
+                return <BlockDivider block={block} />;
+              default:
+                return null;
+            }
+          })}
+        </div>
+      </div>
+    </main>
+
+    <Footer
+      restaurant={restaurant}
+      settings={settings}
+      businessHours={businessHours}
+      footerBg={decorations?.footer_bg}
+      class="mt-16 block"
+    />
+  </div>
+</Layout>

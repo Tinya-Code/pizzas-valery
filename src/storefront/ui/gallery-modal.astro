@@ -1,0 +1,292 @@
+---
+/**
+ * GalleryModal — expanded lightbox for gallery images, videos, and embedded iframes.
+ *
+ * Features:
+ * - High-resolution expanded view of photos
+ * - Native video playback with controls and autoplay
+ * - Responsive 16:9 and 9:16 iframe embeds (YouTube, TikTok, Facebook)
+ * - Previous / Next navigation with keyboard support (Arrow keys, Escape)
+ * - Backdrop click to close and audio/video cleanup on dismissal
+ */
+import X from '../icons/x.astro';
+import ChevronLeft from '../icons/chevron-left.astro';
+import ChevronRight from '../icons/chevron-right.astro';
+---
+
+<!-- Gallery Lightbox Modal Host -->
+<div
+  id="gallery-modal"
+  class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 md:p-10 opacity-0 pointer-events-none transition-opacity duration-300"
+  role="dialog"
+  aria-modal="true"
+  aria-label="Vista ampliada de galería"
+  hidden
+>
+  <!-- Backdrop -->
+  <div
+    data-gallery-backdrop
+    class="absolute inset-0 bg-secondary/95 backdrop-blur-2xl transition-opacity duration-300"
+  ></div>
+
+  <!-- Modal Container -->
+  <div
+    class="relative z-10 w-full max-w-5xl max-h-[92vh] flex flex-col bg-surface/5 border border-white/15 rounded-3xl shadow-[0_25px_60px_rgba(0,0,0,0.8)] overflow-hidden"
+  >
+    <!-- Top Bar -->
+    <div class="flex items-center justify-between px-6 py-4 border-b border-white/10 bg-secondary/60">
+      <div class="flex items-center gap-3">
+        <span
+          data-modal-category
+          class="text-xs font-bold uppercase tracking-wider text-primary bg-primary/10 px-3 py-1 rounded-full border border-primary/20"
+        ></span>
+        <span
+          data-modal-counter
+          class="text-xs font-mono text-primary-text/60"
+        ></span>
+      </div>
+
+      <button
+        data-modal-close
+        type="button"
+        class="text-white/60 hover:text-white p-2 rounded-xl hover:bg-white/10 transition-colors cursor-pointer"
+        aria-label="Cerrar vista ampliada"
+      >
+        <X class="w-6 h-6" />
+      </button>
+    </div>
+
+    <!-- Media Area with Navigation Arrows -->
+    <div class="relative flex-1 flex items-center justify-center p-4 sm:p-8 min-h-[300px] sm:min-h-[460px] overflow-hidden bg-black/40">
+      <!-- Prev Button -->
+      <button
+        data-modal-prev
+        type="button"
+        class="absolute left-4 z-20 p-3 rounded-full bg-secondary/80 hover:bg-primary text-white border border-white/15 hover:border-primary transition-all duration-200 shadow-xl hover:scale-110 cursor-pointer"
+        aria-label="Elemento anterior"
+      >
+        <ChevronLeft class="w-6 h-6" />
+      </button>
+
+      <!-- Media Content Target -->
+      <div
+        data-modal-media
+        class="w-full h-full flex items-center justify-center overflow-hidden"
+      >
+        <!-- Injected dynamically by client script -->
+      </div>
+
+      <!-- Next Button -->
+      <button
+        data-modal-next
+        type="button"
+        class="absolute right-4 z-20 p-3 rounded-full bg-secondary/80 hover:bg-primary text-white border border-white/15 hover:border-primary transition-all duration-200 shadow-xl hover:scale-110 cursor-pointer"
+        aria-label="Elemento siguiente"
+      >
+        <ChevronRight class="w-6 h-6" />
+      </button>
+    </div>
+
+    <!-- Bottom Caption Bar -->
+    <div class="px-6 py-4 border-t border-white/10 bg-secondary/60 flex flex-col gap-1">
+      <h3
+        data-modal-title
+        class="text-xl sm:text-2xl font-display text-white tracking-tight"
+      ></h3>
+      <p
+        data-modal-description
+        class="text-xs sm:text-sm text-primary-text/75 leading-relaxed"
+      ></p>
+    </div>
+  </div>
+</div>
+
+<script>
+  (() => {
+    const modal = document.getElementById('gallery-modal');
+    if (!modal) return;
+
+    const mediaTarget = modal.querySelector<HTMLElement>('[data-modal-media]');
+    const categoryTarget = modal.querySelector<HTMLElement>('[data-modal-category]');
+    const counterTarget = modal.querySelector<HTMLElement>('[data-modal-counter]');
+    const titleTarget = modal.querySelector<HTMLElement>('[data-modal-title]');
+    const descTarget = modal.querySelector<HTMLElement>('[data-modal-description]');
+
+    const closeBtn = modal.querySelector('[data-modal-close]');
+    const backdrop = modal.querySelector('[data-gallery-backdrop]');
+    const prevBtn = modal.querySelector('[data-modal-prev]');
+    const nextBtn = modal.querySelector('[data-modal-next]');
+
+    // Collect all gallery items
+    const triggerCards = Array.from(document.querySelectorAll<HTMLElement>('[data-gallery-item]'));
+    if (triggerCards.length === 0) return;
+
+    interface GalleryItemData {
+      id: string;
+      title: string;
+      category: string;
+      type?: 'image' | 'video' | 'embed';
+      url?: string;
+      embed_html?: string;
+      poster?: string;
+      alt?: string;
+      description?: string;
+      aspect_ratio?: string;
+    }
+
+    const items: GalleryItemData[] = triggerCards.map((card) => {
+      try {
+        return JSON.parse(card.dataset.galleryData || '{}');
+      } catch {
+        return {
+          id: card.dataset.galleryItem || '',
+          title: card.querySelector('h3')?.innerText || '',
+          category: card.closest('[data-gallery-category]')?.getAttribute('data-gallery-category') || '',
+          type: 'image',
+          url: card.querySelector('img')?.src || '',
+          alt: card.querySelector('img')?.alt || '',
+          description: card.querySelector('p')?.innerText || '',
+        };
+      }
+    });
+
+    let currentIndex = 0;
+
+    function resolveEmbedUrl(item: GalleryItemData): string | null {
+      const url = item.url ?? '';
+      if (!url) return null;
+
+      const ytMatch = url.match(/(?:youtube\.com\/(?:watch\?v=|shorts\/|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+      if (ytMatch) {
+        return `https://www.youtube-nocookie.com/embed/${ytMatch[1]}?autoplay=1`;
+      }
+
+      const ttMatch = url.match(/tiktok\.com\/(?:@[^/]+\/video\/|v\/)(\d+)/);
+      if (ttMatch) {
+        return `https://www.tiktok.com/embed/v2/${ttMatch[1]}`;
+      }
+
+      if (url.includes('facebook.com') && !url.includes('facebook.com/plugins/video.php')) {
+        return `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(url)}&show_text=0&autoplay=1`;
+      }
+
+      return url;
+    }
+
+    function renderItem(index: number) {
+      if (index < 0 || index >= items.length) return;
+      currentIndex = index;
+      const item = items[index];
+
+      if (categoryTarget) categoryTarget.innerText = item.category || 'Galería';
+      if (counterTarget) counterTarget.innerText = `${index + 1} / ${items.length}`;
+      if (titleTarget) titleTarget.innerText = item.title || '';
+      if (descTarget) {
+        descTarget.innerText = item.description || '';
+        descTarget.style.display = item.description ? 'block' : 'none';
+      }
+
+      if (!mediaTarget) return;
+      mediaTarget.innerHTML = '';
+
+      const isVideo = item.type === 'video' || (!item.type && Boolean(item.url?.endsWith('.mp4') || item.url?.endsWith('.webm')));
+      const isEmbed = item.type === 'embed' || Boolean(item.embed_html) || (!item.type && Boolean(item.url?.includes('youtube') || item.url?.includes('youtu.be') || item.url?.includes('tiktok') || item.url?.includes('facebook')));
+      const isAspect916 = item.aspect_ratio === '9/16' || Boolean(item.url?.includes('shorts') || item.url?.includes('tiktok'));
+
+      if (item.embed_html) {
+        const wrapper = document.createElement('div');
+        wrapper.className = isAspect916
+          ? 'w-full max-w-sm aspect-[9/16] rounded-2xl overflow-hidden mx-auto shadow-2xl'
+          : 'w-full max-w-3xl aspect-video rounded-2xl overflow-hidden mx-auto shadow-2xl';
+        wrapper.innerHTML = item.embed_html;
+        mediaTarget.appendChild(wrapper);
+      } else if (isEmbed) {
+        const embedUrl = resolveEmbedUrl(item);
+        if (embedUrl) {
+          const wrapper = document.createElement('div');
+          wrapper.className = isAspect916
+            ? 'w-full max-w-sm aspect-[9/16] rounded-2xl overflow-hidden mx-auto shadow-2xl'
+            : 'w-full max-w-3xl aspect-video rounded-2xl overflow-hidden mx-auto shadow-2xl';
+          const iframe = document.createElement('iframe');
+          iframe.src = embedUrl;
+          iframe.title = item.title;
+          iframe.className = 'w-full h-full border-0';
+          iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+          iframe.allowFullscreen = true;
+          wrapper.appendChild(iframe);
+          mediaTarget.appendChild(wrapper);
+        }
+      } else if (isVideo && item.url) {
+        const video = document.createElement('video');
+        video.src = item.url;
+        if (item.poster) video.poster = item.poster;
+        video.controls = true;
+        video.autoplay = true;
+        video.playsInline = true;
+        video.className = 'max-h-[68vh] w-auto max-w-full rounded-2xl mx-auto shadow-2xl object-contain';
+        mediaTarget.appendChild(video);
+      } else if (item.url) {
+        const img = document.createElement('img');
+        img.src = item.url;
+        img.alt = item.alt || item.title;
+        img.className = 'max-h-[68vh] w-auto max-w-full rounded-2xl mx-auto shadow-2xl object-contain';
+        mediaTarget.appendChild(img);
+      }
+    }
+
+    function openModal(index: number) {
+      renderItem(index);
+      modal.removeAttribute('hidden');
+      requestAnimationFrame(() => {
+        modal.classList.remove('opacity-0', 'pointer-events-none');
+        modal.classList.add('opacity-100');
+        document.body.style.overflow = 'hidden';
+      });
+    }
+
+    function closeModal() {
+      modal.classList.remove('opacity-100');
+      modal.classList.add('opacity-0', 'pointer-events-none');
+      document.body.style.overflow = '';
+
+      setTimeout(() => {
+        if (mediaTarget) {
+          // Stop any playing video or iframe
+          mediaTarget.innerHTML = '';
+        }
+        modal.setAttribute('hidden', '');
+      }, 300);
+    }
+
+    function showPrev() {
+      const prev = (currentIndex - 1 + items.length) % items.length;
+      renderItem(prev);
+    }
+
+    function showNext() {
+      const next = (currentIndex + 1) % items.length;
+      renderItem(next);
+    }
+
+    // Attach trigger clicks to cards
+    triggerCards.forEach((card, idx) => {
+      card.style.cursor = 'pointer';
+      card.addEventListener('click', (e) => {
+        e.preventDefault();
+        openModal(idx);
+      });
+    });
+
+    closeBtn?.addEventListener('click', closeModal);
+    backdrop?.addEventListener('click', closeModal);
+    prevBtn?.addEventListener('click', showPrev);
+    nextBtn?.addEventListener('click', showNext);
+
+    document.addEventListener('keydown', (e) => {
+      if (modal.hasAttribute('hidden')) return;
+      if (e.key === 'Escape') closeModal();
+      else if (e.key === 'ArrowLeft') showPrev();
+      else if (e.key === 'ArrowRight') showNext();
+    });
+  })();
+</script>
