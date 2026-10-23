@@ -30,7 +30,7 @@ const href = WhatsApp.link(phone);
 
 <div class={`w-full flex flex-col sm:flex-row justify-between items-center gap-6 pt-8 ${className}`}>
   <div class="flex items-center gap-4 group">
-    <a href={href} target="_blank" rel="noopener noreferrer" class="relative" aria-label={`Contactar a ${name}`}>
+    <a href={href} data-wa-bypass target="_blank" rel="noopener noreferrer" class="relative" aria-label={`Contactar a ${name}`}>
       <div
         class="absolute -inset-1 bg-gradient-to-r from-primary to-accent rounded-full blur opacity-20 group-hover:opacity-70 transition duration-500"
       >
@@ -48,6 +48,7 @@ const href = WhatsApp.link(phone);
       </span>
       <a
         href={href}
+        data-wa-bypass
         target="_blank"
         rel="noopener noreferrer"
         class="text-white/90 font-display tracking-wide hover:text-white transition-colors flex items-center gap-1.5"

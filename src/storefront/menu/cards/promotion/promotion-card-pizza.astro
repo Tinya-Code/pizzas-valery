@@ -1,0 +1,63 @@
+---
+/**
+ * PromotionCardPizza — promotion design for the promotions slider.
+ * Description is always fully visible (no expand toggle).
+ *
+ * Props:
+ * - `promotion` — v2 `Promotion` (effective `price`, compare-at `price_before`)
+ * - `canOrder`  — whether the storefront accepts orders right now (page-loaded)
+ *
+ * Markup + `data-*` payloads (`data-promotion`, `data-product`); the page owns
+ * the click delegation for the `data-promotion-card` root and dispatches
+ * `add-to-cart`. `data-product` carries the same real `Promotion` payload the
+ * dialog renders from.
+ */
+import AddButton from '../../../commerce/add-button.astro';
+import { precio } from '../../../utils/format.js';
+import type { Promotion } from '../../../types/menu';
+
+interface Props {
+  promotion: Promotion;
+  canOrder?: boolean;
+}
+
+const { promotion, canOrder = true } = Astro.props;
+---
+
+<div
+  data-promotion-card
+  data-promotion={JSON.stringify(promotion ?? {})}
+  data-product={JSON.stringify(promotion ?? {})}
+  class="group relative  items-center w-120 min-h-70 border border-transparent hover:border-accent rounded-sm p-4 flex flex-col cursor-pointer"
+>
+  <div class="w-full col-span-1 h-auto gap-2 flex items-start justify-between">
+    <div class=" relative  ">
+      <img src={promotion.image.url} alt={promotion.image.alt} title={promotion.name} class="h-auto w-full object-contain duration-300" />
+
+    </div>
+
+    <div class="flex flex-col items-start max-w-50  gap-4">
+      <h3 class="text-4xl font-display text-white">{promotion.name}</h3>
+
+      <div class="flex w-full items-start mx-auto flex-col relative">
+        <span class="text-lg font-display text-primary-text/50 line-through">
+          {precio(promotion.price_before)}
+        </span>
+        <span class="text-3xl py-1 px-3 rounded-sm bg-primary font-display text-white">
+          {precio(promotion.price)}
+        </span>
+              {
+        canOrder && (
+          <AddButton class=" absolute bottom-0 right-0" />
+        )
+      }
+      </div>
+    </div>
+  </div>
+
+  <div class="flex flex-col items-start mt-auto  px-4">
+    <p class="text-lg text-white/80">
+      {promotion.description}
+    </p>
+  </div>
+</div>

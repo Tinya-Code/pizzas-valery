@@ -212,10 +212,20 @@ export type WeekdayKey = 'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat' | 'sun';
  */
 export type BusinessHours = Partial<Record<WeekdayKey, DaySchedule>>;
 
+/** One selectable WhatsApp contact (`settings.whatsapp.contacts[]`). */
+export interface WhatsappContact {
+  label: string;
+  number: string;
+  description?: string | null;
+}
+
 /** `settings.whatsapp` — how the storefront opens WhatsApp. */
 export interface WhatsappConfig {
+  /** Primary number — legacy contract and fallback when `contacts` is empty. */
   number: string;
   message_template: string | null;
+  /** 2+ entries → every WhatsApp entry point opens the contact picker. */
+  contacts?: WhatsappContact[];
 }
 
 /** `settings.geo` — restaurant coordinates. */

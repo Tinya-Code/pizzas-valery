@@ -63,23 +63,23 @@ const isGaleriaActive = currentPath === "/galeria";
   </nav>
   <a
     href="/"
-    class="flex items-center fixed z-50 index-z gap-3 p-1 border border-white rounded-full group"
+    class="flex items-center fixed z-50 index-z gap-3  border border-white rounded-full group"
     aria-label="Inicio"
   >
-    <div
-      class="w-12 h-12 bg-gradient-to-br from-primary to-primary/80 rounded-full flex items-center justify-center shadow-md overflow-hidden transition-transform duration-300 group-hover:scale-105"
-    >
-      {
-        logoUrl ? (
+    {
+      logoUrl ? (
+        <div class="w-13 h-13   flex items-center justify-center p-1 bg-white rounded-full overflow-hidden transition-transform duration-300 group-hover:scale-105">
           <img
             src={logoUrl}
             alt={restaurantName}
             class="w-full h-full object-cover"
           />
-        ) : (
+        </div>
+      ) : (
+        <div class="w-12 h-12 bg-gradient-to-br from-primary to-primary/80 rounded-full flex items-center justify-center shadow-md overflow-hidden transition-transform duration-300 group-hover:scale-105">
           <Utensils class="w-6 h-6 text-white" />
-        )
-      }
-    </div>
+        </div>
+      )
+    }
   </a>
 </header>

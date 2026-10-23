@@ -36,26 +36,30 @@
  * (`src/utils/events.ts`): delegated card clicks, `add-to-cart` → cart, and
  * the dialog open/close listeners.
  */
-import Layout from '../storefront/layout/Layout.astro';
-import MenuPage from '../storefront/layout/menu-page.astro';
-import CategoryNav from '../storefront/menu/category-nav.astro';
-import MenuBlock from '../storefront/menu/blocks/menu-block.astro';
-import BlockCombos from '../storefront/menu/blocks/block-combos.astro';
-import BlockPromotions from '../storefront/menu/blocks/block-promotions.astro';
-import IllustrationCell from '../storefront/menu/blocks/illustration-cell.astro';
-import TemplateCard from '../storefront/menu/cards/template-card.astro';
-import TemplateComboCard from '../storefront/menu/cards/combo/template-combo-card.astro';
-import TemplatePromotionCard from '../storefront/menu/cards/promotion/template-promotion-card.astro';
-import CartTrigger from '../storefront/commerce/cart/cart-trigger.astro';
-import WhatsAppButton from '../storefront/ui/whatsapp-button.astro';
-import SidebarCart from '../storefront/commerce/cart/sidebar-cart.astro';
-import ProductDetail from '../storefront/menu/product-detail.astro';
-import RestaurantClosedModal from '../storefront/ui/restaurant-closed-modal.astro';
-import FlyerModal from '../storefront/ui/flyer-modal.astro';
-import ReviewModal from '../storefront/ui/review-modal.astro';
-
-import { loadStorefront } from '../storefront/services/index.js';
-import type { MenuCategory, MenuProduct } from '../storefront/types/menu';
+import Layout from "../storefront/layout/Layout.astro";
+import MenuPage from "../storefront/layout/menu-page.astro";
+import CategoryNav from "../storefront/menu/category-nav.astro";
+import MenuBlock from "../storefront/menu/blocks/menu-block.astro";
+import BlockCombos from "../storefront/menu/blocks/block-combos.astro";
+import BlockPromotions from "../storefront/menu/blocks/block-promotions.astro";
+import IllustrationCell from "../storefront/menu/blocks/illustration-cell.astro";
+import TemplateCard from "../storefront/menu/cards/template-card.astro";
+import TemplateComboCard from "../storefront/menu/cards/template-combo-card.astro";
+import TemplatePromotionCard from "../storefront/menu/cards/template-promotion-card.astro";
+import CartTrigger from "../storefront/commerce/cart/cart-trigger.astro";
+import WhatsAppButton from "../storefront/ui/whatsapp-button.astro";
+import WhatsAppContacts from "../storefront/ui/whatsapp-contacts.astro";
+import SidebarCart from "../storefront/commerce/cart/sidebar-cart.astro";
+import ProductDetail from "../storefront/menu/product-detail.astro";
+import RestaurantClosedModal from "../storefront/ui/restaurant-closed-modal.astro";
+import FlyerModal from "../storefront/ui/flyer-modal.astro";
+import ReviewModal from "../storefront/ui/review-modal.astro";
+import ProductCardPizzaRange from "../storefront/menu/cards/product/product-card-pizza-range.astro";
+import ProductCardPizzaRangeImage from "../storefront/menu/cards/product/product-card-pizza-range-image.astro";
+import ProductCardBebidas from "../storefront/menu/cards/product/product-card-bebidas.astro";
+import PromotionCardPizza from "../storefront/menu/cards/promotion/promotion-card-pizza.astro";
+import { loadStorefront } from "../storefront/services/index.js";
+import type { MenuCategory, MenuProduct } from "../storefront/types/menu";
 
 /** Storefront payload loaded once at build time. */
 const {
@@ -75,12 +79,12 @@ const {
 /** Ordering rules every card and dialog renders from. */
 const canOrder = settings?.delivery?.enabled ?? true;
 const maxOrderQuantity = settings?.max_order_quantity ?? 99;
-const whatsappPhone = settings?.whatsapp?.number ?? '';
+const whatsappPhone = settings?.whatsapp?.number ?? "";
 const whatsappTemplate = settings?.whatsapp?.message_template ?? null;
 
 /** `allCategories` from `Menu.ngOnInit` — `{ category }` wrappers. */
-const allCategories: Array<{ category: MenuCategory }> = blocks.flatMap((block) =>
-  (block.categories ?? []).map((category) => ({ category })),
+const allCategories: Array<{ category: MenuCategory }> = blocks.flatMap(
+  (block) => (block.categories ?? []).map((category) => ({ category })),
 );
 
 /** Every product, used to pick the dialog's template product. */
@@ -89,10 +93,12 @@ const allProducts: MenuProduct[] = blocks.flatMap((block) =>
 );
 
 /** One block's categories by id — each MenuBlock declaration renders one block. */
-const cats = (id: string) => blocks.find((block) => block?.id === id)?.categories ?? [];
+const cats = (id: string) =>
+  blocks.find((block) => block?.id === id)?.categories ?? [];
 
 /** The "updating the menu" state renders only when every list is empty. */
-const hasContent = blocks.length > 0 || combos.length > 0 || promotions.length > 0;
+const hasContent =
+  blocks.length > 0 || combos.length > 0 || promotions.length > 0;
 
 /**
  * Block-7 illustration list. This is the wiring point for the postres
@@ -101,14 +107,15 @@ const hasContent = blocks.length > 0 || combos.length > 0 || promotions.length >
  */
 const postresImages: { url?: string }[] = [];
 
-
 /**
  * The hours attribute is omitted entirely when the schedule never arrived:
  * `readBusinessHours()` then returns `null`, which `isOpenAt()` treats as
  * "open" — the same semantics the old failed client-side fetch had.
  */
 const hoursJson =
-  rawHours === undefined ? null : JSON.stringify(rawHours).replace(/</g, '\\u003c');
+  rawHours === undefined
+    ? null
+    : JSON.stringify(rawHours).replace(/</g, "\\u003c");
 ---
 
 <Layout title="Menú" seo={settings?.seo ?? null}>
@@ -123,7 +130,7 @@ const hoursJson =
       headerBg={decorations.header_background ?? settings?.header_bg}
       footerBg={decorations.footer_background ?? settings?.footer_bg}
     >
-      <div class:list={['h-full w-auto mx-2', hasContent && 'py-12']}>
+      <div class:list={["h-full w-auto mx-2", hasContent && "py-12"]}>
         <!--
           DESIGN WIRING (template port point): every block declares its
           per-item `card` slot as a function child that renders the block's
@@ -133,92 +140,177 @@ const hoursJson =
         -->
         <BlockPromotions promotions={promotions} canOrder={canOrder}>
           <fragment slot="card">
-            {(promotion, canOrder) => (
-              <TemplatePromotionCard promotion={promotion} canOrder={canOrder} />
-            )}
+            {
+              (promotion, canOrder) => (
+                <TemplatePromotionCard
+                  promotion={promotion}
+                  canOrder={canOrder}
+                >
+                  <fragment slot="flat-with-image">
+                    {(promotion, canOrder) => (
+                      <PromotionCardPizza
+                        promotion={promotion}
+                        canOrder={canOrder}
+                      />
+                    )}
+                  </fragment>
+                </TemplatePromotionCard>
+              )
+            }
           </fragment>
         </BlockPromotions>
 
         <BlockCombos combos={combos} canOrder={canOrder}>
           <fragment slot="card">
-            {(combo, canOrder) => (
-              <TemplateComboCard combo={combo} canOrder={canOrder} />
-            )}
+            {
+              (combo, canOrder) => (
+                <TemplateComboCard combo={combo} canOrder={canOrder} />
+              )
+            }
           </fragment>
         </BlockCombos>
 
         <!-- block-1: maki rail + barco parallax -->
         <MenuBlock
-          categories={cats('block-1')}
-          decorations={decorations.blocks?.['block-1']}
+          categories={cats("block-1")}
+          decorations={decorations.blocks?.["block-1"]}
           canOrder={canOrder}
           outerClass="grid-cols-4 md:grid-cols-12 gap-x-12 gap-y-16"
           categorySectionClass="col-span-3 md:col-span-8"
           cardsClass="grid-cols-2 md:grid-cols-3 gap-8"
-          sectionAttrs={{ 'data-block-1': '' }}
+          sectionAttrs={{ "data-block-1": "" }}
         >
           <fragment slot="card">
-            {(product, canOrder) => (
-              <TemplateCard product={product} canOrder={canOrder} />
-            )}
+            {
+              (product, canOrder) => (
+                <TemplateCard product={product} canOrder={canOrder}>
+                  <fragment slot="range-with-image">
+                    {(product, canOrder) => (
+                      <ProductCardPizzaRangeImage
+                        product={product}
+                        canOrder={canOrder}
+                      />
+                    )}
+                  </fragment>
+                  <fragment slot="range-no-image">
+                    {(product, canOrder) => (
+                      <ProductCardPizzaRange
+                        product={product}
+                        canOrder={canOrder}
+                      />
+                    )}
+                  </fragment>
+                </TemplateCard>
+              )
+            }
           </fragment>
         </MenuBlock>
 
         <!-- block-2: plain categories, single column → 2-up cards -->
         <MenuBlock
-          categories={cats('block-2')}
+          categories={cats("block-2")}
           canOrder={canOrder}
           outerClass="grid-cols-1 md:grid-cols-1 gap-x-12 gap-y-16 items-start"
           cardsClass="grid-cols-1 md:grid-cols-2"
         >
           <fragment slot="card">
-            {(product, canOrder) => (
-              <TemplateCard product={product} canOrder={canOrder} />
-            )}
+            {
+              (product, canOrder) => (
+                <TemplateCard product={product} canOrder={canOrder} />
+              )
+            }
           </fragment>
         </MenuBlock>
 
         <!-- block-3: full-width header row with the alitas decorations -->
         <MenuBlock
-          categories={cats('block-3')}
-          decorations={decorations.blocks?.['block-3']}
+          categories={cats("block-3")}
+          decorations={decorations.blocks?.["block-3"]}
           canOrder={canOrder}
           outerClass="relative grid-cols-1 md:grid-cols-12 gap-x-12 gap-y-8 items-start"
           categorySectionClass="col-span-12 md:col-span-8"
-          cardsClass="grid-cols-3 md:grid-cols-4 gap-6"
+          cardsClass="grid-cols-1 md:grid-cols-2 gap-6"
         >
           <fragment slot="card">
-            {(product, canOrder) => (
-              <TemplateCard product={product} canOrder={canOrder} />
-            )}
+            {
+              (product, canOrder) => (
+                <TemplateCard product={product} canOrder={canOrder} />
+              )
+            }
           </fragment>
         </MenuBlock>
 
         <!-- block-4: same layout as block-2 -->
         <MenuBlock
-          categories={cats('block-4')}
+          categories={cats("block-4")}
           canOrder={canOrder}
           outerClass="grid-cols-1 md:grid-cols-1 gap-x-12 gap-y-16 items-start"
-          cardsClass="grid-cols-1 md:grid-cols-2"
+          cardsClass="grid-cols-2 md:grid-cols-4"
         >
           <fragment slot="card">
-            {(product, canOrder) => (
-              <TemplateCard product={product} canOrder={canOrder} />
-            )}
+            {
+              (product, canOrder) => (
+                <TemplateCard product={product} canOrder={canOrder}>
+                  <fragment slot="range-with-image">
+                    {(product, canOrder) => (
+                      <ProductCardPizzaRangeImage
+                        product={product}
+                        canOrder={canOrder}
+                      />
+                    )}
+                  </fragment>
+                  <fragment slot="range-no-image">
+                    {(product, canOrder) => (
+                      <ProductCardPizzaRange
+                        product={product}
+                        canOrder={canOrder}
+                      />
+                    )}
+                  </fragment>
+                </TemplateCard>
+              )
+            }
           </fragment>
         </MenuBlock>
 
         <!-- block-5: 2-up cards from mobile -->
         <MenuBlock
-          categories={cats('block-5')}
+          categories={cats("block-5")}
           canOrder={canOrder}
           outerClass="grid-cols-1 md:grid-cols-1 gap-x-12 gap-y-16 items-start"
-          cardsClass="grid-cols-2 md:grid-cols-2"
+          cardsClass="grid-cols-3 md:grid-cols-5 gap-6"
         >
           <fragment slot="card">
-            {(product, canOrder) => (
-              <TemplateCard product={product} canOrder={canOrder} />
-            )}
+            {
+              (product, canOrder) => (
+                                <TemplateCard product={product} canOrder={canOrder}>
+                  <fragment slot="range-with-image">
+                    {(product, canOrder) => (
+                      <ProductCardPizzaRangeImage
+                        product={product}
+                        canOrder={canOrder}
+                      />
+                    )}
+                  </fragment>
+                  <fragment slot="range-no-image">
+                    {(product, canOrder) => (
+                      <ProductCardPizzaRange
+                        product={product}
+                        canOrder={canOrder}
+                      />
+                    )}
+                  </fragment>
+                  <fragment slot="flat-with-image">
+                    {(product, canOrder) => (
+                      <ProductCardBebidas
+                        product={product}
+                        canOrder={canOrder}
+                      />
+                    )}
+                  </fragment>
+                </TemplateCard>
+              )
+            }
           </fragment>
         </MenuBlock>
 
@@ -231,46 +323,75 @@ const hoursJson =
                </fragment>
              Slots: flat-with-image | flat-no-image | range-with-image | range-no-image -->
         <MenuBlock
-          categories={cats('block-6')}
-          decorations={decorations.blocks?.['block-6']}
+          categories={cats("block-6")}
+          decorations={decorations.blocks?.["block-6"]}
           canOrder={canOrder}
           outerClass="grid-cols-5 md:grid-cols-12 md:gap-12 items-start"
           categorySectionClass="w-full col-span-4 md:col-span-8"
-          cardsClass="grid-cols-2 md:grid-cols-2"
+          cardsClass="grid-cols-2 md:grid-cols-3 gap-6"
         >
           <fragment slot="card">
-            {(product, canOrder) => (
-              <TemplateCard product={product} canOrder={canOrder}>
-                <fragment slot="range-with-image">
-                  {(product, canOrder) => (
-                    <TemplateCard product={product} canOrder={canOrder} />
-                  )}
-                </fragment>
-              </TemplateCard>
-            )}
+            {
+              (product, canOrder) => (
+                <TemplateCard product={product} canOrder={canOrder}>
+                  <fragment slot="range-with-image">
+                    {(product, canOrder) => (
+                      <ProductCardPizzaRangeImage
+                        product={product}
+                        canOrder={canOrder}
+                      />
+                    )}
+                  </fragment>
+                  <fragment slot="range-no-image">
+                    {(product, canOrder) => (
+                      <ProductCardPizzaRange
+                        product={product}
+                        canOrder={canOrder}
+                      />
+                    )}
+                  </fragment>
+                  <fragment slot="flat-with-image">
+                    {(product, canOrder) => (
+                      <ProductCardBebidas
+                        product={product}
+                        canOrder={canOrder}
+                      />
+                    )}
+                  </fragment>
+                </TemplateCard>
+              )
+            }
           </fragment>
         </MenuBlock>
 
         <!-- block-7: dessert illustration cell -->
         <MenuBlock
-          categories={cats('block-7')}
+          categories={cats("block-7")}
           canOrder={canOrder}
           outerClass="grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-16 items-start"
           cardsClass="grid-cols-2 md:grid-cols-1"
         >
           <fragment slot="card">
-            {(product, canOrder) => (
-              <TemplateCard product={product} canOrder={canOrder} />
-            )}
+            {
+              (product, canOrder) => (
+                <TemplateCard product={product} canOrder={canOrder} />
+              )
+            }
           </fragment>
-          <IllustrationCell slot="extra" images={postresImages} label="Postres" />
+          <IllustrationCell
+            slot="extra"
+            images={postresImages}
+            label="Postres"
+          />
         </MenuBlock>
       </div>
       {
         !hasContent && (
           <div class="flex flex-col items-center justify-center py-20 text-white italic font-medium">
             <p class="text-xl">Estamos actualizando nuestra carta...</p>
-            <p class="text-sm mt-2">Danos un momento para prepararte lo mejor.</p>
+            <p class="text-sm mt-2">
+              Danos un momento para prepararte lo mejor.
+            </p>
           </div>
         )
       }
@@ -284,26 +405,30 @@ const hoursJson =
 
     <!-- Product dialogs: one per product and promotion, all hidden.
          Revealed on card click. -->
-    {allProducts.map((product) => (
-      <div data-product-detail-host={product.id} hidden>
-        <ProductDetail
-          product={product}
-          maxQuantity={maxOrderQuantity}
-          canOrder={canOrder}
-          whatsappPhone={whatsappPhone}
-        />
-      </div>
-    ))}
-    {promotions.map((promotion) => (
-      <div data-product-detail-host={promotion.id} hidden>
-        <ProductDetail
-          product={promotion}
-          maxQuantity={maxOrderQuantity}
-          canOrder={canOrder}
-          whatsappPhone={whatsappPhone}
-        />
-      </div>
-    ))}
+    {
+      allProducts.map((product) => (
+        <div data-product-detail-host={product.id} hidden>
+          <ProductDetail
+            product={product}
+            maxQuantity={maxOrderQuantity}
+            canOrder={canOrder}
+            whatsappPhone={whatsappPhone}
+          />
+        </div>
+      ))
+    }
+    {
+      promotions.map((promotion) => (
+        <div data-product-detail-host={promotion.id} hidden>
+          <ProductDetail
+            product={promotion}
+            maxQuantity={maxOrderQuantity}
+            canOrder={canOrder}
+            whatsappPhone={whatsappPhone}
+          />
+        </div>
+      ))
+    }
 
     <RestaurantClosedModal businessHours={businessHours} />
     <FlyerModal flyers={flyers} />
@@ -316,14 +441,18 @@ const hoursJson =
 
   {
     hoursJson !== null && (
-      <div id="business-hours-data" data-business-hours={hoursJson} hidden></div>
+      <div id="business-hours-data" data-business-hours={hoursJson} hidden />
     )
   }
 
   <script>
-    import { readProduct, readJson, readBusinessHours } from '../storefront/utils/dom';
-    import { cartService } from '../storefront/services/cart.service.js';
-    import { isOpenAt } from '../storefront/services/business-hours.service.js';
+    import {
+      readProduct,
+      readJson,
+      readBusinessHours,
+    } from "../storefront/utils/dom";
+    import { cartService } from "../storefront/services/cart.service.js";
+    import { isOpenAt } from "../storefront/services/business-hours.service.js";
 
     // ─── Product dialog ──────────────────────────────────────────────────────
     // Every product has its own pre-rendered dialog in the DOM, hidden by
@@ -338,39 +467,39 @@ const hoursJson =
       if (!host) return;
 
       // Reset the stepper to 1 every time the dialog opens.
-      const stepper = host.querySelector<HTMLElement>('[data-quantity]');
+      const stepper = host.querySelector<HTMLElement>("[data-quantity]");
       if (stepper) {
-        stepper.setAttribute('data-qty-value', '1');
-        const qtyLabel = stepper.querySelector<HTMLElement>('[data-qty-label]');
-        if (qtyLabel) qtyLabel.textContent = '1';
-        const dec = stepper.querySelector<HTMLButtonElement>('[data-qty-dec]');
-        const inc = stepper.querySelector<HTMLButtonElement>('[data-qty-inc]');
+        stepper.setAttribute("data-qty-value", "1");
+        const qtyLabel = stepper.querySelector<HTMLElement>("[data-qty-label]");
+        if (qtyLabel) qtyLabel.textContent = "1";
+        const dec = stepper.querySelector<HTMLButtonElement>("[data-qty-dec]");
+        const inc = stepper.querySelector<HTMLButtonElement>("[data-qty-inc]");
         if (dec) dec.disabled = true;
         if (inc) inc.disabled = false;
       }
 
       host.hidden = false;
       activeHost = host;
-      document.documentElement.style.overflow = 'hidden';
+      document.documentElement.style.overflow = "hidden";
     };
 
     // ─── Direct click delegation ─────────────────────────────────────────────
-    document.addEventListener('click', (event) => {
+    document.addEventListener("click", (event) => {
       const target = event.target instanceof Element ? event.target : null;
       if (!target) return;
 
       // 1. Add button click
-      const addButton = target.closest('[data-add-button]');
+      const addButton = target.closest("[data-add-button]");
       if (addButton) {
         if (!isOpenAt(readBusinessHours())) {
           cartService.showBusinessClosedModal();
           return;
         }
-        const templateCard = target.closest('[data-template-card]');
+        const templateCard = target.closest("[data-template-card]");
         if (templateCard) {
           const product = readProduct(templateCard);
           if (!product) return;
-          if (templateCard.getAttribute('data-has-range') === 'true') {
+          if (templateCard.getAttribute("data-has-range") === "true") {
             openDialog(product.id);
             return;
           }
@@ -378,24 +507,24 @@ const hoursJson =
           return;
         }
 
-        const comboCard = target.closest('[data-combo-card]');
+        const comboCard = target.closest("[data-combo-card]");
         if (comboCard) {
-          const combo = readJson<{ id: string; name: string; price: number } | null>(
-            comboCard,
-            'data-combo',
-            null,
-          );
+          const combo = readJson<{
+            id: string;
+            name: string;
+            price: number;
+          } | null>(comboCard, "data-combo", null);
           if (combo) cartService.addItem(combo, 1);
           return;
         }
 
-        const promotionCard = target.closest('[data-promotion-card]');
+        const promotionCard = target.closest("[data-promotion-card]");
         if (promotionCard) {
-          const promotion = readJson<{ id: string; name: string; price: number } | null>(
-            promotionCard,
-            'data-promotion',
-            null,
-          );
+          const promotion = readJson<{
+            id: string;
+            name: string;
+            price: number;
+          } | null>(promotionCard, "data-promotion", null);
           if (promotion) cartService.addItem(promotion, 1);
           return;
         }
@@ -403,12 +532,17 @@ const hoursJson =
       }
 
       // 2. Card click (opens dialog)
-      const card = target.closest('[data-template-card], [data-promotion-card]');
+      const card = target.closest(
+        "[data-template-card], [data-promotion-card]",
+      );
       if (card) {
-        if (target.closest('[data-toggle-description]')) return;
+        if (target.closest("[data-toggle-description]")) return;
         const product = readProduct(card);
         if (product) openDialog(product.id);
       }
     });
   </script>
+
+  <!-- Multi-contact WhatsApp picker (intercepts every wa.me anchor) -->
+  <WhatsAppContacts settings={settings} />
 </Layout>

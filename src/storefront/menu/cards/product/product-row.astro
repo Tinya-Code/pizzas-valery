@@ -32,7 +32,7 @@ const startingPrice = product.price;
   data-template-card
   data-has-range="false"
   data-product={JSON.stringify(product ?? {})}
-  class="group relative py-6 px-4 md:px-6 transition-all duration-300 cursor-pointer hover:bg-secondary/5 border-b border-secondary/10 flex items-start gap-6"
+  class="group relative py-6 px-4  transition-all duration-300 cursor-pointer hover:bg-secondary/5 border-b border-secondary/10 flex items-start gap-6"
 >
   <!-- Contenido Izquierdo (Info) -->
   <div class="flex-1 space-y-2">
@@ -40,7 +40,7 @@ const startingPrice = product.price;
       <h3 class="text-4xl font-display text-primary-text tracking-tight group-hover:text-accent transition-colors">
         {product.name}
       </h3>
-      {product.is_recommended && <Star class="w-5 h-5 text-accent fill-accent" />}
+      {product.is_recommended && <Star class="w-8 h-8 text-accent fill-accent" />}
     </div>
 
     <div class="flex items-center gap-4 pt-1">
@@ -56,10 +56,10 @@ const startingPrice = product.price;
   <!-- Contenido Derecho (Imagen opcional y Botón) -->
   <div class="flex items-start gap-6">
     {product.image.url && (
-      <div class="relative w-20 h-20 overflow-hidden rounded-xl bg-secondary/5">
+      <div class="relative w-30 h-30  rounded-xl bg-secondary/5">
         <img
           src={product.image.url}
-          class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500"
+          class="w-full h-full object-contain transform group-hover:scale-110 transition-transform duration-500"
           alt={product.image.alt}
         />
       </div>

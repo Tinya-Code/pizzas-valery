@@ -30,20 +30,36 @@ project means editing `src/pages/menu.astro` — the wiring file — not the com
 
 block-6 in `menu.astro` is the live demo of this pattern.
 
+The same override applies to combos and promotions via their routers
+(`TemplateComboCard` / `TemplatePromotionCard`), whose only state axis is image
+presence — e.g. a custom promotion card with image:
+
+```astro
+<TemplatePromotionCard promotion={promotion} canOrder={canOrder}>
+  <fragment slot="flat-with-image">
+    {(promotion, canOrder) => <PromotionCardPizza promotion={promotion} canOrder={canOrder} />}
+  </fragment>
+</TemplatePromotionCard>
+```
+
 ## Architecture
 
 | Piece | Role |
 |-------|------|
-| `cards/template-card.astro` | State router: resolves state → slot → default design |
+| `cards/template-card.astro` | Product state router: resolves state → slot → default design |
+| `cards/template-combo-card.astro` | Combo router (image-only states) |
+| `cards/template-promotion-card.astro` | Promotion router (image-only states) |
 | `cards/product/product-row.astro` | Default design for flat-price products (with/without image) |
 | `cards/product/product-card.astro` | Default design for price-range products (with/without image) |
-| `cards/combo/template-combo-card.astro` | Combo router (image-only states) |
 | `cards/combo/combo-card.astro` | Default combo design |
-| `cards/promotion/template-promotion-card.astro` | Promotion router (image-only states) |
 | `cards/promotion/promotion-card.astro` | Default promotion design |
 | `blocks/menu-block.astro` | Section skeleton; per-item `card` slot → `TemplateCard` fallback |
 | `blocks/block-combos.astro` / `block-promotions.astro` | Slider blocks; same slot pattern |
 | `pages/menu.astro` | **The port point**: declares the `card` wiring for all 10 blocks |
+
+Custom designs live next to their domain default: `cards/product/`,
+`cards/combo/`, `cards/promotion/`. The three routers sit together at the
+`cards/` root.
 
 ## Product design slots
 

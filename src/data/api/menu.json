@@ -15,7 +15,7 @@
                 "name": "Americana",
                 "description": "Salsa de la casa, mozarella, jamón inglés",
                 "image": {
-                  "url": "",
+                  "url": "/images/pizzas-clasicas/pizza-americana.webp",
                   "alt": ""
                 },
                 "price": 20,
@@ -713,7 +713,7 @@
                 "name": "Porc. Pan al Ajo Simple",
                 "description": "Pan al ajo recién horneado, porción simple.",
                 "image": {
-                  "url": "",
+                  "url": "/images/extras/pan-ajo.webp",
                   "alt": ""
                 },
                 "price": 6,
@@ -728,7 +728,7 @@
                 "name": "Porc. Pan al Ajo Especial",
                 "description": "Porción especial de pan al ajo, generosa para compartir.",
                 "image": {
-                  "url": "",
+                  "url": "/images/extras/pan-ajo.webp",
                   "alt": ""
                 },
                 "price": 12,
@@ -743,7 +743,7 @@
                 "name": "Lasaña a la Bolognesa",
                 "description": "Lasaña horneada en capas con salsa bolognesa, carne y mozzarella.",
                 "image": {
-                  "url": "",
+                  "url": "/images/extras/lasagna.webp",
                   "alt": ""
                 },
                 "price": 19.9,
@@ -788,20 +788,20 @@
         ]
       },
       {
-        "id": "block-4",
+        "id": "block-6",
         "categories": [
           {
             "id": "cat-bebidas-calientes-y-frias",
             "name": "Bebidas Calientes y Frías",
             "description": "",
-            "block_id": "block-4",
+            "block_id": "block-6",
             "products": [
               {
                 "id": "infusiones",
                 "name": "Infusiones",
                 "description": "Infusión caliente a elección: manzanilla, hierba luisa, coca o canela.",
                 "image": {
-                  "url": "",
+                  "url": "/images/bebidas/infusion.webp",
                   "alt": ""
                 },
                 "price": 6,
@@ -814,9 +814,9 @@
               {
                 "id": "cafe",
                 "name": "Café",
-                "description": "Café negro o con leche, recién preparado.",
+                "description": "Café negro, recién preparado.",
                 "image": {
-                  "url": "",
+                  "url": "/images/bebidas/cafe.webp",
                   "alt": ""
                 },
                 "price": 7,
@@ -831,25 +831,55 @@
                 "name": "Chicha de maíz",
                 "description": "Chicha de maíz tradicional servida fría.",
                 "image": {
-                  "url": "",
+                  "url": "/images/bebidas/chicha-morada.webp",
                   "alt": ""
                 },
                 "price": 8,
                 "price_range": null,
                 "qty_label": null,
-                "is_recommended": false,
+                "is_recommended": true,
                 "is_hidden": false,
                 "category_id": "cat-bebidas"
               },
               {
-                "id": "gaseosas",
-                "name": "Gaseosas",
-                "description": "Gaseosa personal fría de 330 ml.",
+                "id": "cocacola",
+                "name": "Coca Cola 1.5 Lts.",
+                "description": "Gaseosa fría de 1.5 Lts.",
                 "image": {
-                  "url": "",
+                  "url": "/images/bebidas/cocacola.webp",
                   "alt": ""
                 },
                 "price": 6,
+                "price_range": null,
+                "qty_label": null,
+                "is_recommended": true,
+                "is_hidden": false,
+                "category_id": "cat-bebidas"
+              },
+                          {
+                "id": "incakola",
+                "name": "Inca Kola 1 Lt.",
+                "description": "Gaseosa  fría de 1 Lt.",
+                "image": {
+                  "url": "/images/bebidas/inca-cola.png",
+                  "alt": ""
+                },
+                "price": 8,
+                "price_range": null,
+                "qty_label": null,
+                "is_recommended": true,
+                "is_hidden": false,
+                "category_id": "cat-bebidas"
+              },
+                                        {
+                "id": "pepsi",
+                "name": "Pepsi 1 Lt.",
+                "description": "Gaseosa  fría de 1 Lt.",
+                "image": {
+                  "url": "/images/bebidas/pepsi-1lt.webp",
+                  "alt": ""
+                },
+                "price": 8,
                 "price_range": null,
                 "qty_label": null,
                 "is_recommended": false,
@@ -874,7 +904,7 @@
                 "name": "Pisco Sour",
                 "description": "Pisco sour clásico de pisco quebranta, limón y amargo de soda.",
                 "image": {
-                  "url": "",
+                  "url": "/images/bebidas/pisco-sour.webp",
                   "alt": ""
                 },
                 "price": 18,
@@ -889,7 +919,7 @@
                 "name": "Chilcano de Pisco",
                 "description": "Chilcano de pisco con jengibre, limón y hielo.",
                 "image": {
-                  "url": "",
+                  "url": "/images/bebidas/chilcano.webp",
                   "alt": ""
                 },
                 "price": 16,
@@ -904,7 +934,7 @@
                 "name": "Chilcano de Maracuyá",
                 "description": "Chilcano con pulpa de maracuyá, pisco y soda.",
                 "image": {
-                  "url": "",
+                  "url": "/images/bebidas/chilcano-maracuya.webp",
                   "alt": ""
                 },
                 "price": 16,
@@ -919,7 +949,7 @@
                 "name": "Sangría Tropical",
                 "description": "Sangría de frutas tropicales servida fría.",
                 "image": {
-                  "url": "",
+                  "url": "/images/bebidas/sangria.webp",
                   "alt": ""
                 },
                 "price": 18,
@@ -934,7 +964,7 @@
                 "name": "Cuba Libre",
                 "description": "Ron, cola y limón con hielo.",
                 "image": {
-                  "url": "",
+                  "url": "/images/bebidas/cuba-libre.webp",
                   "alt": ""
                 },
                 "price": 17,
@@ -949,13 +979,13 @@
         ]
       },
       {
-        "id": "block-6",
+        "id": "block-4",
         "categories": [
           {
             "id": "cat-nuevos-sabores",
             "name": "Nuevos Sabores",
             "description": "",
-            "block_id": "block-6",
+            "block_id": "block-4",
             "products": [
               {
                 "id": "nuevos-pizza-amazonica",

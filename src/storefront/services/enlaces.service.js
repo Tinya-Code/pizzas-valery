@@ -78,15 +78,28 @@ export async function getEnlaces(settings, galleryItems = [], menuBlocks = []) {
       }
 
       // Attach resolved products for product-carousel blocks.
+      // Strategy is selected by `block.filter`:
+      //   "recommended" → products flagged `is_recommended` across all menu
+      //                   blocks (same extraction as the landing strip);
+      //   unset/other   → legacy `category_filter` name-substring match.
       let carouselProducts = [];
       if (block.type === 'product-carousel') {
-        const filter = block.category_filter?.toLowerCase() ?? null;
-        const allProducts = menuBlocks.flatMap((mb) =>
-          (mb.categories ?? []).flatMap((cat) => {
-            const match = !filter || cat.name.toLowerCase().includes(filter);
-            return match ? (cat.products ?? []).filter((p) => !p.is_hidden) : [];
-          })
-        );
+        let allProducts;
+        if (block.filter === 'recommended') {
+          allProducts = menuBlocks.flatMap((mb) =>
+            (mb.categories ?? []).flatMap((cat) =>
+              (cat.products ?? []).filter((p) => p.is_recommended && !p.is_hidden)
+            )
+          );
+        } else {
+          const filter = block.category_filter?.toLowerCase() ?? null;
+          allProducts = menuBlocks.flatMap((mb) =>
+            (mb.categories ?? []).flatMap((cat) => {
+              const match = !filter || cat.name.toLowerCase().includes(filter);
+              return match ? (cat.products ?? []).filter((p) => !p.is_hidden) : [];
+            })
+          );
+        }
         carouselProducts = allProducts.slice(0, block.max_items ?? 8);
       }
 

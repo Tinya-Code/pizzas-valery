@@ -37,6 +37,13 @@ const galleryVideoItemSchema = z
     type: z.literal('video'),
     url: z.string(),
     poster: z.string().optional(),
+    /**
+     * CSS aspect ratio (`"16/9"`, `"9/16"`, …) of the video file. Optional —
+     * when absent the gallery assumes a landscape 16:9 frame; portrait videos
+     * should declare `"9/16"` so the card frame matches the media instead of
+     * cropping it.
+     */
+    aspect_ratio: z.string().optional(),
   })
   .strict();
 
