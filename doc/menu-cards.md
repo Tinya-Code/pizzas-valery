@@ -51,6 +51,7 @@ presence — e.g. a custom promotion card with image:
 | `cards/template-promotion-card.astro` | Promotion router (image-only states) |
 | `cards/product/product-row.astro` | Default design for flat-price products (with/without image) |
 | `cards/product/product-card.astro` | Default design for price-range products (with/without image) |
+| `cards/product/product-size-card.astro` | Range design for pizzas: image + every entry's price + one button that opens the dialog; wired per block via the `range-*` state slots (blocks 1, 2, 6) |
 | `cards/combo/combo-card.astro` | Default combo design |
 | `cards/promotion/promotion-card.astro` | Default promotion design |
 | `blocks/menu-block.astro` | Section skeleton; per-item `card` slot → `TemplateCard` fallback |

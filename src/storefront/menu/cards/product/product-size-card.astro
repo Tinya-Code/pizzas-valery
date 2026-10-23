@@ -1,0 +1,107 @@
+---
+/**
+ * ProductSizeCard — price-range product card (pizzas): image + every
+ * price-range entry displayed + a single action that opens the product
+ * dialog, where the user picks the size and quantity.
+ * State coverage: `range-with-image` and `range-no-image` (without an image
+ * the layout collapses to the text column).
+ *
+ * Props:
+ * - `product`  — v2 product payload (required; range embedded)
+ * - `canOrder` — whether the storefront accepts orders right now
+ *
+ * Owns its root + the CLIENT CONTRACT `data-template-card`, `data-has-range`,
+ * `data-product` — the same contract `product-card.astro` carries, so the
+ * page's existing click delegation opens the dialog on the root or on the
+ * `data-add-button` action (AddButton's attribute). No component script:
+ * the dialog owns size/quantity selection, exactly like every range card.
+ *
+ * Wired per block via the `range-*` state slots in `src/pages/menu.astro`
+ * (pizza blocks 1, 2 and 6); the router default stays `ProductCard`.
+ */
+import ShoppingBag from '../../../icons/shopping-bag.astro';
+import Star from '../../../icons/star.astro';
+import type { MenuProduct } from '../../../types/menu';
+import { entryLabel } from '../../../utils/entry-label';
+import { precio } from '../../../utils/format.js';
+
+interface Props {
+  product: MenuProduct;
+  canOrder?: boolean;
+}
+
+const { product, canOrder = true } = Astro.props;
+
+const priceRange = product.price_range ?? null;
+const entries = priceRange?.entries ?? [];
+const hasImage = !!product.image?.url;
+---
+
+<!-- DISEÑO: Card de producto con rango de precios (tamaños + un solo botón) -->
+<article
+  data-template-card
+  data-has-range="true"
+  data-product={JSON.stringify(product ?? {})}
+  class="group relative isolate w-full overflow-visible rounded-3xl rounded-br-4xl bg-primary p-5 pb-6 font-body text-primary-text transition-shadow duration-300 cursor-pointer hover:shadow-2xl hover:shadow-primary/30"
+>
+  <div class:list={['relative z-10']}>
+
+    <h3 class="flex items-start justify-between gap-2 text-3xl font-display font-extrabold leading-tight tracking-tight sm:text-4xl">
+      {product.name}
+      {product.is_recommended && <Star class="mt-2 h-5 w-5 shrink-0 text-accent fill-accent" />}
+    </h3>
+
+    {
+      product.description && (
+        <p class="mt-1 font-body text-base leading-relaxed text-primary-text/80 line-clamp-3 sm:text-lg">
+          {product.description}
+        </p>
+      )
+    }
+
+<div class:list={[hasImage && 'sm:w-2/3 w-1/2']}>
+    <!-- Tamaños y precios (una entrada por price_range.entries) -->
+    {
+      entries.length > 0 && (
+        <dl class="mt-5 flex gap-10">
+          {entries.map((entry) => (
+            <div>
+              <dt class="text-sm font-body font-bold italic text-primary-text/80">
+                {entryLabel(entry, priceRange?.units_label)}:
+              </dt>
+              <dd class="mt-1 text-lg font-display font-bold italic text-primary-text">
+                {precio(entry.price)}
+              </dd>
+            </div>
+          ))}
+        </dl>
+      )
+    }
+
+    {
+      canOrder && (
+        <button
+          data-add-button
+          type="button"
+          class="mt-6 flex w-full items-center justify-center gap-2 rounded-full bg-accent px-6 py-3 font-display text-lg font-bold uppercase text-primary-text transition hover:brightness-95 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-text active:scale-[0.98] sm:w-[78%]"
+        >
+          <ShoppingBag class="h-5 w-5" />
+          Agregar
+        </button>
+      )
+    }
+    </div>
+  </div>
+
+  <!-- Imagen: sobresale de la card en desktop -->
+  {
+    hasImage && (
+      <img
+        src={product.image.url}
+        alt={product.image.alt}
+        loading="lazy"
+        class="pointer-events-none mt-4 w-56 drop-shadow-[0_15px_0_var(--color-primary)] rounded-full absolute -bottom-5 -right-1 sm:mt-0 sm:w-64 transform transition-transform duration-500 group-hover:-translate-y-1"
+      />
+    )
+  }
+</article>
