@@ -1,52 +1,198 @@
 ---
 /**
  * Block: video
- * Embeds a video from YouTube, TikTok, or Facebook via iframe.
- * Supports autoplay + muted controls.
+ * Embeds a video from YouTube, TikTok or Facebook via iframe,
+ * or plays a video hosted in the repo (public/ or src/assets/) via <video>.
+ *
+ * Block fields:
+ *  - provider : 'youtube' | 'tiktok' | 'facebook' | 'local'   (aliases: 'self', 'repo', 'mp4' -> local)
+ *  - video_id : id OR full URL (youtube / tiktok / facebook). Full URLs are parsed automatically.
+ *  - src      : (local) path to the file. Examples:
+ *                 "/videos/demo.mp4"                 -> file in public/videos/demo.mp4
+ *                 "videos/demo.mp4"                  -> file in src/assets/videos/demo.mp4
+ *                 "https://cdn.example.com/a.mp4"    -> remote file
+ *  - src_webm : (local, optional) extra WebM source
+ *  - poster   : (local, optional) poster image path
+ *  - aspect   : '16:9' | '9:16' | '1:1' | '4:5'  (default: 9:16 for tiktok, 16:9 for the rest)
+ *  - autoplay, muted, loop, controls : booleans (autoplay forces muted, browsers require it)
+ *  - title, caption, id
  */
 const { block } = Astro.props;
-const { title, provider, video_id, autoplay, muted, caption, id } = block;
+const {
+  title,
+  provider: rawProvider,
+  video_id,
+  src: localSrc,
+  src_webm,
+  poster,
+  aspect,
+  autoplay = false,
+  muted = false,
+  loop = false,
+  controls = true,
+  caption,
+  id,
+} = block;
 
-function buildSrc(provider, videoId, autoplay, muted) {
+// ---------- Provider normalisation ----------
+const PROVIDER_ALIASES = { self: 'local', repo: 'local', mp4: 'local', file: 'local' };
+const provider = PROVIDER_ALIASES[rawProvider] ?? rawProvider;
+
+// ---------- Videos stored in src/assets/videos (processed by Vite) ----------
+const assetVideos = import.meta.glob('/src/assets/**/*.{mp4,webm,mov,m4v}', {
+  eager: true,
+  query: '?url',
+  import: 'default',
+});
+
+function resolveLocal(path) {
+  if (!path) return null;
+  // Remote or protocol-relative URL
+  if (/^(https?:)?\/\//i.test(path)) return path;
+  // Absolute path -> public/ folder (respect Astro `base`)
+  if (path.startsWith('/')) {
+    const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+    return `${base}${path}`;
+  }
+  // Relative path -> look it up in src/assets/
+  const clean = path.replace(/^\.?\//, '').replace(/^src\/assets\//, '');
+  const key = Object.keys(assetVideos).find((k) => k.endsWith(`/src/assets/${clean}`));
+  return key ? assetVideos[key] : null;
+}
+
+// ---------- ID extraction (accepts ids or full URLs) ----------
+function extractYouTubeId(v = '') {
+  const m = String(v).match(/(?:youtu\.be\/|v=|\/embed\/|\/shorts\/|\/live\/)([\w-]{11})/);
+  return m ? m[1] : String(v).trim();
+}
+function extractTikTokId(v = '') {
+  const m = String(v).match(/\/video\/(\d+)/);
+  return m ? m[1] : String(v).trim();
+}
+function extractFacebookUrl(v = '') {
+  const s = String(v).trim();
+  return /^https?:\/\//i.test(s) ? s : `https://www.facebook.com/video/${s}`;
+}
+
+// ---------- Aspect ratio ----------
+const ASPECTS = { '16:9': '16 / 9', '9:16': '9 / 16', '1:1': '1 / 1', '4:5': '4 / 5' };
+const defaultAspect = provider === 'tiktok' ? '9:16' : '16:9';
+const aspectKey = ASPECTS[aspect] ? aspect : defaultAspect;
+const cssAspect = ASPECTS[aspectKey];
+const isVertical = aspectKey === '9:16' || aspectKey === '4:5';
+
+// Autoplay only works if the video is muted
+const effectiveMuted = autoplay ? true : muted;
+
+// ---------- Build embed src ----------
+function buildSrc() {
   const auto = autoplay ? 1 : 0;
-  const muteParam = muted ? 1 : 0;
+  const mute = effectiveMuted ? 1 : 0;
+  const lp = loop ? 1 : 0;
 
   switch (provider) {
-    case 'youtube':
-      return `https://www.youtube.com/embed/${videoId}?rel=0&autoplay=${auto}&mute=${muteParam}&modestbranding=1`;
-    case 'tiktok':
-      // TikTok embed uses a different format
-      return `https://www.tiktok.com/embed/v2/${videoId}`;
-    case 'facebook':
-      // Facebook video embed
-      return `https://www.facebook.com/plugins/video.php?href=https%3A%2F%2Fwww.facebook.com%2Fvideo%2F${videoId}&autoplay=${auto}&mute=${muteParam}`;
+    case 'youtube': {
+      const vid = extractYouTubeId(video_id);
+      const params = new URLSearchParams({
+        rel: '0',
+        autoplay: String(auto),
+        mute: String(mute),
+        modestbranding: '1',
+        playsinline: '1',
+        controls: controls ? '1' : '0',
+      });
+      if (loop) {
+        params.set('loop', '1');
+        params.set('playlist', vid); // required by YouTube for loop to work
+      }
+      return `https://www.youtube.com/embed/${vid}?${params}`;
+    }
+    case 'tiktok': {
+      // Official TikTok player: supports autoplay / loop / controls params.
+      const vid = extractTikTokId(video_id);
+      const params = new URLSearchParams({
+        autoplay: String(auto),
+        loop: String(lp),
+        controls: controls ? '1' : '0',
+        progress_bar: '1',
+        play_button: '1',
+        volume_control: '1',
+        fullscreen_button: '1',
+        timestamp: '0',
+        music_info: '0',
+        description: '0',
+        rel: '0',
+        native_context_menu: '0',
+        closed_caption: '0',
+      });
+      return `https://www.tiktok.com/player/v1/${vid}?${params}`;
+    }
+    case 'facebook': {
+      const href = encodeURIComponent(extractFacebookUrl(video_id));
+      return `https://www.facebook.com/plugins/video.php?href=${href}&autoplay=${auto}&mute=${mute}&show_text=false`;
+    }
     default:
       return null;
   }
 }
 
-const src = buildSrc(provider, video_id, autoplay, muted);
-const providerLabel = { youtube: 'YouTube', tiktok: 'TikTok', facebook: 'Facebook' }[provider] ?? provider;
+const isLocal = provider === 'local';
+const resolvedSrc = isLocal ? resolveLocal(localSrc) : null;
+const resolvedWebm = isLocal ? resolveLocal(src_webm) : null;
+const resolvedPoster = isLocal && poster ? (resolveLocal(poster) ?? poster) : undefined;
+const embedSrc = isLocal ? null : buildSrc();
+
+const providerLabel =
+  { youtube: 'YouTube', tiktok: 'TikTok', facebook: 'Facebook', local: 'Video' }[provider] ?? provider;
+
+const hasContent = isLocal ? Boolean(resolvedSrc) : Boolean(embedSrc);
+
+// Vertical videos shouldn't stretch across the full width on desktop
+const maxWidth = isVertical ? 'max-width: 360px;' : '';
 ---
 
-{src && (
+{hasContent && (
   <div data-block-video={id} class="space-y-2">
     {title && (
       <h2 class="text-base font-bold text-white px-0.5">{title}</h2>
     )}
-    <div class="relative w-full rounded-2xl overflow-hidden border border-white/10 bg-black/30" style="padding-top: 56.25%;">
-      <iframe
-        src={src}
-        title={title ?? `${providerLabel} video`}
-        class="absolute inset-0 w-full h-full"
-        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-        allowfullscreen
-        loading="lazy"
-        frameborder="0"
-      />
+
+    <div
+      class="relative w-full mx-auto rounded-2xl overflow-hidden border border-white/10 bg-black/30"
+      style={`aspect-ratio: ${cssAspect}; ${maxWidth}`}
+    >
+      {isLocal ? (
+        <video
+          class="absolute inset-0 w-full h-full object-contain bg-black"
+          controls={controls}
+          autoplay={autoplay}
+          muted={effectiveMuted}
+          loop={loop}
+          playsinline
+          preload={autoplay ? 'auto' : 'metadata'}
+          poster={resolvedPoster}
+          aria-label={title ?? 'Video'}
+        >
+          {resolvedWebm && <source src={resolvedWebm} type="video/webm" />}
+          <source src={resolvedSrc} type="video/mp4" />
+          Tu navegador no soporta la reproducción de video.
+        </video>
+      ) : (
+        <iframe
+          src={embedSrc}
+          title={title ?? `${providerLabel} video`}
+          class="absolute inset-0 w-full h-full"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; fullscreen; gyroscope; picture-in-picture; web-share"
+          allowfullscreen
+          loading="lazy"
+          referrerpolicy="strict-origin-when-cross-origin"
+          frameborder="0"
+        />
+      )}
     </div>
+
     {caption && (
-      <p class="text-xs text-primary-text/50 px-0.5 leading-relaxed">{caption}</p>
+      <p class="text-xs text-primary-text/50 px-0.5 leading-relaxed text-center">{caption}</p>
     )}
   </div>
 )}

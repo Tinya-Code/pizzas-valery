@@ -56,8 +56,19 @@
       "type": "video",
       "enabled": true,
       "title": "Mira cómo los preparamos",
-      "provider": "youtube",
-      "video_id": "dQw4w9WgXcQ",
+      "provider": "tiktok",
+      "video_id": "7697735919784250645",
+      "autoplay": false,
+      "muted": false,
+      "caption": "Proceso artesanal de nuestros rolls"
+    },
+        {
+      "id": "video-reelss",
+      "type": "video",
+      "enabled": true,
+      "title": "Mira cómo los preparamos",
+      "provider": "tiktok",
+      "video_id": "7695845571323497748",
       "autoplay": false,
       "muted": false,
       "caption": "Proceso artesanal de nuestros rolls"

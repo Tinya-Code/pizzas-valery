@@ -15,27 +15,27 @@
 */
 @font-face {
   font-family: 'Paquito';
-  src: url('../fonts/Paquito-Regular.woff2') format('woff2'),
-       url('../fonts/Paquito-Regular.woff') format('woff'),
-       url('../fonts/Paquito-Regular.ttf') format('truetype');
+  src: url('/fonts/Paquito-Regular.woff2') format('woff2'),
+       url('/fonts/Paquito-Regular.woff') format('woff'),
+       url('/fonts/Paquito-Regular.ttf') format('truetype');
   font-weight: 400;
   font-display: swap;
   font-style: normal;
 }
 @font-face {
   font-family: 'Paquito';
-  src: url('../fonts/Paquito-Medium.woff2') format('woff2'),
-       url('../fonts/Paquito-Medium.woff') format('woff'),
-       url('../fonts/Paquito-Medium.ttf') format('truetype');
+  src: url('/fonts/Paquito-Medium.woff2') format('woff2'),
+       url('/fonts/Paquito-Medium.woff') format('woff'),
+       url('/fonts/Paquito-Medium.ttf') format('truetype');
   font-weight: 500;
   font-display: swap;
   font-style: normal;
 }
 @font-face {
   font-family: 'Paquito';
-  src: url('../fonts/Paquito-Bold.woff2') format('woff2'),
-       url('../fonts/Paquito-Bold.woff') format('woff'),
-       url('../fonts/Paquito-Bold.ttf') format('truetype');
+  src: url('/fonts/Paquito-Bold.woff2') format('woff2'),
+       url('/fonts/Paquito-Bold.woff') format('woff'),
+       url('/fonts/Paquito-Bold.ttf') format('truetype');
   font-weight: 700;
   font-display: swap;
   font-style: normal;
@@ -50,9 +50,9 @@
 */
 @font-face {
   font-family: 'Paquito';
-  src: url('../fonts/Paquito-Variable.woff2') format('woff2'),
-       url('../fonts/Paquito-Variable.woff') format('woff'),
-       url('../fonts/Paquito-Variable.ttf') format('truetype');
+  src: url('/fonts/Paquito-Variable.woff2') format('woff2'),
+       url('/fonts/Paquito-Variable.woff') format('woff'),
+       url('/fonts/Paquito-Variable.ttf') format('truetype');
   font-weight: 300 700;
   font-display: swap;
   font-style: normal;

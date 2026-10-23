@@ -11,7 +11,7 @@
         "items": [
           "/fondo/pizza-americana.webp",
           "/fondo/lasagna.webp",
-          "/fondo/pizza-americana.webp"
+          "/fondo/pan-ajo.webp"
         ]
       },
       {
@@ -25,6 +25,18 @@
         "attrs": {
           "data-barco": ""
         }
+      }
+    ],
+    "block-2": [
+      {
+        "slot": "left",
+        "type": "rail",
+        "containerClass": "relative   col-span-0 md:col-span-2 h-full",
+        "items": [
+          "/fondo/pizza-americana.webp",
+          "/fondo/lasagna.webp",
+          "/fondo/pan-ajo.webp"
+        ]
       }
     ],
     "block-3": [
@@ -50,12 +62,11 @@
       {
         "slot": "left",
         "type": "image",
-        "src": "https://picsum.photos/seed/cocktails-bg/600/900",
+        "src": "/fondo/cocteles-vertical.png",
         "alt": "Cócteles Vertical",
         "containerClass": "w-full relative h-full col-span-1 flex justify-center items-center md:col-span-4",
         "class": "absolute md:static -left-70 min-w-[500px] md:min-w-[450px] h-auto"
       }
     ]
   }
-
 }

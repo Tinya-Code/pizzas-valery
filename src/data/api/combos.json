@@ -5,7 +5,7 @@
       "name": "Combo 1 - Pizza Valery (Familiar)",
       "description": "Incluye: Lasaña a la Bolognesa, Porc. Pan al Ajo Simple y Pepsi Helada.",
       "image": {
-        "url": "",
+        "url": "/images/combo/combo-1.webp",
         "alt": ""
       },
       "price": 59.9,
@@ -16,7 +16,7 @@
       "name": "Combo 2 - Pizza de su Elección",
       "description": "Incluye: Lasaña a la Bolognesa o de Pollo, Porc. Pan al Ajo y Pepsi Helada.",
       "image": {
-        "url": "",
+        "url": "/images/combo/combo-1.webp",
         "alt": ""
       },
       "price": 49.9,

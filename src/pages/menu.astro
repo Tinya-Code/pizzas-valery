@@ -60,6 +60,7 @@ import ProductCardPizzaRange from "../storefront/menu/cards/product/product-card
 import ProductCardPizzaRangeImage from "../storefront/menu/cards/product/product-card-pizza-range-image.astro";
 import ProductCardBebidas from "../storefront/menu/cards/product/product-card-bebidas.astro";
 import PromotionCardPizza from "../storefront/menu/cards/promotion/promotion-card-pizza.astro";
+import ComboCardPizza from "../storefront/menu/cards/combo/combo-card-pizza.astro"
 import { loadStorefront } from "../storefront/services/index.js";
 import type { MenuCategory, MenuProduct } from "../storefront/types/menu";
 
@@ -165,11 +166,15 @@ const hoursJson =
 
         <BlockCombos combos={combos} canOrder={canOrder}>
           <fragment slot="card">
-            {
-              (combo, canOrder) => (
-                <TemplateComboCard combo={combo} canOrder={canOrder} />
-              )
-            }
+            {(combo, canOrder) => (
+          <TemplateComboCard combo={combo} canOrder={canOrder} >
+            <fragment slot="flat-with-image">
+            {(combo, canOrder) => (
+                <ComboCardPizza combo={combo} canOrder={canOrder} />
+              )}
+            </fragment>
+          </TemplateComboCard>
+              )}
           </fragment>
         </BlockCombos>
 
@@ -213,9 +218,12 @@ const hoursJson =
         <!-- block-2: plain categories, single column → 2-up cards -->
         <MenuBlock
           categories={cats("block-2")}
+          decorations={decorations.blocks?.["block-2"]}
           canOrder={canOrder}
-          outerClass="grid-cols-1 md:grid-cols-1 gap-x-12 gap-y-16 items-start"
-          cardsClass="grid-cols-1 md:grid-cols-2 gap-8"
+          outerClass="grid-cols-4 md:grid-cols-12 gap-x-12 gap-y-16"
+          categorySectionClass="col-span-3 md:col-span-10"
+          cardsClass="grid-cols-1 md:grid-cols-2 justify-items-center gap-8"
+          sectionAttrs={{ "data-block-2": "" }}
         >
           <fragment slot="card">
 
@@ -226,11 +234,14 @@ const hoursJson =
                     <ProductSizeCard product={product} canOrder={canOrder} />
                   )}
                 </fragment>
-                <fragment slot="range-no-image">
-                  {(product, canOrder) => (
-                    <ProductSizeCard product={product} canOrder={canOrder} />
-                  )}
-                </fragment>
+                  <fragment slot="range-no-image">
+                    {(product, canOrder) => (
+                      <ProductCardPizzaRange
+                        product={product}
+                        canOrder={canOrder}
+                      />
+                    )}
+                  </fragment>
               </TemplateCard>
             )}
 

@@ -758,7 +758,7 @@
                 "name": "Lasaña Clásica",
                 "description": "Lasaña clásica al horno con salsa de tomate y mozzarella.",
                 "image": {
-                  "url": "",
+                  "url": "/images/extras/lasagna.webp",
                   "alt": ""
                 },
                 "price": 14.9,
@@ -773,7 +773,7 @@
                 "name": "Lasaña de Pollo",
                 "description": "Lasaña de pollo en capas con salsa cremosa y mozzarella.",
                 "image": {
-                  "url": "",
+                  "url": "/images/extras/lasagna.webp",
                   "alt": ""
                 },
                 "price": 19.9,

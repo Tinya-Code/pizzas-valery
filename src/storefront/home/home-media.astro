@@ -6,16 +6,43 @@
  * `src/data/api/landing.json` under the `media` key.
  *
  * Supported item types:
- *   banner  — image + optional overlay text + optional CTA link
- *   flyer   — full-width image (no text overlay; links somewhere on click)
- *   video   — iframe embed (YouTube / TikTok / Facebook)
+ *   banner — image + optional overlay text + optional CTA link
+ *   flyer  — full-width image (no text overlay; optional link on click)
+ *   video  — YouTube / TikTok / Facebook embed, or a video hosted in the repo
  *
  * Layout modes (set per item via `layout`):
- *   "full"   — spans full container width
- *   "half"   — 2-column grid on md+; stacks on mobile
+ *   "full"  — spans the full container width (default)
+ *   "half"  — 2 columns on md+; stacks on mobile
+ *   "third" — 3 columns on lg+, 2 on md, stacks on mobile
+ *   Consecutive items with the same "half"/"third" layout are grouped into a
+ *   row. A leftover item that can't fill a row renders alone at full width.
+ *
+ * Common item fields:
+ *   id, type, layout, enabled (false hides the item)
+ *
+ * banner: image_url | image, alt, title, description, cta_label,
+ *         cta_href | resolved_cta_href, cta_target, min_height
+ *
+ * flyer:  image_url | image, alt, href | resolved_href, target, aspect
+ *
+ * video:  provider: 'youtube' | 'tiktok' | 'facebook' | 'local'
+ *                   (aliases for local: 'self' | 'repo' | 'mp4' | 'file')
+ *         video_id : id OR full URL (youtube / tiktok / facebook)
+ *         src      : (local) "/videos/a.mp4"  -> public/videos/a.mp4
+ *                           "videos/a.mp4"   -> src/assets/videos/a.mp4
+ *                           "https://..."    -> remote file
+ *         src_webm : (local, optional) extra WebM source
+ *         poster   : (local, optional) poster image
+ *         aspect   : '16:9' | '9:16' | '1:1' | '4:5'
+ *                    (default: 9:16 for tiktok, 16:9 otherwise)
+ *         autoplay, muted, loop, controls : booleans
+ *                    (autoplay forces muted; local autoplay videos only play
+ *                     while visible on screen)
+ *         title, caption
  *
  * Props:
- *   items — array of media items (already loaded by the page)
+ *   block — section config ({ title, badge, id, _items | items })
+ *   items — fallback array of media items
  */
 import ArrowUpRight from '../icons/arrow-up-right.astro';
 
@@ -24,44 +51,175 @@ const {
   items: fallbackItems = [],
 } = Astro.props;
 
-const items = block?._items ?? block?.items ?? fallbackItems;
+const rawItems = block?._items ?? block?.items ?? fallbackItems ?? [];
 const title = block?.title ?? 'Destacados';
 const badge = block?.badge ?? 'Novedades';
 
-if (items.length === 0) return;
+// ───────────────────────── Local files (src/assets) ─────────────────────────
+const assetFiles = import.meta.glob('/src/assets/**/*.{mp4,webm,mov,m4v,jpg,jpeg,png,webp,avif}', {
+  eager: true,
+  query: '?url',
+  import: 'default',
+});
 
-/** Build an embed src from provider + videoId */
-function embedSrc(provider, videoId) {
-  switch (provider) {
-    case 'youtube':
-      return `https://www.youtube.com/embed/${videoId}?rel=0&modestbranding=1`;
-    case 'tiktok':
-      return `https://www.tiktok.com/embed/v2/${videoId}`;
-    case 'facebook':
-      return `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(videoId)}&show_text=0`;
-    default:
-      return null;
+function resolveFile(path) {
+  if (!path) return null;
+  const p = String(path).trim();
+  if (/^(https?:)?\/\//i.test(p) || p.startsWith('data:')) return p;
+  if (p.startsWith('/')) {
+    // public/ folder, respecting Astro `base`
+    const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+    return `${base}${p}`;
   }
+  // relative -> src/assets/
+  const clean = p.replace(/^\.?\//, '').replace(/^src\/assets\//, '');
+  const key = Object.keys(assetFiles).find((k) => k.endsWith(`/src/assets/${clean}`));
+  return key ? assetFiles[key] : null;
 }
 
-// Group consecutive "half" items in pairs for the 2-col grid.
-// Full items and unpaired halves render alone at full width.
+/** Image helper: accepts item.image_url / item.image (URL, public path or src/assets path). */
+const imageOf = (item) => {
+  const raw = item.image_url ?? item.image;
+  return raw ? (resolveFile(raw) ?? raw) : null;
+};
+
+// ───────────────────────────── Link helpers ─────────────────────────────
+const relFor = (target) => (target === '_blank' ? 'noopener noreferrer' : undefined);
+
+// ───────────────────────────── Video helpers ─────────────────────────────
+const PROVIDER_ALIASES = { self: 'local', repo: 'local', mp4: 'local', file: 'local' };
+const ASPECTS = { '16:9': '16 / 9', '9:16': '9 / 16', '1:1': '1 / 1', '4:5': '4 / 5' };
+
+const extractYouTubeId = (v = '') => {
+  const m = String(v).match(/(?:youtu\.be\/|v=|\/embed\/|\/shorts\/|\/live\/)([\w-]{11})/);
+  return m ? m[1] : String(v).trim();
+};
+const extractTikTokId = (v = '') => {
+  const m = String(v).match(/\/video\/(\d+)/);
+  return m ? m[1] : String(v).trim();
+};
+const extractFacebookUrl = (v = '') => {
+  const s = String(v).trim();
+  return /^https?:\/\//i.test(s) ? s : `https://www.facebook.com/video/${s}`;
+};
+
+/** Normalises a video item into everything the template needs (or null if unusable). */
+function buildVideo(item) {
+  const provider = PROVIDER_ALIASES[item.provider] ?? item.provider;
+  const autoplay = Boolean(item.autoplay);
+  const muted = autoplay ? true : Boolean(item.muted);
+  const loop = Boolean(item.loop);
+  const controls = item.controls !== false;
+
+  const aspectKey = ASPECTS[item.aspect] ? item.aspect : provider === 'tiktok' ? '9:16' : '16:9';
+  const base = {
+    provider,
+    autoplay,
+    muted,
+    loop,
+    controls,
+    cssAspect: ASPECTS[aspectKey],
+    vertical: aspectKey === '9:16' || aspectKey === '4:5',
+    label: { youtube: 'YouTube', tiktok: 'TikTok', facebook: 'Facebook', local: 'Video' }[provider] ?? 'Video',
+  };
+
+  if (provider === 'local') {
+    const src = resolveFile(item.src ?? item.video_url ?? item.video_id);
+    if (!src) return null;
+    const poster = item.poster ? (resolveFile(item.poster) ?? item.poster) : undefined;
+    return { ...base, kind: 'local', src, webm: resolveFile(item.src_webm), poster };
+  }
+
+  const auto = autoplay ? '1' : '0';
+  const mute = muted ? '1' : '0';
+  let src = null;
+
+  if (provider === 'youtube' && item.video_id) {
+    const vid = extractYouTubeId(item.video_id);
+    const params = new URLSearchParams({
+      rel: '0',
+      modestbranding: '1',
+      playsinline: '1',
+      autoplay: auto,
+      mute,
+      controls: controls ? '1' : '0',
+    });
+    if (loop) {
+      params.set('loop', '1');
+      params.set('playlist', vid); // YouTube needs this for loop to work
+    }
+    src = `https://www.youtube.com/embed/${vid}?${params}`;
+  } else if (provider === 'tiktok' && item.video_id) {
+    // Official TikTok player: supports autoplay / loop / controls.
+    const vid = extractTikTokId(item.video_id);
+    const params = new URLSearchParams({
+      autoplay: auto,
+      loop: loop ? '1' : '0',
+      controls: controls ? '1' : '0',
+      progress_bar: '1',
+      play_button: '1',
+      volume_control: '1',
+      fullscreen_button: '1',
+      timestamp: '0',
+      music_info: '0',
+      description: '0',
+      rel: '0',
+      native_context_menu: '0',
+      closed_caption: '0',
+    });
+    src = `https://www.tiktok.com/player/v1/${vid}?${params}`;
+  } else if (provider === 'facebook' && item.video_id) {
+    const href = encodeURIComponent(extractFacebookUrl(item.video_id));
+    src = `https://www.facebook.com/plugins/video.php?href=${href}&show_text=false&autoplay=${auto}&mute=${mute}`;
+  }
+
+  return src ? { ...base, kind: 'embed', src } : null;
+}
+
+// ───────────────────────────── Normalise items ─────────────────────────────
+const items = rawItems
+  .filter((it) => it && it.enabled !== false && it.active !== false)
+  .map((it) => (it.type === 'video' ? { ...it, _video: buildVideo(it) } : it))
+  .filter((it) => {
+    if (it.type === 'video') return Boolean(it._video);
+    if (it.type === 'banner' || it.type === 'flyer') return Boolean(imageOf(it));
+    return false;
+  });
+
+if (items.length === 0) return;
+
+// ───────────────────────────── Grouping into rows ─────────────────────────────
+const COLS = { half: 2, third: 3 };
 const rows = [];
 let i = 0;
 while (i < items.length) {
   const cur = items[i];
-  if (cur.layout === 'half' && items[i + 1]?.layout === 'half') {
-    rows.push({ type: 'pair', items: [cur, items[i + 1]] });
-    i += 2;
+  const cols = COLS[cur.layout];
+  if (cols) {
+    const group = [cur];
+    while (group.length < cols && items[i + group.length]?.layout === cur.layout) {
+      group.push(items[i + group.length]);
+    }
+    rows.push(group.length > 1 ? { cols: group.length, items: group } : { cols: 1, items: group });
+    i += group.length;
   } else {
-    rows.push({ type: 'single', item: cur });
+    rows.push({ cols: 1, items: [cur] });
     i++;
   }
 }
+
+const gridClass = (cols) =>
+  cols === 3
+    ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5'
+    : cols === 2
+      ? 'grid grid-cols-1 md:grid-cols-2 gap-5'
+      : '';
+
+const hasLocalAutoplay = items.some((it) => it._video?.kind === 'local' && it._video.autoplay);
 ---
 
 {items.length > 0 && (
-  <section class="px-6 pb-16 sm:pb-24" id={block?.id ?? "home-media"}>
+  <section class="px-6 pb-16 sm:pb-24" id={block?.id ?? 'home-media'}>
     <div class="max-w-5xl mx-auto space-y-8">
       <!-- Section header -->
       <div>
@@ -74,143 +232,176 @@ while (i < items.length) {
       <!-- Media rows -->
       <div class="space-y-5">
         {rows.map((row) => {
-          if (row.type === 'pair') {
-            return (
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                {row.items.map((item) => (
+          const compact = row.cols > 1;
+          return (
+            <div class={gridClass(row.cols)}>
+              {row.items.map((item) => {
+                const img = imageOf(item);
+                const href = item.resolved_href ?? item.href;
+                const ctaHref = item.resolved_cta_href ?? item.cta_href;
+                const v = item._video;
+
+                return (
                   <div data-media-item={item.id}>
-                    {/* ── BANNER ── */}
                     {item.type === 'banner' && (
-                      <div class="group relative rounded-2xl overflow-hidden border border-white/10 bg-surface/5 hover:border-primary/30 transition-all duration-300 hover:scale-[1.01]"
-                        style={item.min_height ? `min-height:${item.min_height}` : 'min-height:180px'}>
-                        {(item.image_url ?? item.image) && (
-                          <img src={item.image_url ?? item.image} alt={item.alt ?? item.title ?? ''}
-                            class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                            loading="lazy" />
-                        )}
+                      <div
+                        class:list={[
+                          'group relative rounded-2xl overflow-hidden border border-white/10 bg-surface/5 hover:border-primary/30 transition-all duration-300',
+                          compact ? 'hover:scale-[1.01]' : 'hover:scale-[1.005]',
+                        ]}
+                        style={`min-height:${item.min_height ?? (compact ? '180px' : '220px')}`}
+                      >
+                        <img
+                          src={img}
+                          alt={item.alt ?? item.title ?? ''}
+                          class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                          loading="lazy"
+                          decoding="async"
+                        />
                         {(item.overlay || item.title || item.description || item.cta_label) && (
-                          <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent flex flex-col justify-end p-5 space-y-2">
-                            {item.title && <p class="text-lg font-bold text-white leading-tight">{item.title}</p>}
-                            {item.description && <p class="text-sm text-white/75 line-clamp-2 leading-relaxed">{item.description}</p>}
-                            {item.cta_label && (item.resolved_cta_href ?? item.cta_href) && (
-                              <a href={item.resolved_cta_href ?? item.cta_href} target={item.cta_target ?? '_self'}
-                                rel={item.cta_target === '_blank' ? 'noopener noreferrer' : undefined}
-                                class="inline-flex items-center gap-1.5 self-start px-4 py-2 bg-primary hover:bg-primary/90 text-white text-xs font-bold rounded-xl transition-colors">
+                          <div
+                            class:list={[
+                              'absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent flex flex-col justify-end space-y-2',
+                              compact ? 'p-5' : 'p-6',
+                            ]}
+                          >
+                            {item.title && (
+                              <p class:list={['font-bold text-white leading-tight', compact ? 'text-lg' : 'text-2xl']}>
+                                {item.title}
+                              </p>
+                            )}
+                            {item.description && (
+                              <p
+                                class:list={[
+                                  'text-sm text-white/75 leading-relaxed',
+                                  compact ? 'line-clamp-2' : 'max-w-md',
+                                ]}
+                              >
+                                {item.description}
+                              </p>
+                            )}
+                            {item.cta_label && ctaHref && (
+                              <a
+                                href={ctaHref}
+                                target={item.cta_target ?? '_self'}
+                                rel={relFor(item.cta_target)}
+                                class:list={[
+                                  'inline-flex items-center gap-1.5 self-start bg-primary hover:bg-primary/90 text-white font-bold rounded-xl transition-colors',
+                                  compact ? 'px-4 py-2 text-xs' : 'px-5 py-2.5 text-sm mt-1',
+                                ]}
+                              >
                                 {item.cta_label}
-                                <ArrowUpRight class="w-3.5 h-3.5 stroke-[2.5]" />
+                                <ArrowUpRight class:list={['stroke-[2.5]', compact ? 'w-3.5 h-3.5' : 'w-4 h-4']} />
                               </a>
                             )}
                           </div>
                         )}
                       </div>
                     )}
-
-                    {/* ── FLYER ── */}
-                    {item.type === 'flyer' && (
-                      <Fragment>
-                        {(item.resolved_href ?? item.href) ? (
-                          <a href={item.resolved_href ?? item.href} target={item.target ?? '_self'}
-                            rel={item.target === '_blank' ? 'noopener noreferrer' : undefined}
-                            class="group block rounded-2xl overflow-hidden border border-white/10 hover:border-primary/40 transition-all duration-300 hover:scale-[1.01]">
-                            <img src={item.image_url ?? item.image} alt={item.alt ?? ''}
-                              class="w-full object-cover group-hover:scale-105 transition-transform duration-500"
-                              loading="lazy" />
-                          </a>
-                        ) : (
-                          <div class="rounded-2xl overflow-hidden border border-white/10">
-                            <img src={item.image_url ?? item.image} alt={item.alt ?? ''} class="w-full object-cover" loading="lazy" />
-                          </div>
-                        )}
-                      </Fragment>
-                    )}
-
-                    {/* ── VIDEO ── */}
-                    {item.type === 'video' && (() => {
-                      const src = embedSrc(item.provider, item.video_id);
-                      return src ? (
-                        <div class="rounded-2xl overflow-hidden border border-white/10 bg-black/30 relative" style="padding-top:56.25%;">
-                          <iframe src={src} title={item.title ?? 'Video'}
-                            class="absolute inset-0 w-full h-full"
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                            allowfullscreen loading="lazy" frameborder="0" />
-                        </div>
-                      ) : null;
-                    })()}
-                  </div>
-                ))}
-              </div>
-            );
-          }
-
-          // Single row
-          const item = row.item;
-          return (
-            <div data-media-item={item.id}>
-              {/* ── BANNER ── */}
-              {item.type === 'banner' && (
-                <div class="group relative rounded-2xl overflow-hidden border border-white/10 bg-surface/5 hover:border-primary/30 transition-all duration-300 hover:scale-[1.005]"
-                  style={item.min_height ? `min-height:${item.min_height}` : 'min-height:220px'}>
-                  {(item.image_url ?? item.image) && (
-                    <img src={item.image_url ?? item.image} alt={item.alt ?? item.title ?? ''}
-                      class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                      loading="lazy" />
-                  )}
-                  {(item.title || item.description || item.cta_label) && (
-                    <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent flex flex-col justify-end p-6 space-y-2">
-                      {item.title && <p class="text-2xl font-bold text-white leading-tight">{item.title}</p>}
-                      {item.description && <p class="text-sm text-white/75 max-w-md leading-relaxed">{item.description}</p>}
-                      {item.cta_label && (item.resolved_cta_href ?? item.cta_href) && (
-                        <a href={item.resolved_cta_href ?? item.cta_href} target={item.cta_target ?? '_self'}
-                          rel={item.cta_target === '_blank' ? 'noopener noreferrer' : undefined}
-                          class="inline-flex items-center gap-1.5 self-start px-5 py-2.5 bg-primary hover:bg-primary/90 text-white text-sm font-bold rounded-xl transition-colors mt-1">
-                          {item.cta_label}
-                          <ArrowUpRight class="w-4 h-4 stroke-[2.5]" />
+        
+                    {item.type === 'flyer' && (() => {
+                      const flyerStyle = ASPECTS[item.aspect] ? `aspect-ratio:${ASPECTS[item.aspect]};` : undefined;
+                      const imgClass = flyerStyle ? 'w-full h-full object-cover' : 'w-full object-cover';
+                      return href ? (
+                        <a
+                          href={href}
+                          target={item.target ?? '_self'}
+                          rel={relFor(item.target)}
+                          class="group block rounded-2xl overflow-hidden border border-white/10 hover:border-primary/40 transition-all duration-300"
+                          style={flyerStyle}
+                        >
+                          <img
+                            src={img}
+                            alt={item.alt ?? ''}
+                            class={`${imgClass} group-hover:scale-[1.03] transition-transform duration-500`}
+                            loading="lazy"
+                            decoding="async"
+                          />
                         </a>
-                      )}
-                    </div>
-                  )}
-                </div>
-              )}
+                      ) : (
+                        <div class="rounded-2xl overflow-hidden border border-white/10" style={flyerStyle}>
+                          <img src={img} alt={item.alt ?? ''} class={imgClass} loading="lazy" decoding="async" />
+                        </div>
+                      );
+                    })()}
 
-              {/* ── FLYER ── */}
-              {item.type === 'flyer' && (
-                <Fragment>
-                  {(item.resolved_href ?? item.href) ? (
-                    <a href={item.resolved_href ?? item.href} target={item.target ?? '_self'}
-                      rel={item.target === '_blank' ? 'noopener noreferrer' : undefined}
-                      class="group block rounded-2xl overflow-hidden border border-white/10 hover:border-primary/40 transition-all duration-300">
-                      <img src={item.image_url ?? item.image} alt={item.alt ?? ''}
-                        class="w-full object-cover group-hover:scale-[1.02] transition-transform duration-500"
-                        loading="lazy" />
-                    </a>
-                  ) : (
-                    <div class="rounded-2xl overflow-hidden border border-white/10">
-                      <img src={item.image_url ?? item.image} alt={item.alt ?? ''} class="w-full object-cover" loading="lazy" />
-                    </div>
-                  )}
-                </Fragment>
-              )}
-
-              {/* ── VIDEO ── */}
-              {item.type === 'video' && (() => {
-                const src = embedSrc(item.provider, item.video_id);
-                return src ? (
-                  <div class="space-y-2">
-                    {item.title && <h3 class="text-base font-bold text-white px-0.5">{item.title}</h3>}
-                    <div class="rounded-2xl overflow-hidden border border-white/10 bg-black/30 relative" style="padding-top:56.25%;">
-                      <iframe src={src} title={item.title ?? 'Video'}
-                        class="absolute inset-0 w-full h-full"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                        allowfullscreen loading="lazy" frameborder="0" />
-                    </div>
-                    {item.caption && <p class="text-xs text-primary-text/50 px-0.5">{item.caption}</p>}
+                    {item.type === 'video' && v && (
+                      <div class="space-y-2">
+                        {item.title && (
+                          <h3 class="text-base font-bold text-white px-0.5">{item.title}</h3>
+                        )}
+                        <div
+                          class="relative w-full mx-auto rounded-2xl overflow-hidden border border-white/10 bg-black/30 max-h-100"
+                          style={`aspect-ratio:${v.cssAspect};${v.vertical ? 'max-width:360px;' : ''}`}
+                        >
+                          {v.kind === 'local' ? (
+                            <video
+                              class="absolute inset-0 w-full h-full object-contain bg-black"
+                              controls={v.controls}
+                              muted={v.muted}
+                              loop={v.loop}
+                              playsinline
+                              preload={v.autoplay ? 'auto' : 'metadata'}
+                              poster={v.poster}
+                              data-autoplay={v.autoplay ? 'true' : undefined}
+                              aria-label={item.title ?? 'Video'}
+                            >
+                              {v.webm && <source src={v.webm} type="video/webm" />}
+                              <source src={v.src} type="video/mp4" />
+                              Tu navegador no soporta la reproducción de video.
+                            </video>
+                          ) : (
+                            <iframe
+                              src={v.src}
+                              title={item.title ?? `${v.label} video`}
+                              class="absolute inset-0 w-full h-full"
+                              allow="accelerometer; autoplay; clipboard-write; encrypted-media; fullscreen; gyroscope; picture-in-picture; web-share"
+                              allowfullscreen
+                              loading="lazy"
+                              referrerpolicy="strict-origin-when-cross-origin"
+                              frameborder="0"
+                            />
+                          )}
+                        </div>
+                        {item.caption && (
+                          <p class:list={['text-xs text-primary-text/50 px-0.5 leading-relaxed', v.vertical && 'text-center']}>
+                            {item.caption}
+                          </p>
+                        )}
+                      </div>
+                    )}
                   </div>
-                ) : null;
-              })()}
+                );
+              })}
             </div>
           );
         })}
       </div>
     </div>
   </section>
+)}
+
+{hasLocalAutoplay && (
+  <script>
+    // Local autoplay videos: play only while visible, pause when scrolled away.
+    const videos = document.querySelectorAll('video[data-autoplay="true"]');
+    if ('IntersectionObserver' in window) {
+      const io = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            const video = entry.target;
+            if (entry.isIntersecting) {
+              video.play().catch(() => {});
+            } else {
+              video.pause();
+            }
+          });
+        },
+        { threshold: 0.4 }
+      );
+      videos.forEach((v) => io.observe(v));
+    } else {
+      videos.forEach((v) => v.play().catch(() => {}));
+    }
+  </script>
 )}
