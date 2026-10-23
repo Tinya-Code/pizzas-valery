@@ -1,0 +1,223 @@
+---
+/**
+ * WhatsAppContacts — contact picker dialog for multi-number WhatsApp.
+ *
+ * Props:
+ * - `settings` — the site settings (uses `settings.whatsapp`).
+ *
+ * Behavior:
+ * - With 0–1 contacts it ships only the dialog markup (unused) — every
+ *   `wa.me` anchor keeps its direct default behavior.
+ * - With 2+ contacts a delegated click handler intercepts ANY anchor whose
+ *   href contains `wa.me` (FAB, hero CTA, promotions, enlaces blocks,
+ *   WhatsApp button…) and opens this picker instead; the chosen contact
+ *   receives the original `?text=` message.
+ * - Client scripts that open WhatsApp programmatically (product detail,
+ *   checkout) can await `window.__waContacts.pickNumber()` to resolve the
+ *   chosen number (falls back to the primary number when unavailable).
+ *
+ * Zero JS when no contacts ship: the script exits before attaching listeners.
+ */
+import Whatsapp from '../icons/whatsapp.astro';
+
+interface Props {
+  settings?: {
+    whatsapp?: {
+      number?: string;
+      message_template?: string | null;
+      contacts?: Array<{ label: string; number: string; description?: string | null }>;
+    };
+  } | null;
+}
+
+const { settings = null } = Astro.props;
+
+const whatsapp = settings?.whatsapp ?? {};
+const primaryNumber = whatsapp.number ?? '';
+const configured = Array.isArray(whatsapp.contacts) ? whatsapp.contacts : [];
+const contacts = configured.length > 0
+  ? configured
+  : primaryNumber
+    ? [{ label: 'WhatsApp', number: primaryNumber, description: null }]
+    : [];
+
+// Data shipped to the client: effective contacts + the primary fallback.
+const payload = JSON.stringify({ primary: primaryNumber, contacts }).replace(/</g, '\\u003c');
+---
+
+{contacts.length > 0 && (
+  <div
+    id="wa-contacts"
+    data-wa-contacts={payload}
+    hidden
+    class="fixed inset-0 z-[70] flex items-end sm:items-center justify-center opacity-0 pointer-events-none transition-opacity duration-200"
+    role="dialog"
+    aria-modal="true"
+    aria-label="Elegir a quién escribir por WhatsApp"
+  >
+    <!-- Backdrop -->
+    <div data-wa-backdrop class="absolute inset-0 bg-black/60 backdrop-blur-sm"></div>
+
+    <!-- Sheet -->
+    <div
+      class="relative w-full sm:max-w-sm mb-0 sm:mb-0 rounded-t-3xl sm:rounded-3xl bg-secondary border border-white/15 shadow-[0_-10px_40px_rgba(0,0,0,0.5)] overflow-hidden translate-y-4 sm:translate-y-0 transition-transform duration-200 pb-[env(safe-area-inset-bottom)]"
+    >
+      <div class="px-5 pt-5 pb-3 text-center">
+        <div class="mx-auto mb-3 w-12 h-12 rounded-full bg-[#25D366]/15 border border-[#25D366]/30 flex items-center justify-center">
+          <Whatsapp class="w-6 h-6 fill-[#25D366]" />
+        </div>
+        <h3 class="text-lg font-display text-white tracking-tight">¿A quién querés escribir?</h3>
+        <p class="text-xs text-primary-text/60 mt-1">Elegí un canal de WhatsApp</p>
+      </div>
+
+      <ul data-wa-list class="px-3 pb-3 space-y-1.5 max-h-[45vh] overflow-y-auto"></ul>
+
+      <button
+        data-wa-cancel
+        type="button"
+        class="w-full py-3.5 text-sm font-semibold text-primary-text/60 hover:text-white hover:bg-white/5 border-t border-white/10 transition-colors cursor-pointer"
+      >
+        Cancelar
+      </button>
+    </div>
+  </div>
+)}
+
+<script>
+  (() => {
+    const root = document.getElementById('wa-contacts');
+    if (!root) return;
+
+    let payload: { primary: string; contacts: Array<{ label: string; number: string; description?: string | null }> };
+    try {
+      payload = JSON.parse(root.dataset.waContacts || '{}');
+    } catch {
+      return;
+    }
+
+    const contacts = payload.contacts ?? [];
+    if (contacts.length === 0) return;
+
+    const list = root.querySelector<HTMLElement>('[data-wa-list]');
+    const backdrop = root.querySelector('[data-wa-backdrop]');
+    const cancelBtn = root.querySelector('[data-wa-cancel]');
+
+    let resolvePick: ((number: string | null) => void) | null = null;
+
+    /** wa.me digits + country code — mirrors utils/whatsapp.js `WhatsApp.link`. */
+    function buildLink(number: string, message: string): string {
+      let digits = String(number ?? '').replace(/\D+/g, '');
+      if (digits && !digits.startsWith('51')) digits = `51${digits}`;
+      if (!digits) return '';
+      const base = `https://wa.me/${digits}`;
+      return message ? `${base}?text=${encodeURIComponent(message)}` : base;
+    }
+
+    function show() {
+      root.removeAttribute('hidden');
+      requestAnimationFrame(() => {
+        root.classList.remove('opacity-0', 'pointer-events-none');
+        root.classList.add('opacity-100');
+      });
+    }
+
+    function hide(): string | null {
+      root.classList.remove('opacity-100');
+      root.classList.add('opacity-0', 'pointer-events-none');
+      const picked = resolvePick;
+      resolvePick = null;
+      setTimeout(() => root.setAttribute('hidden', ''), 200);
+      // Unresolved dismiss → null (caller keeps its default behavior).
+      picked?.(null);
+      return null;
+    }
+
+    /** Resolve with the chosen number; single contact short-circuits. */
+    function pickNumber(): Promise<string | null> {
+      if (contacts.length === 1) return Promise.resolve(contacts[0].number);
+      return new Promise((resolve) => {
+        resolvePick = resolve;
+        show();
+      });
+    }
+
+    function choose(number: string) {
+      const picked = resolvePick;
+      resolvePick = null;
+      root.classList.remove('opacity-100');
+      root.classList.add('opacity-0', 'pointer-events-none');
+      setTimeout(() => root.setAttribute('hidden', ''), 200);
+      picked?.(number);
+    }
+
+    // Render the contact list once.
+    if (list) {
+      list.innerHTML = '';
+      for (const contact of contacts) {
+        const li = document.createElement('li');
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className =
+          'w-full flex items-center gap-3 px-4 py-3 rounded-2xl border border-white/10 bg-surface/5 hover:border-[#25D366]/50 hover:bg-[#25D366]/10 text-left transition-colors cursor-pointer';
+        btn.innerHTML = `
+          <span class="flex-shrink-0 w-10 h-10 rounded-full bg-[#25D366]/15 flex items-center justify-center">
+            <svg class="w-5 h-5 fill-[#25D366]" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
+          </span>
+          <span class="min-w-0">
+            <span class="block text-sm font-bold text-white truncate">${contact.label}</span>
+            ${contact.description ? `<span class="block text-xs text-primary-text/60 truncate">${contact.description}</span>` : ''}
+          </span>`;
+        btn.addEventListener('click', () => choose(contact.number));
+        li.appendChild(btn);
+        list.appendChild(li);
+      }
+    }
+
+    backdrop?.addEventListener('click', hide);
+    cancelBtn?.addEventListener('click', hide);
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !root.hasAttribute('hidden')) hide();
+    });
+
+    // Public API for programmatic consumers (product detail, checkout).
+    (window as any).__waContacts = {
+      pickNumber,
+      /** Pick a number, then open `message` there. Returns the opened URL or null. */
+      async open(message: string): Promise<string | null> {
+        const number = await pickNumber();
+        if (!number) return null;
+        let digits = String(number).replace(/\D+/g, '');
+        if (digits && !digits.startsWith('51')) digits = `51${digits}`;
+        const url = digits ? `https://wa.me/${digits}${message ? `?text=${encodeURIComponent(message)}` : ''}` : '';
+        if (url && typeof window !== 'undefined') window.open(url, '_blank', 'noopener,noreferrer');
+        return url || null;
+      },
+    };
+
+    if (contacts.length < 2) return;
+
+    // Delegated interception: any wa.me anchor opens the picker, preserving
+    // the original ?text= message for the chosen contact. Anchors marked
+    // `data-wa-bypass` (e.g. the developer signature) are left untouched.
+    document.addEventListener('click', (e) => {
+      const target = e.target as HTMLElement | null;
+      const anchor = target?.closest?.('a[href*="wa.me"]') as HTMLAnchorElement | null;
+      if (!anchor || e.defaultPrevented) return;
+      if (anchor.hasAttribute('data-wa-bypass')) return;
+      const href = anchor.getAttribute('href') || '';
+      let message = '';
+      try {
+        message = new URL(href, window.location.origin).searchParams.get('text') ?? '';
+      } catch {
+        /* keep empty message */
+      }
+      e.preventDefault();
+      pickNumber().then((number) => {
+        // Dismissed (cancel/backdrop/Escape) → do nothing.
+        if (!number) return;
+        const url = buildLink(number, message);
+        if (url) window.open(url, '_blank', 'noopener,noreferrer');
+      });
+    });
+  })();
+</script>

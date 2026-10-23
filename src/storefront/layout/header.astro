@@ -68,25 +68,21 @@ const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${mapsQuery}`;
   >
     <!-- Logo Section -->
     <a href="/" class="relative group cursor-pointer">
-      <div
-        class="absolute inset-0 bg-primary blur-2xl opacity-20 group-hover:opacity-40 transition-opacity duration-500"
-      >
-      </div>
-      <div
-        class="w-32 h-32 bg-gradient-to-br from-primary to-primary/80 rounded-3xl flex items-center justify-center shadow-[0_20px_50px_rgba(220,38,38,0.3)] transform -rotate-6 group-hover:rotate-0 transition-all duration-700 ease-out overflow-hidden"
-      >
-        {
-          logoUrl ? (
+      {
+        logoUrl ? (
+          <div class="w-42 h-42   flex items-center justify-center  transform -rotate-6 group-hover:rotate-0 transition-all duration-700 ease-out overflow-hidden">
             <img
               src={logoUrl}
               alt={restaurantName}
               class="w-full h-full object-cover"
             />
-          ) : (
+          </div>
+        ) : (
+          <div class="w-32 h-32 bg-gradient-to-br from-primary to-primary/80 rounded-3xl flex items-center justify-center shadow-[0_20px_50px_rgba(220,38,38,0.3)] transform -rotate-6 group-hover:rotate-0 transition-all duration-700 ease-out overflow-hidden">
             <Utensils class="w-16 h-16 text-white" />
-          )
-        }
-      </div>
+          </div>
+        )
+      }
     </a>
 
     <!-- Info Section -->
@@ -94,7 +90,7 @@ const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${mapsQuery}`;
       <h1
         class="text-6xl md:text-8xl font-display text-white leading-none tracking-tighter"
       >
-        {restaurantName}<span class="text-primary">.</span>
+        {restaurantName}
       </h1>
 
       <div

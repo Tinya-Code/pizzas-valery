@@ -239,14 +239,22 @@ const fieldClass =
 
       const { subtotal, deliveryFee, total, items } = cartService.snapshot;
 
-      new OrderMessage({
+      const orderMessage = new OrderMessage({
         template: form.dataset.whatsappTemplate || 'Hola, me gustaría ordenar:',
         deliveryEnabled,
       })
         .withItems(items)
         .withTotals({ subtotal, deliveryFee, total })
-        .withCustomer({ name, address, paymentMethod: payment })
-        .open(phoneNumber);
+        .withCustomer({ name, address, paymentMethod: payment });
+
+      // Multi-contact picker (whatsapp-contacts.astro) takes precedence when
+      // mounted; otherwise keep the legacy single-number behavior.
+      const picker = (window as any).__waContacts;
+      if (picker?.open) {
+        void picker.open(orderMessage.build());
+      } else {
+        orderMessage.open(phoneNumber);
+      }
     });
   }
 </script>

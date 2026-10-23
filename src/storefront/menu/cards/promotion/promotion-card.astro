@@ -1,19 +1,15 @@
 ---
 /**
- * PromotionCard — discounted item with an expandable description.
+ * PromotionCard — discounted item; description always fully visible.
  *
  * Props:
  * - `promotion` — v2 `Promotion` (effective `price`, compare-at `price_before`)
  * - `canOrder`  — whether the storefront accepts orders right now (page-loaded)
  *
- * Markup + `data-*` payloads (`data-promotion`, `data-product`) plus the
- * "Ver más" toggle: a hidden checkbox + `peer-checked` swaps the clamp with
- * pure CSS (no script in this card). The page owns the click delegation and
- * announces `product-click` / `add-to-cart` for the `data-promotion-card`
- * root; the input and label keep `data-toggle-description` so the page's
- * guard knows the toggle must never open the dialog. `data-product` carries
- * the same real `Promotion` payload the dialog renders from — no fabricated
- * product projection anymore.
+ * Markup + `data-*` payloads (`data-promotion`, `data-product`); the page owns
+ * the click delegation for the `data-promotion-card` root and dispatches
+ * `add-to-cart`. `data-product` carries the same real `Promotion` payload the
+ * dialog renders from — no fabricated product projection anymore.
  */
 import AddButton from '../../../commerce/add-button.astro';
 import { precio } from '../../../utils/format.js';
@@ -58,22 +54,8 @@ const { promotion, canOrder = true } = Astro.props;
   </div>
 
   <div class="flex flex-col items-start px-4">
-    <input
-      type="checkbox"
-      id={`promo-desc-${promotion.id}`}
-      data-toggle-description
-      class="peer sr-only"
-    />
-    <p class="line-clamp-1 peer-checked:line-clamp-none text-lg text-white/80">
+    <p class="text-lg text-white/80">
       {promotion.description}
     </p>
-
-    <label
-      for={`promo-desc-${promotion.id}`}
-      data-toggle-description
-      class="text-white bg-primary px-3 py-1 rounded-sm cursor-pointer peer-focus-visible:outline-2 peer-focus-visible:outline-current peer-focus-visible:outline-offset-2"
-    >
-      Ver más
-    </label>
   </div>
 </div>

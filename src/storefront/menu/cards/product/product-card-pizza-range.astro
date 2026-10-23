@@ -1,0 +1,175 @@
+---
+/**
+ * ProductCardPizzaRange — price-range product design for block-1
+ * (`range-with-image` state only; flat/no-image products fall back to
+ * ProductRow via TemplateCard's router).
+ *
+ * Diseño: caja de pizza cerrada, en vertical y levemente inclinada.
+ *
+ * Props:
+ * - `product`  — v2 product payload (required; range embedded)
+ * - `canOrder` — whether the storefront accepts orders right now
+ *
+ * Owns its root + the CLIENT CONTRACT `data-template-card`, `data-has-range`,
+ * `data-product` — the page's click delegation reads it from the root.
+ */
+import Plus from "../../../icons/plus.astro";
+import Star from "../../../icons/star.astro";
+import { precio } from "../../../utils/format.js";
+import type { MenuProduct } from "../../../types/menu";
+
+interface Props {
+  product: MenuProduct;
+  canOrder?: boolean;
+}
+
+const { product, canOrder = true } = Astro.props;
+---
+
+<!-- DISEÑO: caja de pizza cerrada, vertical e inclinada (block-1) -->
+<div
+  data-template-card
+  data-has-range="true"
+  data-product={JSON.stringify(product ?? {})}
+  class="pizza-box-root group relative h-full cursor-pointer px-2 pb-3 pt-2 -rotate-2 transition-transform duration-300 ease-out hover:rotate-0 hover:-translate-y-1"
+>
+  <!-- Sombra de apoyo en el suelo -->
+  <div
+    class="pointer-events-none absolute inset-x-4 -bottom-1 h-4 rounded-full bg-black/30 blur-md transition-all duration-300 group-hover:bg-black/40"
+    aria-hidden="true"
+  >
+  </div>
+
+  <!-- CAJA -->
+  <div
+    class="pizza-box relative flex h-full flex-col overflow-hidden rounded-lg border-2 border-[#8a5a2b] text-[#3b2412]"
+  >
+    <!-- TAPA: solapa superior con pestaña de cierre -->
+
+    <!-- CONTENIDO -->
+    <div class="relative z-10 flex flex-1 flex-col px-4 pb-4 pt-6">
+      <!-- Título estampado -->
+      <div class="flex w-full flex-col items-center text-center">
+        <h3
+          class="pizza-stamp flex items-start justify-center gap-2 font-display text-4xl leading-none tracking-tight"
+        >
+          {product.name}
+          {
+            product.is_recommended && (
+              <Star class="mt-1 h-5 w-5 shrink-0 fill-accent text-accent" />
+            )
+          }
+        </h3>
+      </div>
+
+      <!-- Etiqueta con precios -->
+      <div class="mt-auto w-full pt-6">
+        <div
+          class="rounded-md border-2 border-dashed border-accent/70 bg-primary p-3 text-white shadow-[0_4px_0_rgba(0,0,0,0.25)]"
+        >
+          <div class="flex flex-col gap-1">
+            {
+              product.price_range?.entries.map((element) => (
+                <div class="flex items-end gap-2">
+                  <span class="font-display text-xl leading-none tracking-tighter text-white">
+                    {element.label}
+                  </span>
+                  <span
+                    class="mb-1 flex-1 border-b-2 border-dotted border-white/40"
+                    aria-hidden="true"
+                  />
+                  <span class="font-display text-3xl leading-none tracking-tighter text-accent">
+                    {precio(element.price)}
+                  </span>
+                </div>
+              ))
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+    <div
+      class="pizza-lid relative flex h-10 w-full items-center justify-around"
+    >
+      <div
+        class="absolute -bottom-[7px] h-[14px] w-16 rounded-b-full border-2 border-t-0 border-[#8a5a2b] bg-[#d6a86a]"
+        aria-hidden="true"
+      >
+      </div>
+      <span class="font-body text-xs font-bold uppercase tracking-widest">
+        Elegir
+      </span>
+      <Plus class="h-4 w-4 font-bold" />
+    </div>
+  </div>
+</div>
+
+<style>
+  /* Cartón kraft con textura y grosor lateral 3D */
+  .pizza-box {
+    background-color: #d6a86a;
+    background-image:
+      repeating-linear-gradient(
+        90deg,
+        rgba(120, 78, 36, 0.07) 0px,
+        rgba(120, 78, 36, 0.07) 2px,
+        transparent 2px,
+        transparent 6px
+      ),
+      linear-gradient(160deg, #e0b476 0%, #d6a86a 45%, #c8975a 100%);
+    box-shadow:
+      inset 0 0 0 3px rgba(255, 255, 255, 0.12),
+      inset 0 -14px 24px rgba(90, 55, 20, 0.18),
+      5px 5px 0 #a8763f,
+      9px 9px 0 #8a5a2b;
+    transition: box-shadow 0.3s ease;
+  }
+
+  .pizza-box-root:hover .pizza-box {
+    box-shadow:
+      inset 0 0 0 3px rgba(255, 255, 255, 0.12),
+      inset 0 -14px 24px rgba(90, 55, 20, 0.18),
+      4px 4px 0 #a8763f,
+      7px 7px 0 #8a5a2b;
+  }
+
+  /* Solapa de la tapa con línea de pliegue */
+  .pizza-lid {
+    background: linear-gradient(180deg, #c8975a 0%, #d6a86a 100%);
+    border-bottom: 2px solid #8a5a2b;
+    box-shadow: 0 2px 0 rgba(255, 255, 255, 0.18);
+  }
+
+  /* Pliegue inferior */
+  .pizza-fold {
+    background: linear-gradient(180deg, transparent, rgba(90, 55, 20, 0.22));
+    border-top: 1px dashed rgba(90, 55, 20, 0.35);
+  }
+
+  /* Manchas de grasa */
+  .pizza-grease {
+    background-image:
+      radial-gradient(
+        ellipse 70px 55px at 22% 42%,
+        rgba(120, 70, 20, 0.16),
+        transparent 70%
+      ),
+      radial-gradient(
+        ellipse 45px 40px at 80% 68%,
+        rgba(120, 70, 20, 0.13),
+        transparent 70%
+      ),
+      radial-gradient(
+        ellipse 30px 28px at 60% 28%,
+        rgba(120, 70, 20, 0.1),
+        transparent 70%
+      );
+  }
+
+  /* Texto tipo sello de tinta */
+  .pizza-stamp {
+    color: #3b2412;
+    text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.25);
+    opacity: 0.92;
+  }
+</style>

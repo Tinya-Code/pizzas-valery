@@ -1,6 +1,7 @@
 {
   "landingCtaCards": 3,
   "productEntryLabel": "Familiar",
-  "galleryHeadingsInclude": ["Rolls"],
-  "galleryMinItems": 21
+  "galleryHeadingsInclude": ["Local", "Videos y Experiencia"],
+  "galleryMinItems": 3,
+  "galleryExpectIframe": false
 }

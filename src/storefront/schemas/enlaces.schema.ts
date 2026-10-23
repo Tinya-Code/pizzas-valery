@@ -57,6 +57,12 @@ const productCarouselBlockSchema = z
     enabled: z.boolean().optional(),
     title: z.string(),
     subtitle: z.string(),
+    /**
+     * Product-selection strategy. `"recommended"` collects products flagged
+     * `is_recommended` across all menu blocks; any other/absent value falls
+     * back to the legacy `category_filter` name-substring match.
+     */
+    filter: z.string().optional(),
     /** Lower-case fragment matched against category names (`?.`-guarded). */
     category_filter: z.string().optional(),
     max_items: z.number().int().optional(),

@@ -43,7 +43,7 @@ const showOnce = flyers?.show_once_per_session ?? true;
       <!-- Modal Dialog -->
       <div
         data-flyer-dialog
-        class="relative max-w-md md:max-w-lg w-full bg-slate-900 border border-white/10 rounded-3xl overflow-hidden shadow-[0_25px_60px_-15px_rgba(0,0,0,0.7)] transform scale-90 transition-transform duration-500 ease-out z-10"
+        class="relative max-w-md md:max-w-lg w-full   rounded-3xl overflow-hidden  transform scale-90 transition-transform duration-500 ease-out z-10"
       >
         <!-- Close Button -->
         <button
@@ -56,13 +56,13 @@ const showOnce = flyers?.show_once_per_session ?? true;
         </button>
 
         <!-- Carousel / Flyer view -->
-        <div class="relative w-full aspect-[4/5] sm:aspect-square bg-slate-950 overflow-hidden">
+        <div class="relative w-full aspect-[4/5]   overflow-hidden">
           {items.map((item, index) => {
             const content = (
               <img
                 src={item.image}
                 alt={item.alt || item.title || 'Promoción'}
-                class="w-full h-full object-cover select-none"
+                class="w-full h-full object-contain select-none"
                 loading="lazy"
               />
             );

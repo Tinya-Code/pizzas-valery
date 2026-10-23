@@ -10,6 +10,7 @@ import Layout from '../storefront/layout/Layout.astro';
 import SiteHeader from '../storefront/layout/site-header.astro';
 import Footer from '../storefront/layout/footer.astro';
 import GalleryModal from '../storefront/ui/gallery-modal.astro';
+import Maximize2 from '../storefront/icons/maximize-2.astro';
 import { loadStorefront, getGalleryCategories } from '../storefront/services/index.js';
 import type { GalleryCategory, GalleryItem } from '../storefront/types/menu';
 
@@ -102,7 +103,7 @@ function resolveEmbedUrl(item: GalleryItem): string | null {
                  multicol); break-inside-avoid keeps each card in one column.
                  Media categories switch to wide columns so video/embed cards
                  dominate; image-only categories keep the dense 4-col grid. -->
-            <div class={hasRichMedia ? 'columns-1 sm:columns-2 gap-6' : 'columns-2 md:columns-3 lg:columns-4 gap-6'}>
+            <div class={hasRichMedia ? 'columns-2 sm:columns-3 gap-6' : 'columns-2 md:columns-3 lg:columns-4 gap-6'}>
               {category.items.map((item) => {
                 const embedUrl = resolveEmbedUrl(item);
                 const isVideo = item.type === 'video' || (!item.type && Boolean(item.url?.endsWith('.mp4') || item.url?.endsWith('.webm')));
@@ -164,6 +165,19 @@ function resolveEmbedUrl(item: GalleryItem): string | null {
                         />
                       ) : null}
                     </div>
+
+                    <!-- Expand action. Always visible so the lightbox is
+                         discoverable; sits above the media (z-10) so it also
+                         wins over native  controls that would otherwise
+                         swallow the click. Click bubbles to the card's
+                         data-gallery-item handler that opens the modal. -->
+                    <button
+                      type="button"
+                      class="absolute top-2 right-2 z-10 p-2 rounded-full bg-black/50 text-white/80 border border-white/20 backdrop-blur-sm hover:bg-primary hover:text-white hover:scale-110 transition-all duration-200 cursor-pointer"
+                      aria-label={`Ampliar: ${item.title}`}
+                    >
+                      <Maximize2 class="w-4 h-4" />
+                    </button>
 
                   </article>
                 );

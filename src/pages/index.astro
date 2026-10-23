@@ -21,6 +21,7 @@ import Layout from '../storefront/layout/Layout.astro';
 import SiteHeader from '../storefront/layout/site-header.astro';
 import Footer from '../storefront/layout/footer.astro';
 import FlyerModal from '../storefront/ui/flyer-modal.astro';
+import WhatsAppContacts from '../storefront/ui/whatsapp-contacts.astro';
 
 import HomeHero from '../storefront/home/home-hero.astro';
 import HomePromotions from '../storefront/home/home-promotions.astro';
@@ -155,6 +156,9 @@ const whatsappUrl = whatsappNumber ? WhatsApp.link(whatsappNumber, whatsappMsg) 
     />
 
     <FlyerModal flyers={flyers} />
+
+    <!-- Multi-contact WhatsApp picker (intercepts every wa.me anchor) -->
+    <WhatsAppContacts settings={settings} />
   </div>
 
   {

@@ -1,7 +1,7 @@
 {
   "meta": {
-    "title": "SAZÓN DIGITAL",
-    "tagline": "Tu carta digital en línea: menú, combos, promociones y reservas."
+    "title": "Las mejores pizzas al mejor precio",
+    "tagline": "Pizza Familiar, Pan al Ajo y Pepsi Jumbo por solo S/ 29.90. Promoción válida de lunes a viernes. ¡Haz tu pedido ahora!"
   },
   "blocks": [
     {
@@ -58,24 +58,14 @@
           "image_url": "https://picsum.photos/seed/promo_cffb90df-8bdd-4e74-8191-e8da455ec5d0/800/600",
           "alt": "Sábado de Promo — Sazón Digital",
           "title": "¡Sábado de Promo!",
-          "description": "4 piezas de tus makis favoritos al mejor precio. Solo los sábados.",
+          "description": "Al mejor precio. Solo los sábados.",
           "min_height": "260px",
           "cta_label": "Pedir ahora",
           "cta_href": "whatsapp",
           "cta_message": "Hola, quiero el Combo Sábado de Promo",
           "cta_target": "_blank"
         },
-        {
-          "id": "flyer-makilovers",
-          "type": "flyer",
-          "enabled": true,
-          "layout": "half",
-          "image_url": "https://picsum.photos/seed/promo_40d7da13-a42e-4543-aa3f-ec423feaa719/800/600",
-          "alt": "Makilovers — 12 cortes + 6 Ebi furai",
-          "href": "whatsapp",
-          "message": "Hola, quiero el Makilovers",
-          "target": "_blank"
-        },
+
         {
           "id": "video-preparacion",
           "type": "video",
@@ -83,7 +73,7 @@
           "layout": "half",
           "provider": "youtube",
           "video_id": "dQw4w9WgXcQ",
-          "title": "Cómo preparamos nuestros rolls",
+          "title": "Cómo preparamos nuestras pizzas",
           "caption": "Proceso artesanal de nuestras piezas."
         }
       ]

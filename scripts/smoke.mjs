@@ -239,7 +239,9 @@ async function runSmoke() {
       expression: 'document.querySelectorAll("iframe").length > 0',
     })).result.value;
     console.log('  [PASS] Gallery iframe element present:', hasIframe);
-    assert.ok(hasIframe, 'Expected at least one iframe embed element');
+    if (expectations.galleryExpectIframe !== false) {
+      assert.ok(hasIframe, 'Expected at least one iframe embed element');
+    }
 
     // 14. Gallery modal present and opens on item click with media
     const modalOpened = (await client.send('Runtime.evaluate', {
@@ -284,23 +286,25 @@ async function runSmoke() {
     ]);
 
     // 18. Social links resolve to settings URLs
+    // NOTE: empty settings URLs correctly omit the block — compare with a ""
+    // fallback so an absent block + empty setting is a pass, not a mismatch.
     const instagramHref = (await client.send('Runtime.evaluate', {
       expression: 'document.querySelector(\'[data-block-link="social-instagram"]\')?.getAttribute("href")',
-    })).result.value;
-    console.log('  [PASS] Instagram href resolves to settings:', instagramHref === settingsFixture.social_media.instagram);
-    assert.equal(instagramHref, settingsFixture.social_media.instagram);
+    })).result.value ?? '';
+    console.log('  [PASS] Instagram href resolves to settings:', instagramHref === (settingsFixture.social_media.instagram ?? ''));
+    assert.equal(instagramHref, settingsFixture.social_media.instagram ?? '');
 
     const facebookHref = (await client.send('Runtime.evaluate', {
       expression: 'document.querySelector(\'[data-block-link="social-facebook"]\')?.getAttribute("href")',
-    })).result.value;
-    console.log('  [PASS] Facebook href resolves to settings:', facebookHref === settingsFixture.social_media.facebook);
-    assert.equal(facebookHref, settingsFixture.social_media.facebook);
+    })).result.value ?? '';
+    console.log('  [PASS] Facebook href resolves to settings:', facebookHref === (settingsFixture.social_media.facebook ?? ''));
+    assert.equal(facebookHref, settingsFixture.social_media.facebook ?? '');
 
     const mapsHref = (await client.send('Runtime.evaluate', {
       expression: 'document.querySelector(\'[data-block-link="maps-link"]\')?.getAttribute("href")',
-    })).result.value;
-    console.log('  [PASS] Google Maps href resolves to settings:', mapsHref === settingsFixture.google_maps);
-    assert.equal(mapsHref, settingsFixture.google_maps);
+    })).result.value ?? '';
+    console.log('  [PASS] Google Maps href resolves to settings:', mapsHref === (settingsFixture.google_maps ?? ''));
+    assert.equal(mapsHref, settingsFixture.google_maps ?? '');
 
     // 19. TikTok button presence matches the fixture value
     const tiktokPresent = (await client.send('Runtime.evaluate', {

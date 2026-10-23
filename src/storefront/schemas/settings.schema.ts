@@ -20,9 +20,22 @@ const geoSchema = z.object({
   lng: z.number(),
 });
 
+const whatsappContactSchema = z.object({
+  label: z.string(),
+  number: z.string(),
+  description: z.string().nullable().optional(),
+});
+
 const whatsappSchema = z.object({
+  /** Primary number — legacy single-number contract; also the fallback. */
   number: z.string(),
   message_template: z.string().nullable(),
+  /**
+   * Optional multi-contact list. When 2+ entries ship, every WhatsApp entry
+   * point opens the contact picker instead of linking straight to `number`.
+   * Absent/empty keeps the legacy single-number behavior.
+   */
+  contacts: z.array(whatsappContactSchema).optional(),
 });
 
 const deliverySchema = z.object({

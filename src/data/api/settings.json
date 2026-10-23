@@ -9,7 +9,19 @@
     },
     "whatsapp": {
       "number": "972820217",
-      "message_template": "Hola, quisiera ordenar:"
+      "message_template": "Hola, quisiera ordenar:",
+      "contacts": [
+        {
+          "label": "Pedidos",
+          "number": "972820217",
+          "description": "Haz tu pedido por WhatsApp"
+        },
+        {
+          "label": "Consultas",
+          "number": "968454600",
+          "description": "Preguntas y coordinaciones"
+        }
+      ]
     },
     "timezone": "America/Lima",
     "currency": "PEN",
@@ -27,10 +39,10 @@
     "max_order_quantity": 20,
     "social_media": {
       "tiktok": "https://www.tiktok.com/@pizzasvalery",
-      "facebook": "https://www.facebook.com/pizzasvalery",
-      "instagram": "https://www.instagram.com/pizzasvalery"
+      "facebook": "https://www.facebook.com/profile.php?id=100083780330915",
+      "instagram": ""
     },
-    "google_maps": "https://www.google.com/maps/search/?api=1&query=-12.0464,-77.0428",
+    "google_maps": "https://maps.app.goo.gl/fVt4CRbcmzU5Xg3G9",
     "business_hours": {
       "thu": {
         "isOpen": true,
@@ -68,7 +80,7 @@
         "close": "22:30"
       }
     },
-    "logo_url": null,
+    "logo_url": "/logo.png",
     "header_bg": null,
     "footer_bg": null,
     "tags": [],
@@ -82,7 +94,7 @@
         "pizzas lima",
         "combos de pizza"
       ],
-      "og_image": null,
+      "og_image": "/logo.png",
       "twitter_card": "summary_large_image",
       "locale": "es_PE",
       "canonical_url": null,

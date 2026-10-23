@@ -1,0 +1,71 @@
+---
+/**
+ * ProductCard — price-range product design (prominent card, "Elegir cantidades").
+ * State coverage: `range-with-image` and `range-no-image` (the media circle
+ * renders empty when the product has no image).
+ *
+ * Props:
+ * - `product`  — v2 product payload (required; range embedded)
+ * - `canOrder` — whether the storefront accepts orders right now
+ *
+ * Owns its root + the CLIENT CONTRACT `data-template-card`, `data-has-range`,
+ * `data-product` — the page's click delegation reads it from the root.
+ */
+import Plus from '../../../icons/plus.astro';
+import Star from '../../../icons/star.astro';
+import AddButton from '../../../commerce/add-button.astro';
+import { precio } from '../../../utils/format.js';
+import type { MenuProduct } from '../../../types/menu';
+
+interface Props {
+  product: MenuProduct;
+  canOrder?: boolean;
+}
+
+const { product, canOrder = true } = Astro.props;
+
+/** Minimum price (the API computes it). */
+const startingPrice = product.price;
+---
+
+<!-- DISEÑO: Producto con Rangos de Precio (Estilo Card Prominente) -->
+<div
+  data-template-card
+  data-has-range="true"
+  data-product={JSON.stringify(product ?? {})}
+  class="group relative p-4 justify-between items-center transition-all duration-300 overflow-hidden cursor-pointer bg-primary text-white rounded-3xl flex flex-col h-full "
+>
+
+  <!-- Title & Badge -->
+  <div class="relative flex flex-col w-full">
+    <h3 class="text-4xl flex items-start justify-between  font-display text-white tracking-tight transition-colors">
+      {product.name}
+      {product.is_recommended && <Star class="w-8 h-8  text-accent fill-accent" />}
+    </h3>
+  </div>
+
+  <!-- Image (Side position) -->
+  <div class="relative flex mt-auto  h-full max-h-60 w-40 justify-center">
+    {product.image.url && (
+      <img
+        src={product.image.url}
+        class="w-full h-auto object-contain drop-shadow-2xl transform group-hover:-translate-x-4 transition-transform duration-700"
+        alt={product.image.alt}
+      />
+    )}
+  </div>
+
+
+  <!-- Bottom: Info & Selection Action -->
+  <div class=" w-full relative flex flex-col justify-between">
+    <div class="flex flex-col">
+      <span class="text-3xl font-display text-accent tracking-tighter">{precio(startingPrice)}</span>
+    </div>
+
+      {
+        canOrder && (
+          <AddButton class="absolute bottom-0 right-0" />
+        )
+      }
+  </div>
+</div>

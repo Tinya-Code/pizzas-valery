@@ -1,5 +1,5 @@
 {
-  "background": "https://picsum.photos/seed/menu-bg/400/400",
+  "background": "/bg.png",
   "header_background": null,
   "footer_background": null,
   "blocks": {
@@ -9,15 +9,15 @@
         "type": "rail",
         "containerClass": "relative hidden md:block col-span-0 md:col-span-2 h-full",
         "items": [
-          "https://res.cloudinary.com/dztatdahl/image/upload/v1779052072/fila-maki1_y0rfvc.png",
-          "https://res.cloudinary.com/dztatdahl/image/upload/v1779052080/fila-maki2_a4btbu.png",
-          "https://res.cloudinary.com/dztatdahl/image/upload/v1779052085/fila-maki3_uaivny.png"
+          "/fondo/pizza-americana.webp",
+          "/fondo/lasagna.webp",
+          "/fondo/pizza-americana.webp"
         ]
       },
       {
         "slot": "right",
         "type": "image",
-        "src": "https://res.cloudinary.com/dztatdahl/image/upload/v1779051451/fila-barco_vghckz.png",
+        "src": "/fondo/pizza-americana.webp",
         "alt": "Barco Decoración",
         "containerClass": "relative md:block col-span-1 md:col-span-2 h-full",
         "class": "absolute top-0 -right-28 md:-right-48 min-w-[300px] md:min-w-[400px] object-contain will-change-transform transition-transform duration-75 ease-out",
@@ -31,17 +31,17 @@
       {
         "slot": "left",
         "type": "group",
-        "containerClass": "justify-between flex col-span-12 h-60 md:col-span-12 md:h-0",
+        "containerClass": "justify-between flex col-span-12 h-60 md:col-span-12 md:h-full ",
         "images": [
           {
-            "src": "https://picsum.photos/seed/wings-bg/800/600",
+            "src": "/fondo/lasagna.webp",
             "alt": "Alitas Fondo",
-            "class": "h-full md:h-auto md:w-130 md:absolute top-10 -right-35"
+            "class": "h-full md:h-auto md:w-130 md:absolute -top-4 -right-35"
           },
           {
-            "src": "https://picsum.photos/seed/wings-bg-2/800/600",
+            "src": "/fondo/pan-ajo.webp",
             "alt": "Alitas 2 Fondo",
-            "class": "h-full md:h-auto md:w-130 md:absolute bottom-10 -right-35"
+            "class": "h-full md:h-90 md:w-auto md:absolute -bottom-12 -right-5"
           }
         ]
       }
@@ -56,20 +56,6 @@
         "class": "absolute md:static -left-70 min-w-[500px] md:min-w-[450px] h-auto"
       }
     ]
-  },
-  "block1": {
-    "barco": "https://res.cloudinary.com/dztatdahl/image/upload/v1779051451/fila-barco_vghckz.png",
-    "makis": [
-      "https://res.cloudinary.com/dztatdahl/image/upload/v1779052072/fila-maki1_y0rfvc.png",
-      "https://res.cloudinary.com/dztatdahl/image/upload/v1779052080/fila-maki2_a4btbu.png",
-      "https://res.cloudinary.com/dztatdahl/image/upload/v1779052085/fila-maki3_uaivny.png"
-    ]
-  },
-  "block3": {
-    "alitasFondo": "https://picsum.photos/seed/wings-bg/800/600",
-    "alitas2Fondo": "https://picsum.photos/seed/wings-bg-2/800/600"
-  },
-  "block6": {
-    "coctelesVertical": "https://picsum.photos/seed/cocktails-bg/600/900"
   }
+
 }

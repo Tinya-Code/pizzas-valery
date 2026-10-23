@@ -91,7 +91,7 @@ const rootAttributes = {
     <div
       data-detail-image-section
       hidden={!hasImage}
-      class="w-full h-62 bg-[url('https://picsum.photos/seed/menu-bg/400/400')] bg-contain md:h-auto bg-neutral-200 relative overflow-hidden flex-shrink-0"
+      class="w-full flex justify-center p-4 items-center   h-62  bg-cover md:h-[80svh] bg-black relative overflow-hidden "
     >
       {
         hasImage && (
@@ -99,7 +99,7 @@ const rootAttributes = {
             data-detail-image
             src={product?.image?.url}
             alt={product?.image?.alt ?? product?.name ?? ""}
-            class="w-full h-full object-contain"
+            class="w-auto h-62 md:h-auto md:max-h-120  object-contain"
           />
         )
       }
@@ -132,7 +132,7 @@ const rootAttributes = {
             <div class="w-10 md:w-20 h-1 bg-accent rounded-full"></div>
             <p
               data-detail-description
-              class="text-secondary/60 font-body leading-snug text-xs md:text-lg italic line-clamp-2 md:line-clamp-none"
+              class="text-secondary/60 font-body leading-snug text-md md:text-lg italic line-clamp-2 md:line-clamp-none"
             >
               {
                 product.description ||
@@ -149,7 +149,7 @@ const rootAttributes = {
             data-selected-index={selectedEntry ? "0" : ""}
           >
             <span
-              class="text-xs font-body font-bold uppercase tracking-[0.2em] text-secondary/60"
+              class="text-md font-body   text-secondary/80"
             >
               Opciones disponibles
             </span>
@@ -427,15 +427,21 @@ const rootAttributes = {
       const selectedEntry =
         readJson(selectedButton ?? null, "data-entry") ?? null;
 
-      WhatsApp.open(
-        phone,
-        OrderMessage.forProduct({
-          name: product.name,
-          quantity,
-          entry: selectedEntry,
-          unitsLabel: product?.price_range?.units_label,
-        }),
-      );
+      const waMessage = OrderMessage.forProduct({
+        name: product.name,
+        quantity,
+        entry: selectedEntry,
+        unitsLabel: product?.price_range?.units_label,
+      });
+
+      // Multi-contact picker (whatsapp-contacts.astro) takes precedence when
+      // mounted; otherwise keep the legacy single-number behavior.
+      const picker = (window as any).__waContacts;
+      if (picker?.open) {
+        void picker.open(waMessage);
+      } else {
+        WhatsApp.open(phone, waMessage);
+      }
     }
   });
 </script>
