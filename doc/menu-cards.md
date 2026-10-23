@@ -37,6 +37,7 @@ block-6 in `menu.astro` is the live demo of this pattern.
 | `cards/template-card.astro` | State router: resolves state → slot → default design |
 | `cards/product/product-row.astro` | Default design for flat-price products (with/without image) |
 | `cards/product/product-card.astro` | Default design for price-range products (with/without image) |
+| `cards/product/product-size-card.astro` | Range design for pizzas: image + every entry's price + one button that opens the dialog; wired per block via the `range-*` state slots (blocks 1, 2, 6) |
 | `cards/combo/template-combo-card.astro` | Combo router (image-only states) |
 | `cards/combo/combo-card.astro` | Default combo design |
 | `cards/promotion/template-promotion-card.astro` | Promotion router (image-only states) |

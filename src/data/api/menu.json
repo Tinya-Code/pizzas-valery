@@ -188,7 +188,7 @@
                 "name": "Pizzas Valery",
                 "description": "Salsa de la casa, mozarella, chorizo a las finas hierbas, albóndiga de carne, hotdog ahumado, pimentón rojo",
                 "image": {
-                  "url": "",
+                  "url": "/pizzas/pizza.png",
                   "alt": ""
                 },
                 "price": 24,

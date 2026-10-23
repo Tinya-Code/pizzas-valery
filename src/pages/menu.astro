@@ -24,7 +24,8 @@
  * function child rendering the block's Template*Card router — this page is
  * the template's port point: swap a router (or pass state slots into it)
  * per block to change that block's design without touching the components.
- * block-6 demos the state-slot override pattern.
+ * Blocks 1, 2 and 6 wire `ProductSizeCard` (the pizza design) into their
+ * `range-*` state slots.
  *
  * There is no `forkJoin`, no `isLoading` signal and no 800 ms `hidden`
  * artefact: the page ships ready.
@@ -44,6 +45,7 @@ import BlockCombos from '../storefront/menu/blocks/block-combos.astro';
 import BlockPromotions from '../storefront/menu/blocks/block-promotions.astro';
 import IllustrationCell from '../storefront/menu/blocks/illustration-cell.astro';
 import TemplateCard from '../storefront/menu/cards/template-card.astro';
+import ProductSizeCard from '../storefront/menu/cards/product/product-size-card.astro';
 import TemplateComboCard from '../storefront/menu/cards/combo/template-combo-card.astro';
 import TemplatePromotionCard from '../storefront/menu/cards/promotion/template-promotion-card.astro';
 import CartTrigger from '../storefront/commerce/cart/cart-trigger.astro';
@@ -159,7 +161,18 @@ const hoursJson =
         >
           <fragment slot="card">
             {(product, canOrder) => (
-              <TemplateCard product={product} canOrder={canOrder} />
+              <TemplateCard product={product} canOrder={canOrder}>
+                <fragment slot="range-with-image">
+                  {(product, canOrder) => (
+                    <ProductSizeCard product={product} canOrder={canOrder} />
+                  )}
+                </fragment>
+                <fragment slot="range-no-image">
+                  {(product, canOrder) => (
+                    <ProductSizeCard product={product} canOrder={canOrder} />
+                  )}
+                </fragment>
+              </TemplateCard>
             )}
           </fragment>
         </MenuBlock>
@@ -169,11 +182,22 @@ const hoursJson =
           categories={cats('block-2')}
           canOrder={canOrder}
           outerClass="grid-cols-1 md:grid-cols-1 gap-x-12 gap-y-16 items-start"
-          cardsClass="grid-cols-1 md:grid-cols-2"
+          cardsClass="grid-cols-1 md:grid-cols-2 gap-8"
         >
           <fragment slot="card">
             {(product, canOrder) => (
-              <TemplateCard product={product} canOrder={canOrder} />
+              <TemplateCard product={product} canOrder={canOrder}>
+                <fragment slot="range-with-image">
+                  {(product, canOrder) => (
+                    <ProductSizeCard product={product} canOrder={canOrder} />
+                  )}
+                </fragment>
+                <fragment slot="range-no-image">
+                  {(product, canOrder) => (
+                    <ProductSizeCard product={product} canOrder={canOrder} />
+                  )}
+                </fragment>
+              </TemplateCard>
             )}
           </fragment>
         </MenuBlock>
@@ -223,10 +247,10 @@ const hoursJson =
         </MenuBlock>
 
         <!-- block-6: cocktail column decoration on the left.
-             This block DEMOS the state-slot override mechanism: the
-             `range-with-image` slot is wired with the default router as
-             placeholder — swap it for your design component, e.g.:
-               <fragment slot="range-with-image">
+             This block DEMOS the state-slot override mechanism: both
+             `range-*` slots are wired with ProductSizeCard (the pizza
+             design) — swap it for your design component, e.g.:
+               <fragment slot="range-no-image">
                  {(product, canOrder) => <MyPizzaCard product={product} canOrder={canOrder} />}
                </fragment>
              Slots: flat-with-image | flat-no-image | range-with-image | range-no-image -->
@@ -243,7 +267,12 @@ const hoursJson =
               <TemplateCard product={product} canOrder={canOrder}>
                 <fragment slot="range-with-image">
                   {(product, canOrder) => (
-                    <TemplateCard product={product} canOrder={canOrder} />
+                    <ProductSizeCard product={product} canOrder={canOrder} />
+                  )}
+                </fragment>
+                <fragment slot="range-no-image">
+                  {(product, canOrder) => (
+                    <ProductSizeCard product={product} canOrder={canOrder} />
                   )}
                 </fragment>
               </TemplateCard>
@@ -321,9 +350,9 @@ const hoursJson =
   }
 
   <script>
-    import { readProduct, readJson, readBusinessHours } from '../storefront/utils/dom';
-    import { cartService } from '../storefront/services/cart.service.js';
     import { isOpenAt } from '../storefront/services/business-hours.service.js';
+import { cartService } from '../storefront/services/cart.service.js';
+import { readBusinessHours, readJson, readProduct } from '../storefront/utils/dom';
 
     // ─── Product dialog ──────────────────────────────────────────────────────
     // Every product has its own pre-rendered dialog in the DOM, hidden by
