@@ -222,7 +222,7 @@ const hoursJson =
           canOrder={canOrder}
           outerClass="grid-cols-4 md:grid-cols-12 gap-x-12 gap-y-16"
           categorySectionClass="col-span-3 md:col-span-10"
-          cardsClass="grid-cols-1 md:grid-cols-2 justify-items-center gap-8"
+          cardsClass="grid-cols-1 md:grid-cols-2 justify-items-center gap-12"
           sectionAttrs={{ "data-block-2": "" }}
         >
           <fragment slot="card">
@@ -475,13 +475,13 @@ const hoursJson =
 
   <script>
 
-    import {
-      readProduct,
-      readJson,
-      readBusinessHours,
-    } from "../storefront/utils/dom";
-    import { cartService } from "../storefront/services/cart.service.js";
     import { isOpenAt } from "../storefront/services/business-hours.service.js";
+import { cartService } from "../storefront/services/cart.service.js";
+import {
+readBusinessHours,
+readJson,
+readProduct,
+} from "../storefront/utils/dom";
 
     // ─── Product dialog ──────────────────────────────────────────────────────
     // Every product has its own pre-rendered dialog in the DOM, hidden by
