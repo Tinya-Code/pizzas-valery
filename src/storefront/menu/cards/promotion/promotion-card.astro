@@ -12,6 +12,7 @@
  * dialog renders from — no fabricated product projection anymore.
  */
 import AddButton from '../../../commerce/add-button.astro';
+import OfferIncludes from '../offer-includes.astro';
 import { precio } from '../../../utils/format.js';
 import type { Promotion } from '../../../types/menu';
 
@@ -53,9 +54,13 @@ const { promotion, canOrder = true } = Astro.props;
     </div>
   </div>
 
-  <div class="flex flex-col items-start px-4">
-    <p class="text-lg text-white/80">
-      {promotion.description}
-    </p>
+  <div class="flex flex-col items-start gap-3 px-4">
+    {promotion.description && (
+      <p class="text-lg text-white/80">
+        {promotion.description}
+      </p>
+    )}
+
+    <OfferIncludes items={promotion.includes} class="text-sm text-white/70 font-body" />
   </div>
 </div>

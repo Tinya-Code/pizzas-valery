@@ -1,0 +1,33 @@
+---
+/**
+ * OfferIncludes — structured "what this includes" listing for combos and
+ * promotions (e.g. "Pan al Ajo", "Pepsi Jumbo").
+ *
+ * Renders nothing when the offer carries no `includes` array, so existing
+ * data without the field is unaffected.
+ *
+ * Props:
+ * - `items`  — the offer's `includes` string array (optional)
+ * - `class`  — extra classes per consumer (sizing / spacing / colour)
+ */
+interface Props {
+  items?: string[];
+  class?: string;
+}
+
+const { items = [], class: className = '' } = Astro.props;
+const list = Array.isArray(items) ? items.filter((i) => typeof i === 'string' && i.trim() !== '') : [];
+---
+
+{
+  list.length > 0 && (
+    <ul class:list={['flex flex-col gap-1', className]}>
+      {list.map((item) => (
+        <li class="flex items-start gap-2 leading-snug">
+          <span aria-hidden="true" class="shrink-0 mt-[0.3em] h-1.5 w-1.5 rounded-full bg-accent" />
+          <span>{item}</span>
+        </li>
+      ))}
+    </ul>
+  )
+}

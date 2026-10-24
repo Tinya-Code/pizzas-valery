@@ -60,6 +60,52 @@ export const priceRangeSchema = z
   })
   .strict();
 
+/**
+ * Canonical product-card design keys (the nomenclature).
+ *
+ * A key IS the component filename under `src/storefront/menu/cards/product/`
+ * without `.astro` — that one naming rule keeps data and components in sync:
+ *
+ *   - unknown key in JSON      → zod enum rejects the file at build time
+ *   - key added here w/o a     → TS `Record` in `cards/registry.ts` fails
+ *     registered component        (exhaustive map), so a card can never be
+ *                                referenced before it exists
+ *
+ * To add a new card: create the component, add its key here, register it in
+ * `cards/registry.ts`, then reference it from any category's `card` map.
+ */
+export const PRODUCT_CARD_DESIGNS = [
+  'product-row',
+  'product-card',
+  'product-card-pizza-range',
+  'product-card-pizza-range-image',
+  'product-card-bebidas',
+  'product-size-card',
+] as const;
+
+/** One product-state a category can map to a design (price range × image). */
+export const PRODUCT_CARD_STATES = [
+  'flat-with-image',
+  'flat-no-image',
+  'range-with-image',
+  'range-no-image',
+] as const;
+
+export const productCardDesignSchema = z.enum(PRODUCT_CARD_DESIGNS);
+
+/**
+ * Per-category design map: product-state → design key. Optional per state —
+ * unmapped states fall back to TemplateCard's default design.
+ */
+export const categoryCardSchema = z
+  .object({
+    'flat-with-image': productCardDesignSchema.optional(),
+    'flat-no-image': productCardDesignSchema.optional(),
+    'range-with-image': productCardDesignSchema.optional(),
+    'range-no-image': productCardDesignSchema.optional(),
+  })
+  .strict();
+
 /** One product row (`menu` → `categories[].products[]`). */
 export const menuProductSchema = z
   .object({
@@ -89,6 +135,11 @@ export const menuCategorySchema = z.object({
   block_id: z.string().optional(),
   slug: z.string().optional(),
   seo: seoBlockSchema.optional(),
+  /**
+   * Declarative card design per product-state (see PRODUCT_CARD_DESIGNS).
+   * Absent → TemplateCard's default design per state.
+   */
+  card: categoryCardSchema.optional(),
   /** Always an array — the loader normalises it after parsing. */
   products: z.array(menuProductSchema),
 });

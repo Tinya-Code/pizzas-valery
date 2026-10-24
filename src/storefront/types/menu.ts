@@ -13,6 +13,29 @@
  * props — components never fetch.
  */
 
+import type { PRODUCT_CARD_DESIGNS, PRODUCT_CARD_STATES } from '../schemas/menu.schema';
+import type { COMBO_CARD_DESIGNS, PROMOTION_CARD_DESIGNS } from '../schemas/offers.schema';
+
+/**
+ * Canonical product-card design key — derived from the schema enum
+ * (`PRODUCT_CARD_DESIGNS`), so the nomenclature has exactly ONE source:
+ * the schema rejects unknown keys in data, `cards/registry.ts` requires a
+ * registered component per key (exhaustive `Record`).
+ */
+export type ProductCardDesign = (typeof PRODUCT_CARD_DESIGNS)[number];
+
+/** Product-state a category can map to a design (price range × image). */
+export type ProductCardState = (typeof PRODUCT_CARD_STATES)[number];
+
+/** Per-category declarative design map: state → design key (all optional). */
+export type CategoryCardMap = Partial<Record<ProductCardState, ProductCardDesign>>;
+
+/** Combo-card design key — derived from `COMBO_CARD_DESIGNS` (offers.schema.ts). */
+export type ComboCardDesign = (typeof COMBO_CARD_DESIGNS)[number];
+
+/** Promotion-card design key — derived from `PROMOTION_CARD_DESIGNS`. */
+export type PromotionCardDesign = (typeof PROMOTION_CARD_DESIGNS)[number];
+
 /** One quantity option of an embedded price range. */
 export interface PriceRangeEntry {
   /** Unit count. */
@@ -78,6 +101,8 @@ export interface MenuCategory {
   slug?: string;
   seo?: SeoBlock;
   block_id?: string;
+  /** Declarative card design per product-state (see `ProductCardDesign`). */
+  card?: CategoryCardMap;
   /** Always an array: `MenuService.getMenu()` normalises it. */
   products: MenuProduct[];
 }
@@ -100,6 +125,10 @@ export interface Combo {
   slug?: string;
   name: string;
   description: string;
+  /** Structured listing of what the combo includes (rendered as a list). */
+  includes?: string[];
+  /** Declarative card design key (derived from `COMBO_CARD_DESIGNS`). */
+  card?: ComboCardDesign;
   image: OfferImage;
   price: number;
   /** Combos never carry a compare-at price. */
@@ -113,6 +142,10 @@ export interface Promotion {
   slug?: string;
   name: string;
   description: string;
+  /** Structured listing of what the promotion includes (rendered as a list). */
+  includes?: string[];
+  /** Declarative card design key (derived from `PROMOTION_CARD_DESIGNS`). */
+  card?: PromotionCardDesign;
   image: OfferImage;
   /** Effective (discounted) selling price. */
   price: number;
