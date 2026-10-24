@@ -45,6 +45,14 @@
  *   items — fallback array of media items
  */
 import ArrowUpRight from '../icons/arrow-up-right.astro';
+import {
+  normalizeProvider,
+  resolveAspect,
+  buildConfiguredEmbedUrl,
+  resolveFromAssets,
+  PROVIDER_LABELS,
+  ASPECTS,
+} from '../utils/video';
 
 const {
   block,
@@ -62,20 +70,8 @@ const assetFiles = import.meta.glob('/src/assets/**/*.{mp4,webm,mov,m4v,jpg,jpeg
   import: 'default',
 });
 
-function resolveFile(path) {
-  if (!path) return null;
-  const p = String(path).trim();
-  if (/^(https?:)?\/\//i.test(p) || p.startsWith('data:')) return p;
-  if (p.startsWith('/')) {
-    // public/ folder, respecting Astro `base`
-    const base = import.meta.env.BASE_URL.replace(/\/$/, '');
-    return `${base}${p}`;
-  }
-  // relative -> src/assets/
-  const clean = p.replace(/^\.?\//, '').replace(/^src\/assets\//, '');
-  const key = Object.keys(assetFiles).find((k) => k.endsWith(`/src/assets/${clean}`));
-  return key ? assetFiles[key] : null;
-}
+/** Path resolution against this section's asset map (images + video). */
+const resolveFile = (path) => resolveFromAssets(path, assetFiles);
 
 /** Image helper: accepts item.image_url / item.image (URL, public path or src/assets path). */
 const imageOf = (item) => {
@@ -87,40 +83,24 @@ const imageOf = (item) => {
 const relFor = (target) => (target === '_blank' ? 'noopener noreferrer' : undefined);
 
 // ───────────────────────────── Video helpers ─────────────────────────────
-const PROVIDER_ALIASES = { self: 'local', repo: 'local', mp4: 'local', file: 'local' };
-const ASPECTS = { '16:9': '16 / 9', '9:16': '9 / 16', '1:1': '1 / 1', '4:5': '4 / 5' };
-
-const extractYouTubeId = (v = '') => {
-  const m = String(v).match(/(?:youtu\.be\/|v=|\/embed\/|\/shorts\/|\/live\/)([\w-]{11})/);
-  return m ? m[1] : String(v).trim();
-};
-const extractTikTokId = (v = '') => {
-  const m = String(v).match(/\/video\/(\d+)/);
-  return m ? m[1] : String(v).trim();
-};
-const extractFacebookUrl = (v = '') => {
-  const s = String(v).trim();
-  return /^https?:\/\//i.test(s) ? s : `https://www.facebook.com/video/${s}`;
-};
-
 /** Normalises a video item into everything the template needs (or null if unusable). */
 function buildVideo(item) {
-  const provider = PROVIDER_ALIASES[item.provider] ?? item.provider;
+  const provider = normalizeProvider(item.provider);
   const autoplay = Boolean(item.autoplay);
   const muted = autoplay ? true : Boolean(item.muted);
   const loop = Boolean(item.loop);
   const controls = item.controls !== false;
 
-  const aspectKey = ASPECTS[item.aspect] ? item.aspect : provider === 'tiktok' ? '9:16' : '16:9';
+  const { cssAspect, vertical } = resolveAspect(provider, item.aspect);
   const base = {
     provider,
     autoplay,
     muted,
     loop,
     controls,
-    cssAspect: ASPECTS[aspectKey],
-    vertical: aspectKey === '9:16' || aspectKey === '4:5',
-    label: { youtube: 'YouTube', tiktok: 'TikTok', facebook: 'Facebook', local: 'Video' }[provider] ?? 'Video',
+    cssAspect,
+    vertical,
+    label: PROVIDER_LABELS[provider] ?? 'Video',
   };
 
   if (provider === 'local') {
@@ -130,48 +110,12 @@ function buildVideo(item) {
     return { ...base, kind: 'local', src, webm: resolveFile(item.src_webm), poster };
   }
 
-  const auto = autoplay ? '1' : '0';
-  const mute = muted ? '1' : '0';
-  let src = null;
-
-  if (provider === 'youtube' && item.video_id) {
-    const vid = extractYouTubeId(item.video_id);
-    const params = new URLSearchParams({
-      rel: '0',
-      modestbranding: '1',
-      playsinline: '1',
-      autoplay: auto,
-      mute,
-      controls: controls ? '1' : '0',
-    });
-    if (loop) {
-      params.set('loop', '1');
-      params.set('playlist', vid); // YouTube needs this for loop to work
-    }
-    src = `https://www.youtube.com/embed/${vid}?${params}`;
-  } else if (provider === 'tiktok' && item.video_id) {
-    // Official TikTok player: supports autoplay / loop / controls.
-    const vid = extractTikTokId(item.video_id);
-    const params = new URLSearchParams({
-      autoplay: auto,
-      loop: loop ? '1' : '0',
-      controls: controls ? '1' : '0',
-      progress_bar: '1',
-      play_button: '1',
-      volume_control: '1',
-      fullscreen_button: '1',
-      timestamp: '0',
-      music_info: '0',
-      description: '0',
-      rel: '0',
-      native_context_menu: '0',
-      closed_caption: '0',
-    });
-    src = `https://www.tiktok.com/player/v1/${vid}?${params}`;
-  } else if (provider === 'facebook' && item.video_id) {
-    const href = encodeURIComponent(extractFacebookUrl(item.video_id));
-    src = `https://www.facebook.com/plugins/video.php?href=${href}&show_text=false&autoplay=${auto}&mute=${mute}`;
-  }
+  const src = buildConfiguredEmbedUrl(provider, item.video_id, {
+    autoplay,
+    muted,
+    loop,
+    controls,
+  });
 
   return src ? { ...base, kind: 'embed', src } : null;
 }

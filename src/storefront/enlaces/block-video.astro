@@ -4,6 +4,9 @@
  * Embeds a video from YouTube, TikTok or Facebook via iframe,
  * or plays a video hosted in the repo (public/ or src/assets/) via <video>.
  *
+ * Provider parsing, aspect resolution and embed-URL building live in
+ * `../utils/video.ts` (shared with home-media, galeria and gallery-modal).
+ *
  * Block fields:
  *  - provider : 'youtube' | 'tiktok' | 'facebook' | 'local'   (aliases: 'self', 'repo', 'mp4' -> local)
  *  - video_id : id OR full URL (youtube / tiktok / facebook). Full URLs are parsed automatically.
@@ -17,6 +20,14 @@
  *  - autoplay, muted, loop, controls : booleans (autoplay forces muted, browsers require it)
  *  - title, caption, id
  */
+import {
+  normalizeProvider,
+  resolveAspect,
+  buildConfiguredEmbedUrl,
+  resolveFromAssets,
+  PROVIDER_LABELS,
+} from '../utils/video';
+
 const { block } = Astro.props;
 const {
   title,
@@ -34,10 +45,6 @@ const {
   id,
 } = block;
 
-// ---------- Provider normalisation ----------
-const PROVIDER_ALIASES = { self: 'local', repo: 'local', mp4: 'local', file: 'local' };
-const provider = PROVIDER_ALIASES[rawProvider] ?? rawProvider;
-
 // ---------- Videos stored in src/assets/videos (processed by Vite) ----------
 const assetVideos = import.meta.glob('/src/assets/**/*.{mp4,webm,mov,m4v}', {
   eager: true,
@@ -45,105 +52,27 @@ const assetVideos = import.meta.glob('/src/assets/**/*.{mp4,webm,mov,m4v}', {
   import: 'default',
 });
 
-function resolveLocal(path) {
-  if (!path) return null;
-  // Remote or protocol-relative URL
-  if (/^(https?:)?\/\//i.test(path)) return path;
-  // Absolute path -> public/ folder (respect Astro `base`)
-  if (path.startsWith('/')) {
-    const base = import.meta.env.BASE_URL.replace(/\/$/, '');
-    return `${base}${path}`;
-  }
-  // Relative path -> look it up in src/assets/
-  const clean = path.replace(/^\.?\//, '').replace(/^src\/assets\//, '');
-  const key = Object.keys(assetVideos).find((k) => k.endsWith(`/src/assets/${clean}`));
-  return key ? assetVideos[key] : null;
-}
-
-// ---------- ID extraction (accepts ids or full URLs) ----------
-function extractYouTubeId(v = '') {
-  const m = String(v).match(/(?:youtu\.be\/|v=|\/embed\/|\/shorts\/|\/live\/)([\w-]{11})/);
-  return m ? m[1] : String(v).trim();
-}
-function extractTikTokId(v = '') {
-  const m = String(v).match(/\/video\/(\d+)/);
-  return m ? m[1] : String(v).trim();
-}
-function extractFacebookUrl(v = '') {
-  const s = String(v).trim();
-  return /^https?:\/\//i.test(s) ? s : `https://www.facebook.com/video/${s}`;
-}
-
-// ---------- Aspect ratio ----------
-const ASPECTS = { '16:9': '16 / 9', '9:16': '9 / 16', '1:1': '1 / 1', '4:5': '4 / 5' };
-const defaultAspect = provider === 'tiktok' ? '9:16' : '16:9';
-const aspectKey = ASPECTS[aspect] ? aspect : defaultAspect;
-const cssAspect = ASPECTS[aspectKey];
-const isVertical = aspectKey === '9:16' || aspectKey === '4:5';
+const provider = normalizeProvider(rawProvider);
+const { cssAspect, vertical: isVertical } = resolveAspect(provider, aspect);
 
 // Autoplay only works if the video is muted
 const effectiveMuted = autoplay ? true : muted;
 
-// ---------- Build embed src ----------
-function buildSrc() {
-  const auto = autoplay ? 1 : 0;
-  const mute = effectiveMuted ? 1 : 0;
-  const lp = loop ? 1 : 0;
-
-  switch (provider) {
-    case 'youtube': {
-      const vid = extractYouTubeId(video_id);
-      const params = new URLSearchParams({
-        rel: '0',
-        autoplay: String(auto),
-        mute: String(mute),
-        modestbranding: '1',
-        playsinline: '1',
-        controls: controls ? '1' : '0',
-      });
-      if (loop) {
-        params.set('loop', '1');
-        params.set('playlist', vid); // required by YouTube for loop to work
-      }
-      return `https://www.youtube.com/embed/${vid}?${params}`;
-    }
-    case 'tiktok': {
-      // Official TikTok player: supports autoplay / loop / controls params.
-      const vid = extractTikTokId(video_id);
-      const params = new URLSearchParams({
-        autoplay: String(auto),
-        loop: String(lp),
-        controls: controls ? '1' : '0',
-        progress_bar: '1',
-        play_button: '1',
-        volume_control: '1',
-        fullscreen_button: '1',
-        timestamp: '0',
-        music_info: '0',
-        description: '0',
-        rel: '0',
-        native_context_menu: '0',
-        closed_caption: '0',
-      });
-      return `https://www.tiktok.com/player/v1/${vid}?${params}`;
-    }
-    case 'facebook': {
-      const href = encodeURIComponent(extractFacebookUrl(video_id));
-      return `https://www.facebook.com/plugins/video.php?href=${href}&autoplay=${auto}&mute=${mute}&show_text=false`;
-    }
-    default:
-      return null;
-  }
-}
-
 const isLocal = provider === 'local';
-const resolvedSrc = isLocal ? resolveLocal(localSrc) : null;
-const resolvedWebm = isLocal ? resolveLocal(src_webm) : null;
-const resolvedPoster = isLocal && poster ? (resolveLocal(poster) ?? poster) : undefined;
-const embedSrc = isLocal ? null : buildSrc();
+const resolvedSrc = isLocal ? resolveFromAssets(localSrc, assetVideos) : null;
+const resolvedWebm = isLocal ? resolveFromAssets(src_webm, assetVideos) : null;
+const resolvedPoster =
+  isLocal && poster ? (resolveFromAssets(poster, assetVideos) ?? poster) : undefined;
+const embedSrc = isLocal
+  ? null
+  : buildConfiguredEmbedUrl(provider, video_id, {
+      autoplay,
+      muted: effectiveMuted,
+      loop,
+      controls,
+    });
 
-const providerLabel =
-  { youtube: 'YouTube', tiktok: 'TikTok', facebook: 'Facebook', local: 'Video' }[provider] ?? provider;
+const providerLabel = PROVIDER_LABELS[provider] ?? provider;
 
 const hasContent = isLocal ? Boolean(resolvedSrc) : Boolean(embedSrc);
 

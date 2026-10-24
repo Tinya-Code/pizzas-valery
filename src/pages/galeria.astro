@@ -12,6 +12,7 @@ import Footer from '../storefront/layout/footer.astro';
 import GalleryModal from '../storefront/ui/gallery-modal.astro';
 import Maximize2 from '../storefront/icons/maximize-2.astro';
 import { loadStorefront, getGalleryCategories } from '../storefront/services/index.js';
+import { buildGalleryEmbedUrl } from '../storefront/utils/video';
 import type { GalleryCategory, GalleryItem } from '../storefront/types/menu';
 
 const {
@@ -24,31 +25,9 @@ const {
 
 const galleryCategories: GalleryCategory[] = await getGalleryCategories(blocks);
 
-/** Converts common video platform URLs (YouTube, TikTok, Facebook) to embed URLs. */
-function resolveEmbedUrl(item: GalleryItem): string | null {
-  const url = item.url ?? '';
-  if (!url) return null;
-
-  // YouTube watch / shorts / share URLs
-  const ytMatch = url.match(/(?:youtube\.com\/(?:watch\?v=|shorts\/|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
-  if (ytMatch) {
-    return `https://www.youtube-nocookie.com/embed/${ytMatch[1]}`;
-  }
-
-  // TikTok embed URL
-  const ttMatch = url.match(/tiktok\.com\/(?:@[^/]+\/video\/|v\/)(\d+)/);
-  if (ttMatch) {
-    return `https://www.tiktok.com/embed/v2/${ttMatch[1]}`;
-  }
-
-  // Facebook video URL
-  if (url.includes('facebook.com') && !url.includes('facebook.com/plugins/video.php')) {
-    return `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(url)}&show_text=0`;
-  }
-
-  // If already an embed URL or other iframe URL
-  return url;
-}
+// Platform-URL → embed-URL resolution lives in ../utils/video.ts (shared with
+// the lightbox modal and the video blocks).
+const resolveEmbedUrl = (item: GalleryItem): string | null => buildGalleryEmbedUrl(item.url);
 ---
 
 <Layout title="Galería" seo={settings?.seo}>

@@ -804,7 +804,7 @@
                   "url": "/images/bebidas/infusion.webp",
                   "alt": ""
                 },
-                "price": 6,
+                "price": 2,
                 "price_range": null,
                 "qty_label": null,
                 "is_recommended": false,
@@ -819,7 +819,7 @@
                   "url": "/images/bebidas/cafe.webp",
                   "alt": ""
                 },
-                "price": 7,
+                "price": 3,
                 "price_range": null,
                 "qty_label": null,
                 "is_recommended": false,
@@ -828,10 +828,25 @@
               },
               {
                 "id": "chicha-de-maiz",
-                "name": "Chicha de maíz",
+                "name": "Chicha de maíz 1 Lt",
                 "description": "Chicha de maíz tradicional servida fría.",
                 "image": {
                   "url": "/images/bebidas/chicha-morada.webp",
+                  "alt": ""
+                },
+                "price": 10,
+                "price_range": null,
+                "qty_label": null,
+                "is_recommended": true,
+                "is_hidden": false,
+                "category_id": "cat-bebidas"
+              },
+                            {
+                "id": "limonada",
+                "name": "Limonada 1 Lt",
+                "description": "Limonada tradicional servida fría.",
+                "image": {
+                  "url": "/images/bebidas/limonada.png",
                   "alt": ""
                 },
                 "price": 8,
@@ -841,15 +856,30 @@
                 "is_hidden": false,
                 "category_id": "cat-bebidas"
               },
+                            {
+                "id": "maracuya",
+                "name": "Maracuyá 1 Lt",
+                "description": "Maracuyá tradicional servida fría.",
+                "image": {
+                  "url": "/images/bebidas/maracuya.webp",
+                  "alt": ""
+                },
+                "price": 10,
+                "price_range": null,
+                "qty_label": null,
+                "is_recommended": true,
+                "is_hidden": false,
+                "category_id": "cat-bebidas"
+              },
               {
                 "id": "cocacola",
-                "name": "Coca Cola 1.5 Lts.",
-                "description": "Gaseosa fría de 1.5 Lts.",
+                "name": "Coca Cola 1 Lts.",
+                "description": "Gaseosa fría de 1 Lts.",
                 "image": {
                   "url": "/images/bebidas/cocacola.webp",
                   "alt": ""
                 },
-                "price": 6,
+                "price": 7,
                 "price_range": null,
                 "qty_label": null,
                 "is_recommended": true,
@@ -864,7 +894,7 @@
                   "url": "/images/bebidas/inca-cola.png",
                   "alt": ""
                 },
-                "price": 8,
+                "price": 7,
                 "price_range": null,
                 "qty_label": null,
                 "is_recommended": true,
@@ -873,13 +903,13 @@
               },
                                         {
                 "id": "pepsi",
-                "name": "Pepsi 1 Lt.",
-                "description": "Gaseosa  fría de 1 Lt.",
+                "name": "Pepsi Jumbo",
+                "description": "Gaseosa fría.",
                 "image": {
                   "url": "/images/bebidas/pepsi-1lt.webp",
                   "alt": ""
                 },
-                "price": 8,
+                "price": 4,
                 "price_range": null,
                 "qty_label": null,
                 "is_recommended": false,

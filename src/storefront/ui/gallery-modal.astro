@@ -102,6 +102,11 @@ import ChevronRight from '../icons/chevron-right.astro';
 </div>
 
 <script>
+  // Platform-URL → embed-URL resolution lives in ../utils/video.ts (shared
+  // with the gallery page and the video blocks); Astro bundles the pure
+  // function into this client script.
+  import { buildGalleryEmbedUrl } from '../utils/video';
+
   (() => {
     const modal = document.getElementById('gallery-modal');
     if (!modal) return;
@@ -152,27 +157,6 @@ import ChevronRight from '../icons/chevron-right.astro';
 
     let currentIndex = 0;
 
-    function resolveEmbedUrl(item: GalleryItemData): string | null {
-      const url = item.url ?? '';
-      if (!url) return null;
-
-      const ytMatch = url.match(/(?:youtube\.com\/(?:watch\?v=|shorts\/|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
-      if (ytMatch) {
-        return `https://www.youtube-nocookie.com/embed/${ytMatch[1]}?autoplay=1`;
-      }
-
-      const ttMatch = url.match(/tiktok\.com\/(?:@[^/]+\/video\/|v\/)(\d+)/);
-      if (ttMatch) {
-        return `https://www.tiktok.com/embed/v2/${ttMatch[1]}`;
-      }
-
-      if (url.includes('facebook.com') && !url.includes('facebook.com/plugins/video.php')) {
-        return `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(url)}&show_text=0&autoplay=1`;
-      }
-
-      return url;
-    }
-
     function renderItem(index: number) {
       if (index < 0 || index >= items.length) return;
       currentIndex = index;
@@ -201,7 +185,7 @@ import ChevronRight from '../icons/chevron-right.astro';
         wrapper.innerHTML = item.embed_html;
         mediaTarget.appendChild(wrapper);
       } else if (isEmbed) {
-        const embedUrl = resolveEmbedUrl(item);
+        const embedUrl = buildGalleryEmbedUrl(item.url, { autoplay: true });
         if (embedUrl) {
           const wrapper = document.createElement('div');
           wrapper.className = isAspect916
