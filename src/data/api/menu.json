@@ -188,8 +188,8 @@
                 "name": "Pizzas Valery",
                 "description": "Salsa de la casa, mozarella, chorizo a las finas hierbas, albóndiga de carne, hotdog ahumado, pimentón rojo",
                 "image": {
-                  "url": "/pizzas/pizza.png",
-                  "alt": ""
+                  "url": "images/pizzas-especiales/pizza-valery.webp",
+                  "alt": "Pizzas Valery"
                 },
                 "price": 24,
                 "price_range": {
@@ -220,8 +220,8 @@
                 "name": "Pizza Amazónica",
                 "description": "Salsa de la casa, mozarella, jamón inglés, cecina, chorizo amazónico, ají charapita, pimentón",
                 "image": {
-                  "url": "",
-                  "alt": ""
+                  "url": "images/pizzas-especiales/pizza-amazonica.webp",
+                  "alt": "Pizza Amazónica"
                 },
                 "price": 22,
                 "price_range": {
@@ -252,8 +252,8 @@
                 "name": "Chicken Pizza",
                 "description": "Salsa de la casa, mozarella, jamón inglés, trozos de pollo y pimentón verde",
                 "image": {
-                  "url": "",
-                  "alt": ""
+                  "url": "images/pizzas-especiales/chicken-pizza.webp",
+                  "alt": "Chicken Pizza"
                 },
                 "price": 22,
                 "price_range": {
@@ -284,8 +284,8 @@
                 "name": "Suprema",
                 "description": "Salsa de la casa, mozarella, peperonni, chorizo parrillero, champiñones, carne aderezada",
                 "image": {
-                  "url": "",
-                  "alt": ""
+                  "url": "images/pizzas-especiales/suprema.webp",
+                  "alt": "Suprema"
                 },
                 "price": 22,
                 "price_range": {
@@ -316,8 +316,8 @@
                 "name": "Huachana",
                 "description": "Salsa de la casa, mozarella, jamón inglés, salchicha huachana",
                 "image": {
-                  "url": "",
-                  "alt": ""
+                  "url": "images/pizzas-especiales/huachana.webp",
+                  "alt": "Huachana"
                 },
                 "price": 22,
                 "price_range": {
@@ -348,8 +348,8 @@
                 "name": "Carnívora",
                 "description": "Salsa de la casa, mozarella, jamón inglés, carne de res, champiñones, cabanossi",
                 "image": {
-                  "url": "",
-                  "alt": ""
+                  "url": "images/pizzas-especiales/carnivora.webp",
+                  "alt": "Carnívora"
                 },
                 "price": 22,
                 "price_range": {
@@ -380,8 +380,8 @@
                 "name": "Tropical",
                 "description": "Salsa de la casa, mozarella, jamón inglés, piña hawaiana, durazno",
                 "image": {
-                  "url": "",
-                  "alt": ""
+                  "url": "images/pizzas-especiales/tropical.webp",
+                  "alt": "Tropical"
                 },
                 "price": 22,
                 "price_range": {
@@ -412,8 +412,8 @@
                 "name": "Española",
                 "description": "Salsa de la casa, mozarella, jamón inglés, chorizo, tocino, aceitunas verdes",
                 "image": {
-                  "url": "",
-                  "alt": ""
+                  "url": "images/pizzas-especiales/espanola.webp",
+                  "alt": "Española"
                 },
                 "price": 22,
                 "price_range": {
@@ -444,8 +444,8 @@
                 "name": "Argentina",
                 "description": "Salsa de la casa, mozarella, jamón inglés, salame, tocino ahumado, cabanossi",
                 "image": {
-                  "url": "",
-                  "alt": ""
+                  "url": "images/pizzas-especiales/argentina.webp",
+                  "alt": "Argentina"
                 },
                 "price": 22,
                 "price_range": {
@@ -476,8 +476,8 @@
                 "name": "De la Casa",
                 "description": "Salsa de la casa, mozarella, jamón inglés, salame, tocino ahumado, chorizo parrillero, pimiento rojo",
                 "image": {
-                  "url": "",
-                  "alt": ""
+                  "url": "images/pizzas-especiales/de-la-casa.webp",
+                  "alt": "Pizza De la Casa"
                 },
                 "price": 22,
                 "price_range": {
@@ -508,8 +508,8 @@
                 "name": "Florentina",
                 "description": "Salsa de la casa, mozarella, jamón inglés, chorizo, tocino, piña, durazno",
                 "image": {
-                  "url": "",
-                  "alt": ""
+                  "url": "images/pizzas-especiales/florentina.webp",
+                  "alt": "Pizza Florentina"
                 },
                 "price": 22,
                 "price_range": {
@@ -540,8 +540,8 @@
                 "name": "Manhattan",
                 "description": "Salsa de la casa, mozarella, pepperoni, champiñones, tocino",
                 "image": {
-                  "url": "",
-                  "alt": ""
+                  "url": "images/pizzas-especiales/manhattan.webp",
+                  "alt": "Pizza Manhattan"
                 },
                 "price": 22,
                 "price_range": {
@@ -572,8 +572,8 @@
                 "name": "Vegetariana",
                 "description": "Salsa de la casa, mozzarella, champiñones, aceitunas, pimentón",
                 "image": {
-                  "url": "",
-                  "alt": ""
+                  "url": "images/pizzas-especiales/vegetariana.webp",
+                  "alt": "Pizza Vegetariana"
                 },
                 "price": 22,
                 "price_range": {
@@ -604,8 +604,8 @@
                 "name": "Primavera",
                 "description": "Salsa de la casa, mozzarella, jamón, maíz (choclo), tocino",
                 "image": {
-                  "url": "",
-                  "alt": ""
+                  "url": "images/pizzas-especiales/primavera.webp",
+                  "alt": "Pizza Primavera"
                 },
                 "price": 22,
                 "price_range": {
@@ -636,8 +636,8 @@
                 "name": "Cuatro Estaciones",
                 "description": "Es una combinación de cuatro sabores a tu gusto",
                 "image": {
-                  "url": "",
-                  "alt": ""
+                  "url": "images/pizzas-especiales/cuatro-estaciones.webp",
+                  "alt": "Cuatro Estaciones"
                 },
                 "price": 22,
                 "price_range": {
@@ -668,8 +668,8 @@
                 "name": "Cabanossi",
                 "description": "Es una combinación de cuatro sabores a tu gusto",
                 "image": {
-                  "url": "",
-                  "alt": ""
+                  "url": "images/pizzas-especiales/cabanossi.webp",
+                  "alt": "Cabanossi"
                 },
                 "price": 22,
                 "price_range": {
