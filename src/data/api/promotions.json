@@ -4,7 +4,12 @@
       "id": "promo-familiar-pepsi-jumbo",
       "slug": "pizza-familiar-pan-al-ajo-pepsi-jumbo",
       "name": "Promoción Familiar",
-      "description": "Pizza Familiar + Pan al Ajo + Pepsi Jumbo. Promoción válida de lunes a viernes.",
+      "description": "Promoción válida de lunes a viernes.",
+      "includes": [
+        "Pizza Familiar",
+        "Pan al Ajo",
+        "Pepsi Jumbo"
+      ],
       "image": {
         "url": "/images/promos/promo-image.webp",
         "alt": "Promoción Familiar — Pizza Familiar + Pan al Ajo + Pepsi Jumbo"

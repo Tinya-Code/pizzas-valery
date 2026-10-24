@@ -22,6 +22,7 @@ import Minus from "../icons/minus.astro";
 import Plus from "../icons/plus.astro";
 import ShoppingBag from "../icons/shopping-bag.astro";
 import X from "../icons/x.astro";
+import OfferIncludes from "./cards/offer-includes.astro";
 import { precio } from "../utils/format.js";
 import { entryLabel } from "../utils/entry-label";
 import type { MenuProduct, PriceRangeEntry, Promotion } from "../types/menu";
@@ -139,6 +140,13 @@ const rootAttributes = {
                   "Un clásico preparado con los secretos mejor guardados de nuestra cocina."
               }
             </p>
+            {/* `includes` only exists on promotions (not on MenuProduct). */}
+            {"includes" in product && (
+              <OfferIncludes
+                items={product.includes}
+                class="text-sm text-secondary/70 font-body"
+              />
+            )}
           </div>
 
           <!-- Price Range Options (Compact List) -->

@@ -14,12 +14,40 @@ const offerImageSchema = z
   })
   .strict();
 
+/**
+ * Canonical combo-card design keys (same nomenclature rule as
+ * `PRODUCT_CARD_DESIGNS` in menu.schema.ts): a key IS the component
+ * filename under `src/storefront/menu/cards/combo/` without `.astro`.
+ * Unknown key in JSON → zod rejects at build; key added here without a
+ * registered component → exhaustive `Record` in `cards/registry.ts` fails.
+ */
+export const COMBO_CARD_DESIGNS = ['combo-card', 'combo-card-pizza'] as const;
+
+/** Canonical promotion-card design keys (`cards/promotion/`, same rule). */
+export const PROMOTION_CARD_DESIGNS = [
+  'promotion-card',
+  'promotion-card-pizza',
+] as const;
+
+export const comboCardDesignSchema = z.enum(COMBO_CARD_DESIGNS);
+export const promotionCardDesignSchema = z.enum(PROMOTION_CARD_DESIGNS);
+
 export const comboSchema = z
   .object({
     id: z.string(),
     slug: z.string().optional(),
     name: z.string(),
     description: z.string(),
+    /**
+     * Structured listing of what the combo includes (e.g. "Pan al Ajo",
+     * "Pepsi Jumbo"). Optional — rendered as a list when present.
+     */
+    includes: z.array(z.string()).optional(),
+    /**
+     * Declarative card design (see COMBO_CARD_DESIGNS). Absent → the
+     * default design in `TemplateComboCard`.
+     */
+    card: comboCardDesignSchema.optional(),
     image: offerImageSchema,
     price: z.number(),
     /** `null` — combos never carry a compare-at price today (nullable for templates). */
@@ -34,6 +62,16 @@ export const promotionSchema = z
     slug: z.string().optional(),
     name: z.string(),
     description: z.string(),
+    /**
+     * Structured listing of what the promotion includes (e.g. "Pan al Ajo",
+     * "Pepsi Jumbo"). Optional — rendered as a list when present.
+     */
+    includes: z.array(z.string()).optional(),
+    /**
+     * Declarative card design (see PROMOTION_CARD_DESIGNS). Absent → the
+     * default design in `TemplatePromotionCard`.
+     */
+    card: promotionCardDesignSchema.optional(),
     image: offerImageSchema,
     /** Effective (discounted) selling price. */
     price: z.number(),

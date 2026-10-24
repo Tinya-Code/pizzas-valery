@@ -11,6 +11,7 @@
  * client contract — a combo has never opened the product dialog).
  */
 import AddButton from '../../../commerce/add-button.astro';
+import OfferIncludes from '../offer-includes.astro';
 import { precio } from '../../../utils/format.js';
 import type { Combo } from '../../../types/menu';
 
@@ -50,11 +51,15 @@ const { combo, canOrder = true } = Astro.props;
     <div class="flex-1 flex flex-col gap-3">
       <h3 class="text-3xl font-display text-primary-text text-center">{combo.name}</h3>
 
-      <div class="flex gap-3 mt-auto">
-        <p class="text-primary-text/70 max-w-xs text-center font-body leading-relaxed line-clamp-3">
-          {combo.description}
-        </p>
-      </div>
+      {combo.description && (
+        <div class="flex gap-3">
+          <p class="text-primary-text/70 max-w-xs text-center font-body leading-relaxed line-clamp-3">
+            {combo.description}
+          </p>
+        </div>
+      )}
+
+      <OfferIncludes items={combo.includes} class="mt-auto text-sm text-primary-text/80 text-center items-center font-body" />
     </div>
   </div>
 </div>
