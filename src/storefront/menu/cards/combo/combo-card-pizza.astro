@@ -43,12 +43,14 @@ const comboPayload = JSON.stringify({ ...(combo ?? {}), card: undefined });
       />
       <p class="absolute -bottom-4 -left-4 translate-x-1/2 py-1 px-4 rounded-sm tracking-widest bg-primary font-display text-white text-2xl">
         {precio(combo.price)}
-      </p>
-      {
+
+              {
         canOrder && (
-          <AddButton customClass="absolute bottom-0 -right-5 border-px border-white active" />
+          <AddButton customClass="absolute bottom-1 -right-10 border-px border-white active" />
         )
       }
+      </p>
+
     </div>
 
     <div class="flex-1 flex flex-col gap-3">
@@ -62,7 +64,7 @@ const comboPayload = JSON.stringify({ ...(combo ?? {}), card: undefined });
         </div>
       )}
 
-      <OfferIncludes items={combo.includes} class="mt-auto text-lg text-primary-text/80  font-body" />
+      <OfferIncludes items={combo.includes} class="mt-auto text-xl text-primary-text/80  font-body" />
     </div>
   </div>
 </div>

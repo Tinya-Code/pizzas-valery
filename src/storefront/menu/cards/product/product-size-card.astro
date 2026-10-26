@@ -66,10 +66,10 @@ const hasImage = !!product.image?.url;
         <dl class="mt-4 mb-5 flex gap-6">
           {entries.map((entry) => (
             <div>
-              <dt class="text-md font-body font-bold italic text-primary-text/80">
+              <dt class="text-md font-body font-bold  text-primary-text/80">
                 {entryLabel(entry, priceRange?.units_label)}:
               </dt>
-              <dd class="text-2xl font-display font-bold italic text-primary-text">
+              <dd class="text-2xl font-display font-bold  text-primary-text">
                 {precio(entry.price)}
               </dd>
             </div>
