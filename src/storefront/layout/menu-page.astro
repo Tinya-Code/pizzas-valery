@@ -12,34 +12,39 @@
  * Props (chrome data only — no blocks, combos or price data):
  * - `restaurant`    — restaurant profile forwarded to the header and footer
  * - `settings`      — restaurant settings forwarded to the footer
+ * - `theme`         — page presentation (backgrounds + brand) forwarded to
+ *                      the header and footer
  * - `businessHours` — raw schedule forwarded to the footer
  * - `background`    — background image URL (a remote URL by default)
  */
 import Header from './header.astro';
 import Footer from './footer.astro';
 import LayoutScale from './layout-scale.astro';
-import type { BusinessHours, RestaurantProfile, RestaurantSettings } from '../types/menu';
+import type {
+  BusinessHours,
+  RestaurantProfile,
+  RestaurantSettings,
+  Theme,
+} from '../types/menu';
 
 interface Props {
   restaurant?: RestaurantProfile | null;
   settings?: RestaurantSettings | null;
+  theme?: Theme | null;
   businessHours?: BusinessHours;
   background?: string;
-  headerBg?: string | null;
-  footerBg?: string | null;
 }
 
 const {
   restaurant = null,
   settings = null,
+  theme = null,
   businessHours = {},
   background = 'https://picsum.photos/seed/menu-bg/400/400',
-  headerBg = null,
-  footerBg = null,
 } = Astro.props;
 ---
 
-<Header restaurant={restaurant} settings={settings} headerBg={headerBg} />
+<Header restaurant={restaurant} settings={settings} theme={theme} />
 
 <LayoutScale>
   <div style={`background-image: url(${background})`} class="bg-repeat relative mx-2">
@@ -50,7 +55,7 @@ const {
 <Footer
   restaurant={restaurant}
   settings={settings}
+  theme={theme}
   businessHours={businessHours}
-  footerBg={footerBg}
   class="mt-20 block"
 />

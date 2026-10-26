@@ -39,6 +39,6 @@ export { landingBlockSchema, landingFileSchema } from './landing.schema';
 
 export { enlacesBlockSchema, enlacesFileSchema } from './enlaces.schema';
 
-export { decorationItemSchema, decorationsFileSchema } from './decorations.schema';
+export { decorationItemSchema, themeFileSchema } from './theme.schema';
 
 export { flyerItemSchema, flyersFileSchema } from './flyers.schema';

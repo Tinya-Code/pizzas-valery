@@ -31,30 +31,32 @@ import type {
   RestaurantProfile,
   RestaurantSettings,
   SocialMedia,
+  Theme,
 } from "../types/menu";
 
 interface Props {
   class?: string;
   restaurant?: RestaurantProfile | null;
   settings?: RestaurantSettings | null;
+  /** Page presentation: backgrounds + brand assets (single source). */
+  theme?: Theme | null;
   businessHours?: BusinessHours;
-  footerBg?: string | null;
 }
 
 const {
   class: hostClass = "",
   restaurant = null,
   settings = null,
+  theme = null,
   businessHours = {},
-  footerBg: explicitFooterBg = null,
 } = Astro.props;
 
 const restaurantName = restaurant?.name ?? "TU RESTAURANTE";
 const restaurantPhone = restaurant?.phone ?? "";
 const socialMedia: Partial<SocialMedia> = settings?.social_media ?? {};
 const googleMapsUrl = settings?.google_maps ?? socialMedia.google_maps ?? null;
-const logoUrl = settings?.logo_url ?? null;
-const footerBg = explicitFooterBg ?? settings?.footer_bg ?? null;
+const logoUrl = theme?.brand?.logo_url ?? null;
+const footerBg = theme?.page?.footer_bg ?? null;
 
 /** Opening schedule for today (`null` when the schedule never arrived). */
 const todayHours = businessHours[weekDayKey()] ?? null;

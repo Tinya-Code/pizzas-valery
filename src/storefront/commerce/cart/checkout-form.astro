@@ -13,8 +13,10 @@
 import MessageCircle from '../../icons/message-circle.astro';
 import Banknote from '../../icons/banknote.astro';
 import CreditCard from '../../icons/credit-card.astro';
+import MapPin from '../../icons/map-pin.astro';
 import Smartphone from '../../icons/smartphone.astro';
 import { OrderMessage } from '../../utils/whatsapp.js';
+import { precio } from '../../utils/format.js';
 import type { RestaurantSettings } from '../../types/menu';
 
 interface Props {
@@ -24,6 +26,12 @@ interface Props {
 const { settings = null } = Astro.props;
 
 const deliveryEnabled = settings?.delivery?.enabled ?? true;
+const chargeDelivery = settings?.delivery?.charge_delivery ?? true;
+const zones = settings?.delivery?.zones ?? [];
+const defaultFee = settings?.delivery?.fee ?? 0;
+// The zone picker prices an order, so it only makes sense when delivery is on
+// AND the fee is actually charged (charge_delivery: false → no tariff applies).
+const showZoneSelector = deliveryEnabled && chargeDelivery && zones.length > 0;
 const paymentMethods: string[] = settings?.payment_methods ?? [];
 
 const PAYMENT_ICONS: Record<string, typeof CreditCard> = {
@@ -49,6 +57,9 @@ const fieldClass =
 <form
   data-checkout-form
   data-delivery-enabled={String(deliveryEnabled)}
+  data-charge-delivery={String(chargeDelivery)}
+  data-delivery-fee={String(defaultFee)}
+  data-zones={JSON.stringify(zones)}
   data-whatsapp={settings?.whatsapp?.number ?? ''}
   data-whatsapp-template={settings?.whatsapp?.message_template ?? ''}
   class="space-y-4 p-2"
@@ -87,6 +98,36 @@ const fieldClass =
         <div data-error-address hidden class="text-xs text-red-500 mt-1 ml-1">
           La dirección es obligatoria
         </div>
+
+        <!-- Location button (L1) — never blocks the order: status only. -->
+        <div class="flex items-center gap-3 mt-1">
+          <button
+            type="button"
+            data-location-btn
+            class="inline-flex items-center gap-2 px-3 py-2 border border-primary/20 rounded-sm text-xs font-display text-secondary hover:bg-secondary/5 transition-all active:scale-95"
+          >
+            <MapPin class="w-4 h-4" />
+            Enviar mi ubicación
+          </button>
+          <span data-location-status aria-live="polite" class="text-xs text-secondary/70"></span>
+        </div>
+      </div>
+    )
+  }
+
+  <!-- Delivery zone — picks the per-zone fee (D3). No selection = the flat default fee. -->
+  {
+    showZoneSelector && (
+      <div class="flex flex-col gap-1">
+        <label class="text-sm font-display text-secondary mb-1" for="checkout-zone">
+          Zona de Delivery
+        </label>
+        <select id="checkout-zone" data-zone-select name="zone" class={fieldClass}>
+          <option value="">{`Delivery estándar — ${precio(defaultFee)}`}</option>
+          {zones.map((zone) => (
+            <option value={zone.id}>{`${zone.name} — ${precio(zone.fee)}`}</option>
+          ))}
+        </select>
       </div>
     )
   }
@@ -132,6 +173,18 @@ const fieldClass =
     </div>
   </div>
 
+  <!-- Order note — optional, applies to delivery AND pickup (N1). -->
+  <div class="flex flex-col gap-1">
+    <label class="text-sm font-display text-secondary mb-1" for="checkout-note">Indicaciones</label>
+    <textarea
+      id="checkout-note"
+      data-checkout-note
+      name="note"
+      rows="2"
+      placeholder="Ej: sin cebolla, timbre roto, dejar en portería"
+      class={fieldClass}></textarea>
+  </div>
+
   <button
     type="submit"
     data-checkout-submit
@@ -144,15 +197,31 @@ const fieldClass =
 </form>
 
 <script>
-  import { cartService } from '../../services/cart.service.js';
+  import { cartService, ZONE_STORAGE_KEY } from '../../services/cart.service.js';
   import { isOpenAt } from '../../services/business-hours.service.js';
   import { OrderMessage } from '../../utils/whatsapp.js';
   import { readBusinessHours } from '../../utils/dom';
   import { local } from '../../utils/local-storage.js';
 
-  const STORAGE_KEYS = { NAME: 'user_name', ADDRESS: 'user_address' };
+  const STORAGE_KEYS = {
+    NAME: 'user_name',
+    ADDRESS: 'user_address',
+    NOTE: 'user_note',
+    ZONE: ZONE_STORAGE_KEY,
+  };
   const MIN_NAME = 3;
   const MIN_ADDRESS = 5;
+
+  type Zone = { id: string; name: string; fee: number };
+
+  function parseZones(raw: string | undefined): Zone[] {
+    try {
+      const parsed = JSON.parse(raw || '[]');
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return [];
+    }
+  }
 
   const form = document.querySelector<HTMLFormElement>('[data-checkout-form]');
   if (form) {
@@ -165,6 +234,7 @@ const fieldClass =
   function init(form: HTMLFormElement) {
     const nameInput = form.querySelector<HTMLInputElement>('[data-checkout-name]');
     const addressInput = form.querySelector<HTMLInputElement>('[data-checkout-address]');
+    const noteInput = form.querySelector<HTMLTextAreaElement>('[data-checkout-note]');
     const errorName = form.querySelector<HTMLElement>('[data-error-name]');
     const errorAddress = form.querySelector<HTMLElement>('[data-error-address]');
     const errorPayment = form.querySelector<HTMLElement>('[data-error-payment]');
@@ -173,10 +243,75 @@ const fieldClass =
     // Restore the previous customer data, like Angular `ngOnInit`.
     const savedName = local.get<string>(STORAGE_KEYS.NAME);
     const savedAddress = local.get<string>(STORAGE_KEYS.ADDRESS);
+    const savedNote = local.get<string>(STORAGE_KEYS.NOTE);
     if (savedName && nameInput) nameInput.value = savedName;
     if (savedAddress && addressInput) addressInput.value = savedAddress;
+    if (savedNote && noteInput) noteInput.value = savedNote;
 
     const deliveryEnabled = form.dataset.deliveryEnabled === 'true';
+    const chargeDelivery = form.dataset.chargeDelivery !== 'false';
+    const defaultFee = Number(form.dataset.deliveryFee ?? 0);
+    const zones = parseZones(form.dataset.zones);
+    const zoneSelect = form.querySelector<HTMLSelectElement>('[data-zone-select]');
+
+    // Restore the picked zone in the UI. The fee itself is resolved by the
+    // drawer bootstrap from the same persisted id (this script runs first).
+    const savedZoneId = local.get<string>(STORAGE_KEYS.ZONE) ?? '';
+    if (zoneSelect && savedZoneId && zones.some((zone) => zone.id === savedZoneId)) {
+      zoneSelect.value = savedZoneId;
+    }
+
+    // Zone pick → recompute the delivery fee, re-render totals (the fee is a
+    // ReactiveValue, so the drawer's subscription repaints) and persist it.
+    zoneSelect?.addEventListener('change', () => {
+      const zone = zones.find((entry) => entry.id === zoneSelect.value) ?? null;
+      cartService.configure({ deliveryFee: chargeDelivery ? (zone?.fee ?? defaultFee) : 0 });
+      if (zone) local.set(STORAGE_KEYS.ZONE, zone.id);
+      else local.remove(STORAGE_KEYS.ZONE);
+    });
+
+    // ── Location (L2): optional GPS attach, never blocks the order ───────────
+    const locationBtn = form.querySelector<HTMLButtonElement>('[data-location-btn]');
+    const locationStatus = form.querySelector<HTMLElement>('[data-location-status]');
+    let locationUrl = '';
+
+    const setLocationStatus = (text: string, state: 'idle' | 'getting' | 'attached' | 'error') => {
+      if (!locationStatus) return;
+      locationStatus.textContent = text;
+      locationStatus.classList.toggle('text-red-500', state === 'error');
+      locationStatus.classList.toggle('text-green-600', state === 'attached');
+      locationStatus.classList.toggle('text-secondary/70', state === 'idle' || state === 'getting');
+    };
+
+    locationBtn?.addEventListener('click', () => {
+      if (!('geolocation' in navigator)) {
+        locationUrl = '';
+        setLocationStatus('Tu navegador no permite la ubicación', 'error');
+        return;
+      }
+
+      setLocationStatus('Obteniendo ubicación…', 'getting');
+
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          locationUrl = `https://www.google.com/maps?q=${position.coords.latitude},${position.coords.longitude}`;
+          setLocationStatus('Ubicación adjunta ✓', 'attached');
+        },
+        (error) => {
+          // Denied/unavailable: show why and keep the form fully usable —
+          // the address field alone is enough to place the order.
+          locationUrl = '';
+          setLocationStatus(
+            // GeolocationPositionError.PERMISSION_DENIED === 1 (spec).
+            error.code === 1
+              ? 'Permiso de ubicación denegado — escribe tu dirección'
+              : 'No se pudo obtener tu ubicación',
+            'error',
+          );
+        },
+        { enableHighAccuracy: false, timeout: 10000, maximumAge: 60000 },
+      );
+    });
 
     const selectedPayment = () =>
       form.querySelector<HTMLInputElement>('[data-payment-input]:checked')?.value ?? '';
@@ -237,7 +372,13 @@ const fieldClass =
       local.set(STORAGE_KEYS.NAME, name);
       if (deliveryEnabled) local.set(STORAGE_KEYS.ADDRESS, address);
 
+      const note = (noteInput?.value ?? '').trim();
+      if (note) local.set(STORAGE_KEYS.NOTE, note);
+      else local.remove(STORAGE_KEYS.NOTE);
+
       const { subtotal, deliveryFee, total, items } = cartService.snapshot;
+
+      const zoneName = zones.find((zone) => zone.id === zoneSelect?.value)?.name ?? '';
 
       const orderMessage = new OrderMessage({
         template: form.dataset.whatsappTemplate || 'Hola, me gustaría ordenar:',
@@ -245,7 +386,9 @@ const fieldClass =
       })
         .withItems(items)
         .withTotals({ subtotal, deliveryFee, total })
-        .withCustomer({ name, address, paymentMethod: payment });
+        .withCustomer({ name, address, paymentMethod: payment, zone: zoneName })
+        .withNote(note)
+        .withLocation(locationUrl);
 
       // Multi-contact picker (whatsapp-contacts.astro) takes precedence when
       // mounted; otherwise keep the legacy single-number behavior.

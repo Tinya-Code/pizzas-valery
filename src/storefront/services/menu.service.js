@@ -141,6 +141,41 @@ function toV2Promotion(raw, siteName = SITE_NAME_FALLBACK) {
 }
 
 /**
+ * v1 `delivery_zones` is a flat list of zone NAMES priced at one flat fee.
+ * Map each name to the v2 zone object `{ id, name, fee }` (id = the name
+ * slug); entries already shaped as zones pass through with their own fee.
+ * Blank or unrecognizable entries are dropped so the strict `zoneSchema`
+ * never receives a malformed row.
+ * @param {any} raw
+ * @param {number} flatFee
+ * @returns {import('../types/menu.js').DeliveryZone[]}
+ */
+function toV2DeliveryZones(raw, flatFee) {
+  if (!Array.isArray(raw)) return [];
+
+  return raw
+    .map((entry) => {
+      if (typeof entry === 'string') {
+        const name = entry.trim();
+        if (!name) return null;
+        return { id: name.toLowerCase().replace(/\s+/g, '-'), name, fee: flatFee };
+      }
+      if (entry && typeof entry === 'object' && typeof entry.name === 'string') {
+        const name = entry.name.trim();
+        if (!name) return null;
+        const fee = Number(entry.fee);
+        const id =
+          typeof entry.id === 'string' && entry.id.trim() !== ''
+            ? entry.id
+            : name.toLowerCase().replace(/\s+/g, '-');
+        return { id, name, fee: Number.isFinite(fee) ? fee : flatFee };
+      }
+      return null;
+    })
+    .filter(Boolean);
+}
+
+/**
  * Normalize v1 flat settings → v2 nested shape.
  * @param {any} payload
  * @returns {import('../types/menu.js').RestaurantInfo}
@@ -180,7 +215,11 @@ function toV2Settings(payload) {
       delivery: {
         enabled: payload.delivery_enabled === 'Activo',
         fee: Number(payload.delivery_fee),
-        zones: Array.isArray(payload.delivery_zones) ? payload.delivery_zones : [],
+        // v1 has no "charge delivery" flag — it only ever had one flat fee,
+        // so remote orders keep charging it (`fee: 0` there means free
+        // delivery, never "no delivery").
+        charge_delivery: true,
+        zones: toV2DeliveryZones(payload.delivery_zones, Number(payload.delivery_fee)),
       },
       payment_methods: Array.isArray(payload.payment_methods) ? payload.payment_methods : [],
       max_order_quantity: Number(payload.max_order_quantity),
@@ -191,9 +230,6 @@ function toV2Settings(payload) {
       },
       google_maps: null,
       business_hours,
-      logo_url: nonEmpty(payload.logo_url),
-      header_bg: null,
-      footer_bg: null,
       tags: Array.isArray(payload.tags) ? payload.tags : [],
       seo: { ...SEO_DEFAULTS },
     },
@@ -327,12 +363,13 @@ export async function getRestaurantInfo() {
 }
 
 /**
- * Ready-to-render decorations — always the local fixture (manifest mode
- * `'local'`; no remote endpoint exists yet).
- * @returns {Promise<import('../types/menu.js').Decorations>}
+ * Page presentation (backgrounds + per-block decorative art) — always the
+ * local fixture (manifest mode `'local'`; no remote endpoint exists yet).
+ * @returns {Promise<import('../types/menu.js').Theme>}
  */
-export async function getDecorations() {
-  return resolveLocal('decorations');
+export async function getTheme() {
+  // Fixture is wrapped (`{ data: <theme> }`), same convention as gallery.
+  return resolveLocal('theme').data;
 }
 
 /**
@@ -371,21 +408,21 @@ export async function getPromotions() {
 
 /**
  * Everything the menu page needs in one parallel call.
- * @returns {Promise<{ blocks: any[], combos: any[], promotions: any[], decorations: import('../types/menu.js').Decorations }>}
+ * @returns {Promise<{ blocks: any[], combos: any[], promotions: any[], theme: import('../types/menu.js').Theme }>}
  */
 export async function loadMenu() {
-  const [menu, combos, promotions, decorations] = await Promise.all([
+  const [menu, combos, promotions, theme] = await Promise.all([
     getMenu(),
     getCombos(),
     getPromotions(),
-    getDecorations(),
+    getTheme(),
   ]);
 
   return {
     blocks: menu.blocks,
     combos: combos?.data ?? [],
     promotions: promotions?.data ?? [],
-    decorations,
+    theme,
   };
 }
 

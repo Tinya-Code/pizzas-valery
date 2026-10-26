@@ -38,7 +38,7 @@ const {
   settings,
   rawHours,
   businessHours,
-  decorations,
+  theme,
   blocks: menuBlocks,
   promotions,
   flyers,
@@ -47,9 +47,9 @@ const {
 // Load declarative blocks configuration from landing.json
 const { meta, blocks } = await getLanding(settings, promotions, menuBlocks);
 
-const restaurantName = meta.title || restaurant?.name || settings?.seo?.site_name || 'Sazón Digital';
-const tagline = meta.tagline || settings?.seo?.description || 'Sushi artesanal en Lima. Delivery a domicilio, combos y promociones.';
-const siteTitle = settings?.seo?.title ?? `${restaurantName} — Sushi y delivery en Lima`;
+const restaurantName = meta.title || restaurant?.name || settings?.seo?.site_name || settings?.name || '';
+const tagline = meta.tagline || settings?.seo?.description || '';
+const siteTitle = settings?.seo?.title ?? `${restaurantName} — Pizzas a domicilio en Lima`;
 
 // Initial open/closed state — computed at build time and corrected on the
 // client against the visitor's clock (home-hero re-reads the embedded
@@ -78,7 +78,7 @@ const whatsappUrl = whatsappNumber ? WhatsApp.link(whatsappNumber, whatsappMsg) 
 
 <Layout title={siteTitle} seo={settings?.seo}>
   <div class="min-h-screen flex flex-col bg-secondary text-primary-text font-body selection:bg-primary selection:text-white">
-    <SiteHeader restaurant={restaurant} settings={settings} />
+    <SiteHeader restaurant={restaurant} settings={settings} theme={theme} />
 
     <main class="flex-1 flex flex-col">
       {blocks.map((block) => {
@@ -152,7 +152,7 @@ const whatsappUrl = whatsappNumber ? WhatsApp.link(whatsappNumber, whatsappMsg) 
       restaurant={restaurant}
       settings={settings}
       businessHours={businessHours}
-      footerBg={decorations?.footer_bg}
+      theme={theme}
     />
 
     <FlyerModal flyers={flyers} />

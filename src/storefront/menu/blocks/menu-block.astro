@@ -11,11 +11,11 @@
  * - `categories`      — categories rendered as sections; when empty the
  *                       block renders NOTHING (rendering guard).
  * - `decorations`     — decoration items for THIS block (from
- *                       `decorations.json` via `decorations.blocks[block-N]`);
+ *                       `theme.json` via `theme.blocks[block-N]`);
  *                       they are filtered by `slot` (left / right / extra) and
  *                       rendered by DecorationRenderer. This is the ONLY way
  *                       decorations enter a block — pass the prop on every
- *                       block declaration so new data in decorations.json
+ *                       block declaration so new data in theme.json
  *                       renders without touching this file.
  * - `sectionAttrs`    — extra section attributes (e.g. `data-block-1`,
  *                       `data-maki-urls` for the client-side maki rail).

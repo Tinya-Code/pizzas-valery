@@ -196,18 +196,54 @@ export interface GroupDecorationItem extends BaseDecorationItem {
 
 export type DecorationItem = ImageDecorationItem | RailDecorationItem | GroupDecorationItem;
 
+/** Icon names a header action can render (`header-actions.astro` maps them). */
+export type HeaderActionIcon = 'images' | 'map-pin' | 'utensils' | 'whatsapp';
+
 /**
- * Ready-to-render decorations — loaded from `src/data/api/decorations.json`
- * (local mode) or a remote endpoint. Replace the JSON to customise per project.
+ * One button in the brand header (`theme.header.actions`) — a discriminated
+ * union on `type`, mirroring `headerActionSchema`.
  */
-export interface Decorations {
-  background: string;
-  header_background?: string | null;
-  footer_background?: string | null;
+export type HeaderAction =
+  | {
+      type: 'link';
+      href: string;
+      label: string;
+      title?: string;
+      icon: HeaderActionIcon;
+    }
+  | { type: 'share' }
+  | { type: 'whatsapp'; label: string; title?: string };
+
+/**
+ * Ready-to-render page presentation — loaded from `src/data/api/theme.json`
+ * (local mode). One source of truth for how a page looks: backgrounds plus
+ * the decorative art keyed by menu block. Replace the JSON to customise.
+ */
+export interface Theme {
+  page: {
+    background: string;
+    header_bg?: string | null;
+    footer_bg?: string | null;
+  };
+  brand: {
+    logo_url: string | null;
+  };
+  /** Share-sheet copy for `ShareButton` — no brand string lives in code. */
+  share: {
+    title: string;
+    text: string;
+    label: string;
+    button_title: string;
+  };
+  /** Action buttons rendered on the right of the brand header. */
+  header: {
+    layout: {
+      logo_position: 'left' | 'center';
+      show_name: boolean;
+    };
+    actions: HeaderAction[];
+  };
   blocks?: Record<string, DecorationItem[]>;
-  block1?: { barco: string; makis: string[] };
-  block3?: { alitasFondo: string; alitas2Fondo: string };
-  block6?: { coctelesVertical: string };
 }
 
 /** One promotional flyer displayed in the delayed flyer modal. */
@@ -267,11 +303,26 @@ export interface Geo {
   lng: number;
 }
 
-/** `settings.delivery` — delivery availability and pricing. */
+/** One delivery zone — picked in the checkout; its `fee` prices the order. */
+export interface DeliveryZone {
+  id: string;
+  name: string;
+  fee: number;
+}
+
+/**
+ * `settings.delivery` — delivery availability and pricing.
+ *
+ * `fee` is the flat/default fee; `zones` override it per selection (empty
+ * array → the flat fee applies to every order).
+ * `charge_delivery: false` suppresses the fee line entirely, independent of
+ * `fee`, so `fee: 0` means "free delivery" instead of "no delivery".
+ */
 export interface DeliveryConfig {
   enabled: boolean;
   fee: number;
-  zones: string[];
+  zones: DeliveryZone[];
+  charge_delivery: boolean;
 }
 
 /** `settings.social_media` — profile URLs (`null` when unset). */
@@ -318,11 +369,6 @@ export interface RestaurantSettings {
   social_media: SocialMedia;
   google_maps?: string | null;
   business_hours: BusinessHours;
-  logo_url: string | null;
-  /** Optional background image URL for the site header (`null` → CSS default). */
-  header_bg: string | null;
-  /** Optional background image URL for the site footer (`null` → CSS default). */
-  footer_bg: string | null;
   tags: unknown[];
   seo: SiteSeo;
 }

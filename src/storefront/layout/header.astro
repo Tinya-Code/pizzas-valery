@@ -17,34 +17,54 @@
  * exists (the only page is `/`).
  */
 import Copy from "../icons/copy.astro";
-import Images from "../icons/images.astro";
 import Map from "../icons/map.astro";
 import MapPin from "../icons/map-pin.astro";
 import Utensils from "../icons/utensils.astro";
-import ShareButton from "../ui/share-button.astro";
-import type { RestaurantProfile, RestaurantSettings } from "../types/menu";
+import HeaderActions from "./header-actions.astro";
+import { WhatsApp } from "../utils/whatsapp.js";
+import type { RestaurantProfile, RestaurantSettings, Theme } from "../types/menu";
 
 interface Props {
   class?: string;
   restaurant?: RestaurantProfile | null;
   settings?: RestaurantSettings | null;
-  headerBg?: string | null;
+  /** Page presentation: backgrounds + brand assets (single source). */
+  theme?: Theme | null;
 }
 
 const {
   class: hostClass = "",
   restaurant = null,
   settings = null,
-  headerBg: explicitHeaderBg = null,
+  theme = null,
 } = Astro.props;
 
-const restaurantName = restaurant?.name ?? "Mr Sushi";
+const restaurantName = restaurant?.name ?? settings?.name ?? "";
 const address = restaurant?.address ?? "";
 const location = restaurant?.location;
 const latitude = location?.lat ?? "";
 const longitude = location?.lng ?? "";
-const logoUrl = settings?.logo_url ?? null;
-const headerBg = explicitHeaderBg ?? settings?.header_bg ?? null;
+const logoUrl = theme?.brand?.logo_url ?? null;
+const headerBg = theme?.page?.header_bg ?? null;
+
+/**
+ * Brand header layout (`theme.header.layout`):
+ * - `logo_position` — where the logo sits in the flex row (`center` pushes it
+ *   after the info block and centres the group).
+ * - `show_name`     — whether the brand `<h1>` is visible; when hidden it is
+ *   kept `sr-only` so the page keeps exactly one accessible `h1`.
+ */
+const logoPosition = theme?.header?.layout?.logo_position ?? "left";
+const showName = theme?.header?.layout?.show_name ?? true;
+
+/**
+ * `wa.me` URL for `whatsapp` header actions — derived from the business
+ * config, never from `theme.json`. `null` → such an action renders nothing.
+ */
+const whatsappNumber = settings?.whatsapp?.number ?? restaurant?.phone ?? "";
+const whatsappUrl = whatsappNumber
+  ? WhatsApp.link(whatsappNumber, settings?.whatsapp?.message_template ?? "")
+  : null;
 
 const hasCoordinates =
   latitude !== "" &&
@@ -64,10 +84,13 @@ const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${mapsQuery}`;
     : undefined}
 >
   <div
-    class="max-w-7xl mx-auto flex flex-col md:flex-row items-center gap-10 relative z-10"
+    class={`max-w-7xl mx-auto flex flex-col md:flex-row items-center gap-10 relative z-10${logoPosition === "center" ? " md:justify-center" : ""}`}
   >
     <!-- Logo Section -->
-    <a href="/" class="relative group cursor-pointer">
+    <a
+      href="/"
+      class={`relative group cursor-pointer${logoPosition === "center" ? " md:order-2" : ""}`}
+    >
       {
         logoUrl ? (
           <div class="w-42 h-42   flex items-center justify-center  transform -rotate-6 group-hover:rotate-0 transition-all duration-700 ease-out overflow-hidden">
@@ -86,12 +109,18 @@ const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${mapsQuery}`;
     </a>
 
     <!-- Info Section -->
-    <div class="text-center md:text-left flex-1 space-y-4">
-      <h1
-        class="text-6xl md:text-8xl font-display text-white leading-none tracking-tighter"
-      >
-        {restaurantName}
-      </h1>
+    <div
+      class={`text-center md:text-left flex-1 space-y-4${logoPosition === "center" ? " md:order-1" : ""}`}
+    >
+      {
+        showName ? (
+          <h1 class="text-6xl md:text-8xl font-display text-white leading-none tracking-tighter">
+            {restaurantName}
+          </h1>
+        ) : (
+          <h1 class="sr-only">{restaurantName}</h1>
+        )
+      }
       <!--mapa -->
       <a
         href={mapsUrl}
@@ -133,24 +162,13 @@ const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${mapsQuery}`;
       </a>
     </div>
 
-    <!-- Action Section -->
+    <!-- Action Section (data-driven: `theme.header.actions`) -->
     <div class="flex flex-row md:flex-col items-center md:items-end gap-3">
-      <!-- Gallery Link -->
-      <a
-        href="/galeria"
-        class="flex items-center gap-2 px-4 py-2 bg-primary hover:bg-primary/80 text-white rounded-sm transition-all duration-300 font-bold border border-primary/20 group backdrop-blur-sm hover:scale-105 active:scale-95"
-        title="Ver galería de fotos"
-      >
-        <Images
-          class="w-4 h-4 text-white group-hover:scale-110 transition-transform"
-        />
-        <span class="text-lg uppercase tracking-widest font-display select-none"
-          >Galería</span
-        >
-      </a>
-
-      <!-- Share Button -->
-      <ShareButton />
+      <HeaderActions
+        actions={theme?.header?.actions ?? []}
+        share={theme?.share}
+        whatsappUrl={whatsappUrl}
+      />
     </div>
   </div>
 </header>

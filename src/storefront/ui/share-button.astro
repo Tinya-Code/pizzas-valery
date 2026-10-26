@@ -2,28 +2,48 @@
 /**
  * ShareButton — native share with a clipboard fallback.
  *
- * Props: none. Angular `output()` surface: none.
+ * Props: the share-sheet copy comes from `theme.share` (data), never from
+ * code: `title` / `text` feed `navigator.share`, `label` is the visible
+ * button text and `buttonTitle` its tooltip. Angular `output()` surface:
+ * none.
  *
  * Client only: `navigator.share` when available, otherwise the URL is copied
- * to the clipboard.
+ * to the clipboard. The copy reaches the client through `data-share-*`
+ * attributes (the bundled script cannot read frontmatter values).
  */
 import Share2 from '../icons/share-2.astro';
 
 interface Props {
   class?: string;
+  /** `navigator.share` title. */
+  title?: string;
+  /** `navigator.share` body text. */
+  text?: string;
+  /** Visible button label. */
+  label?: string;
+  /** Button tooltip (`title` attribute). */
+  buttonTitle?: string;
 }
 
-const { class: hostClass = '' } = Astro.props;
+const {
+  class: hostClass = '',
+  title = '',
+  text = '',
+  label = 'Compartir',
+  buttonTitle = 'Compartir este menú',
+} = Astro.props;
 ---
 
 <button
   data-share-button
+  data-share-title={title || null}
+  data-share-text={text || null}
   type="button"
   class={`flex items-center gap-2 px-4 py-2 bg-primary/80 hover:bg-primary text-white rounded-sm transition-all duration-300 font-bold border border-primary/20 group backdrop-blur-sm ${hostClass}`}
-  title="Compartir este menú"
+  title={buttonTitle}
 >
   <Share2 class="w-4 h-4 group-hover:scale-110 transition-transform" />
-  <span class="text-lg uppercase tracking-widest font-display select-none">Compartir</span>
+  <span class="text-lg uppercase tracking-widest font-display select-none">{label}</span>
 </button>
 
 <script>
@@ -33,11 +53,11 @@ const { class: hostClass = '' } = Astro.props;
     if (!button) return;
 
     const url = window.location.href;
-    const shareData = {
-      title: 'Sazón Digital',
-      text: '¡Mira este delicioso menú! 🍜🏮',
-      url,
-    };
+    const shareData: ShareData = { url };
+    const shareTitle = button.getAttribute('data-share-title');
+    const shareText = button.getAttribute('data-share-text');
+    if (shareTitle) shareData.title = shareTitle;
+    if (shareText) shareData.text = shareText;
 
     if (navigator.share) {
       try {

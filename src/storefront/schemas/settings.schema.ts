@@ -38,11 +38,37 @@ const whatsappSchema = z.object({
   contacts: z.array(whatsappContactSchema).optional(),
 });
 
+/**
+ * One delivery zone: the customer picks it in the checkout and its `fee`
+ * becomes the order's delivery fee. `id` is a stable slug used for the
+ * `<select>` value and persistence.
+ */
+const zoneSchema = z
+  .object({
+    id: z.string(),
+    name: z.string(),
+    fee: z.number(),
+  })
+  .strict();
+
 const deliverySchema = z.object({
   enabled: z.boolean(),
+  /** Default/flat fee — used until (or instead of) a zone selection. */
   fee: z.number(),
-  zones: z.array(z.string()),
-});
+  /**
+   * Per-zone fees. Empty array → the flat `fee` applies to every order.
+   * Strict: `settings.json` and this schema move together.
+   */
+  zones: z.array(zoneSchema),
+  /**
+   * Independent from `fee`: `false` means "never charge delivery" (the fee
+   * line is suppressed even when `fee`/zone say otherwise), while
+   * `charge_delivery: true` + `fee: 0` means FREE delivery — still a delivery
+   * order, never a pickup. Separating the two fixes the old conflation where
+   * `fee: 0` read as "no delivery".
+   */
+  charge_delivery: z.boolean(),
+}).strict();
 
 const socialMediaSchema = z.object({
   tiktok: z.string().nullable(),
@@ -104,11 +130,6 @@ export const restaurantSettingsSchema = z
     /** Absent in v1 payloads; consumers fall back to `social_media.google_maps`. */
     google_maps: z.string().nullable().optional(),
     business_hours: businessHoursSchema,
-    logo_url: z.string().nullable(),
-    /** Background image URL (`null` → CSS default); the fixture always ships it. */
-    header_bg: z.string().nullable(),
-    /** Background image URL (`null` → CSS default); the fixture always ships it. */
-    footer_bg: z.string().nullable(),
     tags: z.array(z.string()),
     seo: siteSeoSchema,
   })

@@ -21,7 +21,7 @@ interface Props {
 
 const {
   googleMapsUrl = null,
-  restaurantName = 'Sazón Digital',
+  restaurantName = '',
   delaySeconds = 120,
 } = Astro.props;
 
@@ -60,9 +60,11 @@ const isAvailable = Boolean(googleMapsUrl);
 
           <!-- Header / Copy -->
           <div>
-            <h3 class="font-bungee text-white text-base tracking-wide">
-              ¿Disfrutás {restaurantName}?
-            </h3>
+            {restaurantName && (
+              <h3 class="font-bungee text-white text-base tracking-wide">
+                ¿Disfrutás {restaurantName}?
+              </h3>
+            )}
             <p class="text-xs text-white/70 mt-1 leading-relaxed">
               Tu opinión nos ayuda a seguir creciendo. Dejanos una reseña de 5 estrellas en Google Maps.
             </p>

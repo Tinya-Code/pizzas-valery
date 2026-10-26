@@ -102,6 +102,8 @@ export class OrderMessage {
   #items = [];
   #totals = null;
   #customer = null;
+  #note = '';
+  #location = '';
   #deliveryEnabled = true;
 
   /**
@@ -143,11 +145,35 @@ export class OrderMessage {
 
   /**
    * When `address` is empty the order is flagged as store pickup.
-   * @param {{ name: string, address?: string | null, paymentMethod?: string }} customer
+   * `zone` (the picked delivery zone name) renders a `Zona:` line only for
+   * delivery orders that actually chose one — empty keeps the output as-is.
+   * @param {{ name: string, address?: string | null, paymentMethod?: string, zone?: string }} customer
    * @returns {this}
    */
-  withCustomer({ name, address = '', paymentMethod = '' }) {
-    this.#customer = { name, address, paymentMethod };
+  withCustomer({ name, address = '', paymentMethod = '', zone = '' }) {
+    this.#customer = { name, address, paymentMethod, zone };
+    return this;
+  }
+
+  /**
+   * Optional free-text order instructions. Empty/blank emits nothing, so the
+   * default state stays byte-identical (rendered in `build()` as N3).
+   * @param {string} note
+   * @returns {this}
+   */
+  withNote(note) {
+    this.#note = typeof note === 'string' ? note.trim() : '';
+    return this;
+  }
+
+  /**
+   * Optional Google Maps link attached through the location button. Empty
+   * emits nothing, so the default state stays byte-identical.
+   * @param {string} url
+   * @returns {this}
+   */
+  withLocation(url) {
+    this.#location = typeof url === 'string' ? url.trim() : '';
     return this;
   }
 
@@ -191,6 +217,18 @@ export class OrderMessage {
         message += `Dirección: ${this.#customer.address}\n`;
       } else {
         message += `Tipo: Retiro en tienda\n`;
+      }
+
+      if (this.#location) {
+        message += `Ubicación: ${this.#location}\n`;
+      }
+
+      if (this.#deliveryEnabled && this.#customer.zone) {
+        message += `Zona: ${this.#customer.zone}\n`;
+      }
+
+      if (this.#note) {
+        message += `Indicaciones: ${this.#note}\n`;
       }
 
       if (this.#customer.paymentMethod) {

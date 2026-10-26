@@ -3,6 +3,13 @@ import { isOpenAt } from './business-hours.service.js';
 import { entryLabel } from '../utils/entry-label.js';
 
 /**
+ * localStorage key holding the picked delivery zone id. Exported because the
+ * drawer resolves the initial fee from it at boot while the checkout form
+ * writes it on every pick — both must agree on the exact key.
+ */
+export const ZONE_STORAGE_KEY = 'delivery_zone';
+
+/**
  * CartService — the order cart, reactive on purpose.
  *
  * Cart contents drive the sidebar, the header counter and the WhatsApp order
@@ -16,8 +23,10 @@ import { entryLabel } from '../utils/entry-label.js';
  * ```
  *
  * State lives in `ReactiveValue` instances (`cart.items`, `cart.isOpen`,
- * `cart.isBusinessClosed`), so you can also subscribe to one of them directly.
+ * `cart.isBusinessClosed`, `cart.deliveryFee`), so you can also subscribe to
+ * one of them directly.
  */
+
 export class CartService {
   /** Cart lines. */
   items = new ReactiveValue([]);
@@ -28,16 +37,17 @@ export class CartService {
   /** "Restaurant is closed" modal visibility. */
   isBusinessClosed = new ReactiveValue(false);
 
-  #deliveryFee = null;
+  #deliveryFee = new ReactiveValue(null);
   #maxQuantity = null;
 
   /**
    * Configure runtime settings (delivery fee, max item count).
+   * Setting the fee notifies subscribers, so a zone pick re-renders totals.
    * @param {{ deliveryFee?: number, maxQuantity?: number }} options
    */
   configure({ deliveryFee, maxQuantity } = {}) {
     if (typeof deliveryFee === 'number' && !Number.isNaN(deliveryFee)) {
-      this.#deliveryFee = deliveryFee;
+      this.#deliveryFee.set(deliveryFee);
     }
     if (typeof maxQuantity === 'number' && !Number.isNaN(maxQuantity)) {
       this.#maxQuantity = maxQuantity;
@@ -58,13 +68,13 @@ export class CartService {
 
   /** @returns {number} */
   get deliveryFee() {
-    if (this.#deliveryFee === null && typeof document !== 'undefined') {
+    if (this.#deliveryFee.get() === null && typeof document !== 'undefined') {
       const drawer = document.querySelector('[data-cart-drawer]');
       if (drawer?.dataset.deliveryFee !== undefined) {
-        this.#deliveryFee = Number(drawer.dataset.deliveryFee) || 0;
+        this.#deliveryFee.set(Number(drawer.dataset.deliveryFee) || 0);
       }
     }
-    return this.#deliveryFee ?? 0;
+    return this.#deliveryFee.get() ?? 0;
   }
 
   /** @returns {number} */
@@ -267,6 +277,7 @@ export class CartService {
       this.items.subscribe(() => notify()),
       this.isOpen.subscribe(() => notify()),
       this.isBusinessClosed.subscribe(() => notify()),
+      this.#deliveryFee.subscribe(() => notify()),
     ];
 
     if (immediate) notify();

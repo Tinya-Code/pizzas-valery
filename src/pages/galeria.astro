@@ -20,7 +20,7 @@ const {
   restaurant,
   settings,
   businessHours,
-  decorations,
+  theme,
 } = await loadStorefront();
 
 const galleryCategories: GalleryCategory[] = await getGalleryCategories(blocks);
@@ -32,7 +32,7 @@ const resolveEmbedUrl = (item: GalleryItem): string | null => buildGalleryEmbedU
 
 <Layout title="Galería" seo={settings?.seo}>
   <div class="min-h-screen flex flex-col bg-secondary text-primary-text font-body selection:bg-primary selection:text-white">
-    <SiteHeader restaurant={restaurant} settings={settings} />
+    <SiteHeader restaurant={restaurant} settings={settings} theme={theme} />
 
     <main class="flex-1 px-6 py-16 sm:py-20 max-w-7xl mx-auto w-full">
       <!-- Page Header -->
@@ -172,7 +172,7 @@ const resolveEmbedUrl = (item: GalleryItem): string | null => buildGalleryEmbedU
       restaurant={restaurant}
       settings={settings}
       businessHours={businessHours}
-      footerBg={decorations?.footer_bg}
+      theme={theme}
       class="mt-20 block"
     />
 

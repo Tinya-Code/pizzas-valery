@@ -1,0 +1,74 @@
+---
+/**
+ * HeaderActions — the configurable action list on the right of the brand
+ * header (`theme.header.actions`), so adding or removing a button is a data
+ * edit instead of a template edit.
+ *
+ * Props:
+ * - `actions`     — discriminated action list (`link` | `share` | `whatsapp`)
+ * - `share`       — `theme.share` copy handed to the `share` action
+ * - `whatsappUrl` — `wa.me` URL the caller derives from `settings.whatsapp`;
+ *                   `null` makes a `whatsapp` action render nothing (the
+ *                   business number never lives in `theme.json`)
+ *
+ * Rendering: `link` and `whatsapp` produce the same anchor markup (they only
+ * differ in where the href comes from); `share` renders `ShareButton`.
+ */
+import Images from "../icons/images.astro";
+import MapPin from "../icons/map-pin.astro";
+import Utensils from "../icons/utensils.astro";
+import Whatsapp from "../icons/whatsapp.astro";
+import ShareButton from "../ui/share-button.astro";
+import type { HeaderAction, HeaderActionIcon, Theme } from "../types/menu";
+
+interface Props {
+  actions: HeaderAction[];
+  /** Share copy from `theme.share`. */
+  share?: Theme["share"] | null;
+  /** Prebuilt `wa.me` URL for `whatsapp` actions. */
+  whatsappUrl?: string | null;
+}
+
+const { actions, share = null, whatsappUrl = null } = Astro.props;
+
+/** Icon name → component; the schema enum is the closed list. */
+const icons: Record<HeaderActionIcon, typeof Images> = {
+  images: Images,
+  "map-pin": MapPin,
+  utensils: Utensils,
+  whatsapp: Whatsapp,
+};
+
+/** Shared anchor chrome — identical to the former hardcoded Galería link. */
+const anchorClass =
+  "flex items-center gap-2 px-4 py-2 bg-primary hover:bg-primary/80 text-white rounded-sm transition-all duration-300 font-bold border border-primary/20 group backdrop-blur-sm hover:scale-105 active:scale-95";
+const iconClass = "w-4 h-4 text-white group-hover:scale-110 transition-transform";
+const labelClass = "text-lg uppercase tracking-widest font-display select-none";
+---
+
+{
+  actions.map((action) => {
+    if (action.type === "share") {
+      return (
+        <ShareButton
+          title={share?.title}
+          text={share?.text}
+          label={share?.label}
+          buttonTitle={share?.button_title}
+        />
+      );
+    }
+
+    const href = action.type === "whatsapp" ? whatsappUrl : action.href;
+    if (!href) return null;
+
+    const Icon = action.type === "whatsapp" ? Whatsapp : icons[action.icon];
+
+    return (
+      <a href={href} class={anchorClass} title={action.title}>
+        <Icon class={iconClass} />
+        <span class={labelClass}>{action.label}</span>
+      </a>
+    );
+  })
+}
