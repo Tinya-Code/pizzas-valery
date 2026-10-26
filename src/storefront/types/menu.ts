@@ -210,6 +210,13 @@ export interface Theme {
   brand: {
     logo_url: string | null;
   };
+  /** Share-sheet copy for `ShareButton` — no brand string lives in code. */
+  share: {
+    title: string;
+    text: string;
+    label: string;
+    button_title: string;
+  };
   blocks?: Record<string, DecorationItem[]>;
 }
 

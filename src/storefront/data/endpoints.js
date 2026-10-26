@@ -99,6 +99,12 @@ export const ENDPOINTS = {
           footer_bg: null,
         },
         brand: { logo_url: null },
+        share: {
+          title: '',
+          text: '',
+          label: 'Compartir',
+          button_title: 'Compartir este menú',
+        },
         blocks: {},
       },
     },

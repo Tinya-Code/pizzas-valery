@@ -8,6 +8,12 @@
     "brand": {
       "logo_url": "/logo.png"
     },
+    "share": {
+      "title": "Pizzas Valery",
+      "text": "¡Mira este delicioso menú! 🍕",
+      "label": "Compartir",
+      "button_title": "Compartir este menú"
+    },
     "blocks": {
       "block-1": [
         {

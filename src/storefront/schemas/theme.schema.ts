@@ -11,6 +11,8 @@ import { z } from 'zod';
  *   data.page.background  — page background image (menu page)
  *   data.page.header_bg   — header background image (`null` → CSS default)
  *   data.page.footer_bg   — footer background image (`null` → CSS default)
+ *   data.brand.logo_url   — logo rendered by every layout
+ *   data.share            — share-sheet copy (`ShareButton`)
  *   data.blocks           — decoration items keyed by menu block
  *                           (`block-1`, `block-2`, `block-3`, `block-6`, …),
  *                           each passed to the matching `MenuBlock` as the
@@ -86,6 +88,20 @@ const themeBrandSchema = z
   })
   .strict();
 
+/** Share-sheet copy rendered by `ShareButton` (no brand string lives in code). */
+const themeShareSchema = z
+  .object({
+    /** `navigator.share` title (clipboard fallback shows the URL only). */
+    title: z.string(),
+    /** `navigator.share` body text. */
+    text: z.string(),
+    /** Visible button label. */
+    label: z.string(),
+    /** `title` / `aria` tooltip of the button element. */
+    button_title: z.string(),
+  })
+  .strict();
+
 /** Whole `theme.json` file shape: `{ data: <theme> }`. */
 export const themeFileSchema = z
   .object({
@@ -93,6 +109,7 @@ export const themeFileSchema = z
       .object({
         page: themePageSchema,
         brand: themeBrandSchema,
+        share: themeShareSchema,
         /** Keyed by menu block (`block-1`, `block-3`, `block-6`, …). */
         blocks: z.record(z.string(), z.array(decorationItemSchema)).optional(),
       })
