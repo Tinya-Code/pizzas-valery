@@ -197,30 +197,89 @@ message and the order still sends; default state byte-identical.
 **Objective:** prove all three features with the same evidence bar as the theme
 plan.
 
-- [ ] **V1 — Default-state parity.** Build and confirm that with the default
+- [x] **V1 — Default-state parity.** Build and confirm that with the default
   fee, no zone selected, and no note/location, the checkout DOM and the generated
   WhatsApp message are identical to today's (the 3 new UI affordances render but
-  emit no message lines until used).
-- [ ] **V2 — Per-zone fee.** Pick each seeded zone and confirm the cart delivery
+  emit no message lines until used) — ✅ observed 2026-10-26: HEAD (`6f93177`)
+  vs the pre-D baseline worktree (`a616d26`; its `src/` proven byte-identical to
+  a `git archive 6b53aae` extraction). Token-level DOM diff of
+  `dist/menu/index.html` = 11 hunks, every one classified: 1 stylesheet-href
+  hash, 6 script-href hashes (shared-chunk cascade), the drawer/form data
+  attributes (`data-charge-delivery`, `data-delivery-enabled`,
+  `data-delivery-fee`, `data-zones`), and exactly the 3 new affordances —
+  location button (13 lines), zone select (15), note textarea (7). **Zero other
+  DOM change.** Default WhatsApp message captured fresh from both previews
+  (baseline :4324 / current :4322): **byte-identical 219 B**, with no
+  `Zona:`/`Indicaciones:`/`Ubicación:` lines and `Dirección:` present. Audit-only
+  task (no commit).
+- [x] **V2 — Per-zone fee.** Pick each seeded zone and confirm the cart delivery
   fee and total update to that zone's `fee`; confirm the chosen `Zona:` line
-  appears in the message.
-- [ ] **V3 — `charge_delivery` / `fee: 0` matrix.** Confirm: `charge_delivery:
+  appears in the message. — ✅ observed 2026-10-26: behavioral probe 33/33 PASS
+  (`delivery-probe/probe-run.log`) — `lima-centro` → `S/ 5.00`, total
+  `S/ 34.90`, `Zona: Lima Centro`; `surco` → `S/ 7.00`, total `S/ 36.90`,
+  `Zona: Santiago de Surco`; `villa` → `S/ 9.00`, total `S/ 38.90`,
+  `Zona: Villa El Salvador`; clearing restores the flat `S/ 5.00`; a persisted
+  `villa` choice re-applies `S/ 9.00` and preselects the option after reload.
+  Audit-only task (no commit).
+- [x] **V3 — `charge_delivery` / `fee: 0` matrix.** Confirm: `charge_delivery:
   true` + `fee: 0` → free delivery, still rendered as a delivery order (not
-  pickup); `charge_delivery: false` → fee line suppressed entirely.
-- [ ] **V4 — Note + location.** Confirm a typed note renders `Indicaciones:`,
-  a captured location renders `Ubicación:`, and both are omitted when empty.
-- [ ] **V5 — Zod contract check.** Inject an invalid zone (e.g. `fee` as a
+  pickup); `charge_delivery: false` → fee line suppressed entirely. — ✅ observed
+  2026-10-26, both rows 6/6 (`delivery-probe/matrix-a2.log`, `matrix-b.log`):
+  (a) `fee: 0` + charge true → cart row **visible** `S/ 0.00`, total = subtotal,
+  message keeps `Dirección:` and never `Retiro en tienda`; (b) charge false
+  (fee 5) → cart row **hidden**, fee forced `S/ 0.00`, no `*Delivery:*` line,
+  still a delivery order. **First run of (a) recorded 5/6** with the probe's
+  stricter `EXPECT_DELIVERY_LINE=yes`: the message emits no `*Delivery:*` line
+  whenever `deliveryFee ≤ 0`, because `whatsapp.js:205` gates it on
+  `deliveryEnabled && deliveryFee > 0` — a **pre-existing** gate named in this
+  plan's own "Current state", untouched by D/N/L. V3's normative text asks for
+  "free delivery, still a delivery order (not pickup)", which holds; the cart is
+  what distinguishes (a) from (b). Re-ran (a) with the plan-calibrated
+  expectation → 6/6. Audit-only task (no commit).
+- [x] **V4 — Note + location.** Confirm a typed note renders `Indicaciones:`,
+  a captured location renders `Ubicación:`, and both are omitted when empty. —
+  ✅ observed 2026-10-26 inside the same 33/33 probe: typed note →
+  `Indicaciones: sin cebolla, timbre roto` (and it persists as `user_note`);
+  empty note → no line; denied permission → non-blocking
+  `Permiso de ubicación denegado — escribe tu dirección`, order still sends, no
+  `Ubicación:` line; granted (CDP geolocation override) → `Ubicación adjunta ✓`
+  and `Ubicación: https://www.google.com/maps?q=-12.0464,-77.0428` alongside the
+  kept `Dirección:` line. Audit-only task (no commit).
+- [x] **V5 — Zod contract check.** Inject an invalid zone (e.g. `fee` as a
   string) and an invalid `charge_delivery` (e.g. a string), confirm `pnpm build`
-  fails naming the path, then restore. (settings.json)
-- [ ] **V6 — Smoke.** `pnpm preview --port 4322` + `pnpm smoke` → 28 PASS with
-  only the pre-existing extension warnings (scripts/smoke.mjs).
-- [ ] **V7 — Update this plan file.** Every completed task `- [x]` with its
-  commit hash, and record the final parity/smoke output in the `## Log` below.
+  fails naming the path, then restore. (settings.json) — ✅ observed 2026-10-26,
+  three injections: (a) `delivery.fee: "5"` → exit 1,
+  `data.delivery.fee: Invalid input: expected number, received string`;
+  (b) `delivery.charge_delivery: "true"` → exit 1,
+  `data.delivery.charge_delivery: Invalid input: expected boolean, received
+  string`; (c) `delivery.zones[1].fee: "7"` → exit 1,
+  `data.delivery.zones.1.fee: Invalid input: expected number, received string`.
+  `git checkout --` restored the file after each; final rebuild exit 0, 4 pages;
+  worktree back to only the 6 pre-existing card files + this doc. Audit-only
+  task (no commit).
+- [x] **V6 — Smoke.** `pnpm preview --port 4322` + `pnpm smoke` → 28 PASS with
+  only the pre-existing extension warnings (scripts/smoke.mjs). — ✅ observed
+  2026-10-26: **28 PASS**; the sole failure is `Expected 0 console problems` with
+  12 warnings — `@ies/starling_intl` ×8 + `getRelatedApps` ×4, **0 hits** in
+  `src/` or `scripts/`. Cross-checked against the F6 clean-HEAD baseline log
+  (`/tmp/f6-smoke-cleanhead.log`): same 28 PASS and the same two warning classes
+  (count varies by pages visited: 14 there vs 12 here) — environmental.
+  Audit-only task (no commit).
+- [x] **V7 — Update this plan file.** Every completed task `- [x]` with its
+  commit hash, and record the final parity/smoke output in the `## Log` below. —
+  ✅ this entry.
 
 **Cierre:** build 4 pages; default-state parity green; per-zone fee and the
 `charge_delivery`/`fee:0` matrix behave as specified; note and location render
 only when used; zod contract check fails then restores; smoke 28 PASS; plan file
 fully checked off.
+
+**Cierre (observed 2026-10-26):** all of the above held with the recorded
+evidence — build 4 pages (green after every restore); parity green (11
+classified DOM hunks = hashes + data attrs + the 3 affordances, message
+byte-identical); matrix 6/6 both rows; zod fails naming the path then restores
+green; smoke 28 PASS with only the external extension warnings; plan file fully
+checked off.
 
 ---
 
@@ -281,3 +340,34 @@ fully checked off.
   `Ubicación: https://www.google.com/maps?q=-12.0464,-77.0428` alongside the
   kept `Dirección:` line. Location is session-only (not persisted) — it is
   per-order GPS data, unlike name/address/zone/note.
+- 2026-10-26 — **Phase V complete (V1-V7) — whole plan done.** V1-V6 are
+  verification-only tasks (no commits); V7 is this file (docs commit).
+  Observed evidence: (1) **V1 parity** — HEAD `6f93177` vs the pre-D baseline
+  worktree (`a616d26`, `src/` proven byte-identical to a `git archive 6b53aae`
+  extraction): token-level DOM diff of `dist/menu/index.html` = 11 classified
+  hunks ONLY — 1 CSS-href hash, 6 script-href hashes (shared-chunk cascade),
+  the new drawer/form `data-*` attributes, and the 3 affordances (location 13
+  lines, zone select 15, note textarea 7); zero other DOM change. Default
+  WhatsApp message captured fresh from both previews → byte-identical 219 B.
+  (2) **V2/V4 probe 33/33 PASS** (fees 5/7/9, totals 34.90/36.90/38.90,
+  `Zona:` per zone, clear + persisted-zone reload, note lines, denied and
+  granted geolocation paths, no page exceptions). (3) **V3 matrix 6/6 + 6/6**;
+  the first run of case (a) was **5/6** and is recorded honestly: the probe's
+  stricter `EXPECT_DELIVERY_LINE=yes` collided with the **pre-existing**
+  `whatsapp.js:205` gate (`deliveryEnabled && deliveryFee > 0`), so no
+  `*Delivery:*` line is emitted whenever the fee is 0 — V3's normative text
+  ("free delivery, still a delivery order (not pickup)") is satisfied by the
+  cart row `S/ 0.00` + total = subtotal + a message that keeps `Dirección:`
+  and never `Retiro en tienda`; case (a) and (b) messages are identical, the
+  cart is what distinguishes them. (4) **V5 zod**: three injections (delivery
+  fee, `charge_delivery`, a zone's `fee`) each exit 1 naming the exact path,
+  restored, rebuild green. (5) **V6 smoke**: 28 PASS, sole failure = 12
+  external extension warnings (`@ies/starling_intl` ×8, `getRelatedApps` ×4,
+  0 hits in `src/`), same two classes as the F6 clean-HEAD baseline (14 there /
+  12 here — count varies by pages visited). Evidence under
+  `…/T/opencode/delivery-probe/` (`probe-run.log`, `matrix-a.log` (the 5/6),
+  `matrix-a2.log`, `matrix-b.log`, `baseline-msg3.txt`/`current-msg3.txt`,
+  `v1-tok.diff`); `probe.mjs`/`matrix.mjs`/`default-msg.mjs` are session
+  scratch, not committed (the plan asks for no parity tooling). Cleanup: temp
+  HEAD worktree removed, baseline preview stopped, `settings.json` restored to
+  committed state; the worktree holds only the 6 pre-existing card files.
