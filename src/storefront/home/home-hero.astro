@@ -35,8 +35,35 @@ const showBadge = block?.show_hours_badge ?? true;
 ---
 
 <section
-  class="relative flex flex-col items-center justify-center text-center px-6 pt-20 pb-16 sm:pt-28 sm:pb-24 overflow-hidden"
+  data-hero
+  class="relative min-h-screen flex flex-col items-center justify-center text-center px-6 pt-20 pb-16 sm:pt-28 sm:pb-24 overflow-hidden"
 >
+  <!-- Video background: black fallback (bg-secondary) if it never plays. -->
+  <div class="absolute inset-0 z-0 overflow-hidden bg-secondary" aria-hidden="true">
+    <video
+      class="w-full h-full object-cover"
+      autoplay
+      muted
+      loop
+      playsinline
+      preload="auto"
+    >
+      <source src="/fondo/hero-video-pizza-horno.webm" type="video/webm" />
+    </video>
+    <!-- Dark layer: starts faint, deepens as the user scrolls. -->
+    <div data-hero-overlay class="absolute inset-0 bg-black" style="opacity: 0.15"></div>
+  </div>
+
+  <noscript>
+    <style>
+      [data-hero-extra] {
+        opacity: 1 !important;
+        transform: none !important;
+        pointer-events: auto !important;
+      }
+    </style>
+  </noscript>
+
   <div class="relative z-10 max-w-3xl mx-auto space-y-6">
     <!-- Brand headline -->
     <h1
@@ -45,11 +72,16 @@ const showBadge = block?.show_hours_badge ?? true;
       {restaurantName}
     </h1>
 
-    <p
-      class="text-lg md:text-xl text-primary-text/75 font-normal max-w-lg mx-auto leading-relaxed"
+    <div
+      data-hero-extra
+      class="space-y-6"
+      style="opacity: 0; transform: translateY(16px); pointer-events: none;"
     >
-      {tagline}
-    </p>
+      <p
+        class="text-lg md:text-xl text-primary-text/75 font-normal max-w-lg mx-auto leading-relaxed"
+      >
+        {tagline}
+      </p>
 
     {
       showBadge && isOpen !== null && (
@@ -124,6 +156,7 @@ const showBadge = block?.show_hours_badge ?? true;
         )
       }
     </div>
+    </div><!-- /data-hero-extra -->
   </div>
 </section>
 
@@ -162,4 +195,90 @@ const showBadge = block?.show_hours_badge ?? true;
     refresh();
     window.setInterval(refresh, 60_000);
   }
+</script>
+
+<script>
+  /**
+   * Hero scroll reveal — video background + progressive darkening.
+   *
+   * Initial state (top of the page): video playing, only the <h1> readable.
+   * As the user scrolls through the first ~45vh, `data-hero-overlay` deepens
+   * and `data-hero-extra` (tagline, hours badge, CTAs) fades/slides in.
+   * Everything is scroll-LINKED (proportional to scroll position), so
+   * scrolling back to the top restores the initial state.
+   */
+  const initHeroReveal = () => {
+    const hero = document.querySelector<HTMLElement>("[data-hero]");
+    const overlay = hero?.querySelector<HTMLElement>("[data-hero-overlay]");
+    const extra = hero?.querySelector<HTMLElement>("[data-hero-extra]");
+    const video = hero?.querySelector<HTMLVideoElement>("video");
+    if (!hero || !overlay || !extra || hero.dataset.heroReady) return;
+    hero.dataset.heroReady = "true";
+
+    const reducedMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+
+    // --- Background video: play while the hero is on screen -------------
+    if (video) {
+      const tryPlay = () => void video.play().catch(() => {});
+      if (reducedMotion) {
+        video.pause();
+      } else {
+        tryPlay();
+        if ("IntersectionObserver" in window) {
+          new IntersectionObserver(
+            (entries) => {
+              for (const entry of entries) {
+                if (entry.isIntersecting) tryPlay();
+                else video.pause();
+              }
+            },
+            { threshold: 0.4 },
+          ).observe(hero);
+        }
+      }
+    }
+
+    // --- Scroll-linked reveal -------------------------------------------
+    const OVERLAY_FROM = 0.15; // faint veil so the h1 stays readable at rest
+    const OVERLAY_TO = 0.7; // deep veil once scrolled
+    const RISE_PX = 16; // initial extra content offset
+    // Content must be readable after the FIRST scroll notch (~one wheel step),
+    // while the dark veil keeps deepening progressively across ~45vh.
+    const CONTENT_RANGE_PX = 90;
+    const overlayRange = () => window.innerHeight * 0.45;
+    const clamp01 = (value: number) => Math.min(1, Math.max(0, value));
+
+    let ticking = false;
+    const render = () => {
+      ticking = false;
+      const heroTop = hero.getBoundingClientRect().top + window.scrollY;
+      const scrolled = window.scrollY - heroTop;
+      const content = clamp01(scrolled / CONTENT_RANGE_PX);
+      const veil = clamp01(scrolled / overlayRange());
+
+      overlay.style.opacity = `${OVERLAY_FROM + (OVERLAY_TO - OVERLAY_FROM) * veil}`;
+      extra.style.opacity = `${content}`;
+      extra.style.transform =
+        content >= 1 ? "none" : `translateY(${(1 - content) * RISE_PX}px)`;
+
+      // Nearly hidden content must not be clickable nor focusable.
+      const hidden = content < 0.05;
+      extra.toggleAttribute("inert", hidden);
+      extra.style.pointerEvents = hidden ? "none" : "";
+    };
+
+    const onScroll = () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(render);
+    };
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll, { passive: true });
+    render();
+  };
+
+  initHeroReveal();
 </script>
