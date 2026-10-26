@@ -211,6 +211,10 @@ export class OrderMessage {
         message += `Zona: ${this.#customer.zone}\n`;
       }
 
+      if (this.#note) {
+        message += `Indicaciones: ${this.#note}\n`;
+      }
+
       if (this.#customer.paymentMethod) {
         message += `Método de Pago: ${OrderMessage.paymentLabel(this.#customer.paymentMethod)}\n`;
       }
