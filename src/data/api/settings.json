@@ -29,7 +29,11 @@
     "delivery": {
       "enabled": true,
       "fee": 5,
-      "zones": []
+      "zones": [
+        { "id": "lima-centro", "name": "Lima Centro", "fee": 5 },
+        { "id": "surco", "name": "Santiago de Surco", "fee": 7 },
+        { "id": "villa", "name": "Villa El Salvador", "fee": 9 }
+      ]
     },
     "payment_methods": [
       "yape",

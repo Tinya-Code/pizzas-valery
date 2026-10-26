@@ -303,11 +303,23 @@ export interface Geo {
   lng: number;
 }
 
-/** `settings.delivery` — delivery availability and pricing. */
+/** One delivery zone — picked in the checkout; its `fee` prices the order. */
+export interface DeliveryZone {
+  id: string;
+  name: string;
+  fee: number;
+}
+
+/**
+ * `settings.delivery` — delivery availability and pricing.
+ *
+ * `fee` is the flat/default fee; `zones` override it per selection (empty
+ * array → the flat fee applies to every order).
+ */
 export interface DeliveryConfig {
   enabled: boolean;
   fee: number;
-  zones: string[];
+  zones: DeliveryZone[];
 }
 
 /** `settings.social_media` — profile URLs (`null` when unset). */

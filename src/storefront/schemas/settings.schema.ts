@@ -38,11 +38,29 @@ const whatsappSchema = z.object({
   contacts: z.array(whatsappContactSchema).optional(),
 });
 
+/**
+ * One delivery zone: the customer picks it in the checkout and its `fee`
+ * becomes the order's delivery fee. `id` is a stable slug used for the
+ * `<select>` value and persistence.
+ */
+const zoneSchema = z
+  .object({
+    id: z.string(),
+    name: z.string(),
+    fee: z.number(),
+  })
+  .strict();
+
 const deliverySchema = z.object({
   enabled: z.boolean(),
+  /** Default/flat fee — used until (or instead of) a zone selection. */
   fee: z.number(),
-  zones: z.array(z.string()),
-});
+  /**
+   * Per-zone fees. Empty array → the flat `fee` applies to every order.
+   * Strict: `settings.json` and this schema move together.
+   */
+  zones: z.array(zoneSchema),
+}).strict();
 
 const socialMediaSchema = z.object({
   tiktok: z.string().nullable(),

@@ -141,6 +141,41 @@ function toV2Promotion(raw, siteName = SITE_NAME_FALLBACK) {
 }
 
 /**
+ * v1 `delivery_zones` is a flat list of zone NAMES priced at one flat fee.
+ * Map each name to the v2 zone object `{ id, name, fee }` (id = the name
+ * slug); entries already shaped as zones pass through with their own fee.
+ * Blank or unrecognizable entries are dropped so the strict `zoneSchema`
+ * never receives a malformed row.
+ * @param {any} raw
+ * @param {number} flatFee
+ * @returns {import('../types/menu.js').DeliveryZone[]}
+ */
+function toV2DeliveryZones(raw, flatFee) {
+  if (!Array.isArray(raw)) return [];
+
+  return raw
+    .map((entry) => {
+      if (typeof entry === 'string') {
+        const name = entry.trim();
+        if (!name) return null;
+        return { id: name.toLowerCase().replace(/\s+/g, '-'), name, fee: flatFee };
+      }
+      if (entry && typeof entry === 'object' && typeof entry.name === 'string') {
+        const name = entry.name.trim();
+        if (!name) return null;
+        const fee = Number(entry.fee);
+        const id =
+          typeof entry.id === 'string' && entry.id.trim() !== ''
+            ? entry.id
+            : name.toLowerCase().replace(/\s+/g, '-');
+        return { id, name, fee: Number.isFinite(fee) ? fee : flatFee };
+      }
+      return null;
+    })
+    .filter(Boolean);
+}
+
+/**
  * Normalize v1 flat settings → v2 nested shape.
  * @param {any} payload
  * @returns {import('../types/menu.js').RestaurantInfo}
@@ -180,7 +215,7 @@ function toV2Settings(payload) {
       delivery: {
         enabled: payload.delivery_enabled === 'Activo',
         fee: Number(payload.delivery_fee),
-        zones: Array.isArray(payload.delivery_zones) ? payload.delivery_zones : [],
+        zones: toV2DeliveryZones(payload.delivery_zones, Number(payload.delivery_fee)),
       },
       payment_methods: Array.isArray(payload.payment_methods) ? payload.payment_methods : [],
       max_order_quantity: Number(payload.max_order_quantity),
