@@ -150,8 +150,13 @@ const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${mapsQuery}`;
         >
       </a>
 
-      <!-- Share Button -->
-      <ShareButton />
+      <!-- Share Button (copy comes from `theme.share`) -->
+      <ShareButton
+        title={theme?.share?.title}
+        text={theme?.share?.text}
+        label={theme?.share?.label}
+        buttonTitle={theme?.share?.button_title}
+      />
     </div>
   </div>
 </header>
