@@ -146,16 +146,19 @@ is byte-identical to today.
 **Objective:** let the customer add free-text instructions to the order that
 reach the restaurant in the WhatsApp message.
 
-- [ ] **N1 — Optional note input in the checkout.** Add an optional
+- [x] **N1 — Optional note input in the checkout.** Add an optional
   "Indicaciones" textarea/input to `checkout-form.astro` (rendered for both
   delivery and pickup), e.g. placeholder "Ej: sin cebolla, timbre roto, dejar en
-  portería". Not required; empty = no line emitted. (checkout-form.astro)
-- [ ] **N2 — Persist and pass the note.** Read the note on submit (reuse the
+  portería". Not required; empty = no line emitted. (checkout-form.astro) —
+  commit `0663980`
+- [x] **N2 — Persist and pass the note.** Read the note on submit (reuse the
   `local-storage` helper like name/address), and pass it to the builder via a new
-  `OrderMessage.withNote(note)`. (checkout-form.astro)
-- [ ] **N3 — Render the note in the message.** In `whatsapp.js`, add a
+  `OrderMessage.withNote(note)`. (checkout-form.astro) — commit `58f1318`
+  (persisted under `user_note`; an empty note clears the key)
+- [x] **N3 — Render the note in the message.** In `whatsapp.js`, add a
   `Nota:` / `Indicaciones:` line under "Datos de entrega" only when the note is
-  non-empty. Default state (empty note) emits no extra line. (whatsapp.js)
+  non-empty. Default state (empty note) emits no extra line. (whatsapp.js) —
+  commit `9b86c4e`
 
 **Cierre:** `pnpm build` → 4 pages; a typed note appears as an `Indicaciones:`
 line in the generated WhatsApp message; an empty note adds no line; default
@@ -260,3 +263,11 @@ fully checked off.
   `charge_delivery: false` (a tariff picker would be meaningless). Remote
   adapter (`toV2Settings`) emits `charge_delivery: true` — v1 GAS has no such
   flag; its flat fee was always charged.
+- 2026-10-26 — **Phase N complete (N1-N3).** Commits: N1 `0663980`, N2
+  `58f1318`, N3 `9b86c4e`. Observed evidence: `pnpm build` → 4 pages after each
+  task; browser probe 21/21 PASS — `Indicaciones: sin cebolla, timbre roto`
+  appears in the generated message when typed, no `Indicaciones:` line when the
+  field is empty, the fresh/default message carries no note line, and the typed
+  note persists (`user_note`) and restores after reload. The note field renders
+  for both delivery and pickup (it sits outside the delivery-only block) and
+  adds no validation rule.
