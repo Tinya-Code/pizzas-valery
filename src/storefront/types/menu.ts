@@ -237,6 +237,10 @@ export interface Theme {
   };
   /** Action buttons rendered on the right of the brand header. */
   header: {
+    layout: {
+      logo_position: 'left' | 'center';
+      show_name: boolean;
+    };
     actions: HeaderAction[];
   };
   blocks?: Record<string, DecorationItem[]>;

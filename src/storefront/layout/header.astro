@@ -48,6 +48,16 @@ const logoUrl = theme?.brand?.logo_url ?? null;
 const headerBg = theme?.page?.header_bg ?? null;
 
 /**
+ * Brand header layout (`theme.header.layout`):
+ * - `logo_position` — where the logo sits in the flex row (`center` pushes it
+ *   after the info block and centres the group).
+ * - `show_name`     — whether the brand `<h1>` is visible; when hidden it is
+ *   kept `sr-only` so the page keeps exactly one accessible `h1`.
+ */
+const logoPosition = theme?.header?.layout?.logo_position ?? "left";
+const showName = theme?.header?.layout?.show_name ?? true;
+
+/**
  * `wa.me` URL for `whatsapp` header actions — derived from the business
  * config, never from `theme.json`. `null` → such an action renders nothing.
  */
@@ -74,10 +84,13 @@ const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${mapsQuery}`;
     : undefined}
 >
   <div
-    class="max-w-7xl mx-auto flex flex-col md:flex-row items-center gap-10 relative z-10"
+    class={`max-w-7xl mx-auto flex flex-col md:flex-row items-center gap-10 relative z-10${logoPosition === "center" ? " md:justify-center" : ""}`}
   >
     <!-- Logo Section -->
-    <a href="/" class="relative group cursor-pointer">
+    <a
+      href="/"
+      class={`relative group cursor-pointer${logoPosition === "center" ? " md:order-2" : ""}`}
+    >
       {
         logoUrl ? (
           <div class="w-42 h-42   flex items-center justify-center  transform -rotate-6 group-hover:rotate-0 transition-all duration-700 ease-out overflow-hidden">
@@ -96,12 +109,18 @@ const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${mapsQuery}`;
     </a>
 
     <!-- Info Section -->
-    <div class="text-center md:text-left flex-1 space-y-4">
-      <h1
-        class="text-6xl md:text-8xl font-display text-white leading-none tracking-tighter"
-      >
-        {restaurantName}
-      </h1>
+    <div
+      class={`text-center md:text-left flex-1 space-y-4${logoPosition === "center" ? " md:order-1" : ""}`}
+    >
+      {
+        showName ? (
+          <h1 class="text-6xl md:text-8xl font-display text-white leading-none tracking-tighter">
+            {restaurantName}
+          </h1>
+        ) : (
+          <h1 class="sr-only">{restaurantName}</h1>
+        )
+      }
       <!--mapa -->
       <a
         href={mapsUrl}

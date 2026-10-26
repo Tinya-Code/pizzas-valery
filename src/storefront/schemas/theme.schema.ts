@@ -13,6 +13,7 @@ import { z } from 'zod';
  *   data.page.footer_bg   — footer background image (`null` → CSS default)
  *   data.brand.logo_url   — logo rendered by every layout
  *   data.share            — share-sheet copy (`ShareButton`)
+ *   data.header.layout   — brand header layout (logo position, name visibility)
  *   data.header.actions   — buttons on the right of the brand header
  *   data.blocks           — decoration items keyed by menu block
  *                           (`block-1`, `block-2`, `block-3`, `block-6`, …),
@@ -140,7 +141,8 @@ export const headerActionSchema = z.discriminatedUnion('type', [
 ]);
 
 /**
- * Header block: the action list rendered on the right of the brand header.
+ * Header block: the action list rendered on the right of the brand header
+ * and the brand header's layout (`logo_position`, `show_name`).
  *
  * SCOPE NOTE — the `Menú` / `Galería` anchors inside `site-header.astro`'s
  * `<nav>` are ROUTING (they are how a visitor reaches the other pages and
@@ -148,8 +150,16 @@ export const headerActionSchema = z.discriminatedUnion('type', [
  * stay OUT of `header.actions`: turning routes into data would make every
  * page's navigation a theme edit.
  */
+const headerLayoutSchema = z
+  .object({
+    logo_position: z.enum(['left', 'center']),
+    show_name: z.boolean(),
+  })
+  .strict();
+
 const headerSchema = z
   .object({
+    layout: headerLayoutSchema,
     actions: z.array(headerActionSchema),
   })
   .strict();
