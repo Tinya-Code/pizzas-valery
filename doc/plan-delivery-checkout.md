@@ -171,20 +171,20 @@ state byte-identical.
 **Objective:** let the customer attach their current location (a Google Maps
 link) to the delivery order, degrading gracefully when permission is denied.
 
-- [ ] **L1 — Location button in the checkout.** Add a "Enviar mi ubicación"
+- [x] **L1 — Location button in the checkout.** Add a "Enviar mi ubicación"
   button next to the address field (delivery orders only) in
   `checkout-form.astro`, with a clear inline status (idle / getting /
-  attached / error / denied). (checkout-form.astro)
-- [ ] **L2 — Geolocation capture.** On click, use
+  attached / error / denied). (checkout-form.astro) — commit `4251e5b`
+- [x] **L2 — Geolocation capture.** On click, use
   `navigator.geolocation.getCurrentPosition` to build a
   `https://www.google.com/maps?q=lat,lng` link. On denied/unavailable, show a
   non-blocking message and **never** prevent placing the order.
-  (checkout-form.astro)
-- [ ] **L3 — Carry the location into the message.** Pass the location URL to the
+  (checkout-form.astro) — commit `7748cb7`
+- [x] **L3 — Carry the location into the message.** Pass the location URL to the
   builder via `OrderMessage.withLocation(url)` and render a
   `Ubicación: <maps link>` line when present. Default state (no location) emits
   no line. Also keep the existing address text line. (whatsapp.js,
-  checkout-form.astro)
+  checkout-form.astro) — commit `74b11e1`
 
 **Cierre:** `pnpm build` → 4 pages; clicking the button attaches a Maps link that
 appears as `Ubicación:` in the message; denied permission shows a graceful
@@ -271,3 +271,13 @@ fully checked off.
   note persists (`user_note`) and restores after reload. The note field renders
   for both delivery and pickup (it sits outside the delivery-only block) and
   adds no validation rule.
+- 2026-10-26 — **Phase L complete (L1-L3).** Commits: L1 `4251e5b`, L2
+  `7748cb7`, L3 `74b11e1`. Observed evidence: `pnpm build` → 4 pages after each
+  task; browser probe 27/27 PASS — denied permission shows
+  `Permiso de ubicación denegado — escribe tu dirección` (non-blocking) and the
+  order still sends with no `Ubicación:` line; with permission granted and a
+  fixed position (`Emulation.setGeolocationOverride`), the status reads
+  `Ubicación adjunta ✓` and the message carries
+  `Ubicación: https://www.google.com/maps?q=-12.0464,-77.0428` alongside the
+  kept `Dirección:` line. Location is session-only (not persisted) — it is
+  per-order GPS data, unlike name/address/zone/note.
