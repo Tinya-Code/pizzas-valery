@@ -15,6 +15,7 @@ import Banknote from '../../icons/banknote.astro';
 import CreditCard from '../../icons/credit-card.astro';
 import Smartphone from '../../icons/smartphone.astro';
 import { OrderMessage } from '../../utils/whatsapp.js';
+import { precio } from '../../utils/format.js';
 import type { RestaurantSettings } from '../../types/menu';
 
 interface Props {
@@ -24,6 +25,12 @@ interface Props {
 const { settings = null } = Astro.props;
 
 const deliveryEnabled = settings?.delivery?.enabled ?? true;
+const chargeDelivery = settings?.delivery?.charge_delivery ?? true;
+const zones = settings?.delivery?.zones ?? [];
+const defaultFee = settings?.delivery?.fee ?? 0;
+// The zone picker prices an order, so it only makes sense when delivery is on
+// AND the fee is actually charged (charge_delivery: false → no tariff applies).
+const showZoneSelector = deliveryEnabled && chargeDelivery && zones.length > 0;
 const paymentMethods: string[] = settings?.payment_methods ?? [];
 
 const PAYMENT_ICONS: Record<string, typeof CreditCard> = {
@@ -49,6 +56,7 @@ const fieldClass =
 <form
   data-checkout-form
   data-delivery-enabled={String(deliveryEnabled)}
+  data-zones={JSON.stringify(zones)}
   data-whatsapp={settings?.whatsapp?.number ?? ''}
   data-whatsapp-template={settings?.whatsapp?.message_template ?? ''}
   class="space-y-4 p-2"
@@ -87,6 +95,23 @@ const fieldClass =
         <div data-error-address hidden class="text-xs text-red-500 mt-1 ml-1">
           La dirección es obligatoria
         </div>
+      </div>
+    )
+  }
+
+  <!-- Delivery zone — picks the per-zone fee (D3). No selection = the flat default fee. -->
+  {
+    showZoneSelector && (
+      <div class="flex flex-col gap-1">
+        <label class="text-sm font-display text-secondary mb-1" for="checkout-zone">
+          Zona de Delivery
+        </label>
+        <select id="checkout-zone" data-zone-select name="zone" class={fieldClass}>
+          <option value="">{`Delivery estándar — ${precio(defaultFee)}`}</option>
+          {zones.map((zone) => (
+            <option value={zone.id}>{`${zone.name} — ${precio(zone.fee)}`}</option>
+          ))}
+        </select>
       </div>
     )
   }
