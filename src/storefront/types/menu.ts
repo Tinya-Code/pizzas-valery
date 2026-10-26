@@ -315,11 +315,14 @@ export interface DeliveryZone {
  *
  * `fee` is the flat/default fee; `zones` override it per selection (empty
  * array → the flat fee applies to every order).
+ * `charge_delivery: false` suppresses the fee line entirely, independent of
+ * `fee`, so `fee: 0` means "free delivery" instead of "no delivery".
  */
 export interface DeliveryConfig {
   enabled: boolean;
   fee: number;
   zones: DeliveryZone[];
+  charge_delivery: boolean;
 }
 
 /** `settings.social_media` — profile URLs (`null` when unset). */

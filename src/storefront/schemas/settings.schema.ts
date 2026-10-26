@@ -60,6 +60,14 @@ const deliverySchema = z.object({
    * Strict: `settings.json` and this schema move together.
    */
   zones: z.array(zoneSchema),
+  /**
+   * Independent from `fee`: `false` means "never charge delivery" (the fee
+   * line is suppressed even when `fee`/zone say otherwise), while
+   * `charge_delivery: true` + `fee: 0` means FREE delivery — still a delivery
+   * order, never a pickup. Separating the two fixes the old conflation where
+   * `fee: 0` read as "no delivery".
+   */
+  charge_delivery: z.boolean(),
 }).strict();
 
 const socialMediaSchema = z.object({

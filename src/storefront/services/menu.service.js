@@ -215,6 +215,10 @@ function toV2Settings(payload) {
       delivery: {
         enabled: payload.delivery_enabled === 'Activo',
         fee: Number(payload.delivery_fee),
+        // v1 has no "charge delivery" flag — it only ever had one flat fee,
+        // so remote orders keep charging it (`fee: 0` there means free
+        // delivery, never "no delivery").
+        charge_delivery: true,
         zones: toV2DeliveryZones(payload.delivery_zones, Number(payload.delivery_fee)),
       },
       payment_methods: Array.isArray(payload.payment_methods) ? payload.payment_methods : [],

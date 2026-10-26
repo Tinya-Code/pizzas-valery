@@ -29,6 +29,7 @@
     "delivery": {
       "enabled": true,
       "fee": 5,
+      "charge_delivery": true,
       "zones": [
         { "id": "lima-centro", "name": "Lima Centro", "fee": 5 },
         { "id": "surco", "name": "Santiago de Surco", "fee": 7 },
