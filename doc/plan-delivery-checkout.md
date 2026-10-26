@@ -94,7 +94,7 @@ via a `wa.me` deep link built client-side; there is **no backend**.
 and a cart that recomputes the fee for the chosen zone. Separately fix the
 `fee: 0` vs "disabled" conflation with a dedicated key.
 
-- [ ] **D1 — Extend the schema and seed zones.** Change
+- [x] **D1 — Extend the schema and seed zones.** Change
   `settings.delivery.zones` from `z.array(z.string())` to a strict array of
   `zoneSchema = z.object({ id: z.string(), name: z.string(), fee: z.number() }).strict()`
   in `src/storefront/schemas/settings.schema.ts`, mirror the shape in
@@ -104,30 +104,34 @@ and a cart that recomputes the fee for the chosen zone. Separately fix the
   normalizer at `menu.service.js:183` so a remote array of strings still maps to
   zones (map string → `{ id: slug(name), name, fee: flat fee }`) instead of
   producing the wrong type. (settings.schema.ts, types/menu.ts, settings.json,
-  menu.service.js)
-- [ ] **D2 — Add `charge_delivery` (independent of fee).** Add
+  menu.service.js) — commit `833a853`
+- [x] **D2 — Add `charge_delivery` (independent of fee).** Add
   `settings.delivery.charge_delivery: boolean` (strict) defaulting `true`, and
   thread it through the schema/type/data. Rationale (decision 5): today `fee: 0`
   is read as "no delivery". `charge_delivery: false` = genuinely no delivery fee
   (order still a delivery); `fee: 0` + `charge_delivery: true` = free delivery
   (still shown as a delivery order, not pickup). (settings.schema.ts,
-  types/menu.ts, settings.json)
-- [ ] **D3 — Zone selector in the checkout.** Render a zone `<select>` (or
+  types/menu.ts, settings.json) — commit `690ec79` (also emitted by the remote
+  adapter in menu.service.js, which must satisfy the strict schema)
+- [x] **D3 — Zone selector in the checkout.** Render a zone `<select>` (or
   pill list) in `checkout-form.astro` from `settings.delivery.zones`, shown only
   when `deliveryEnabled`. Seed it with the default flat fee when no zone is
   picked. Emit `data-zones` (JSON) on the form so the client script can read it.
-  (checkout-form.astro)
-- [ ] **D4 — Cart recomputes the fee on zone pick.** On zone change, update
+  (checkout-form.astro) — commit `b7aae02` (assumption: also hidden when
+  `charge_delivery: false`, since no tariff would apply)
+- [x] **D4 — Cart recomputes the fee on zone pick.** On zone change, update
   `cartService`'s delivery fee to the chosen zone's `fee` (reusing
   `cartService.configure({ deliveryFee })`), re-render the cart totals, and
   persist the choice. Respect `charge_delivery: false` (fee forced to `0` and
   the delivery line suppressed even at `0`). (checkout-form.astro,
-  cart.service.js, sidebar-cart.astro)
-- [ ] **D5 — Carry the zone into the order message.** Extend
+  cart.service.js, sidebar-cart.astro) — commit `acea73b` (`#deliveryFee` is
+  now a `ReactiveValue`; the drawer owns the boot-time fee because the checkout
+  script runs first)
+- [x] **D5 — Carry the zone into the order message.** Extend
   `OrderMessage.withTotals`/`withCustomer` to accept the chosen `zone.name` and
   render a `Zona:` line under "Datos de entrega" when a delivery order has a
   zone. Keep default-state output identical when no zone is chosen.
-  (whatsapp.js, checkout-form.astro)
+  (whatsapp.js, checkout-form.astro) — commit `e3832c8`
 
 **Cierre:** `pnpm build` → 4 pages; selector renders the 3 seeded zones; picking
 a zone updates the cart delivery fee and total; `fee: 0` with
@@ -239,3 +243,20 @@ fully checked off.
   `charge_delivery` key so `fee: 0` means free delivery (not pickup), and all
   three features in scope with this MD as the implementation plan of record. No
   tasks executed yet; D not started.
+- 2026-10-26 — **Phase D complete (D1-D5).** Commits: D1 `833a853`, D2
+  `690ec79`, D3 `b7aae02`, D4 `acea73b`, D5 `e3832c8`. Observed evidence:
+  `pnpm build` → 4 pages, zero errors after every task; dist renders the
+  selector with `Delivery estándar — S/ 5.00` + `lima-centro/surco/villa`
+  options; browser probe (headless CDP, 18/18 PASS) — default fee row
+  `S/ 5.00`, total = subtotal + 5, picking `surco` → fee `S/ 7.00` and total
+  `S/ 36.90`, message gains `Zona: Santiago de Surco`, clearing restores
+  `S/ 5.00`, persisted zone `villa` restored after reload (`S/ 9.00`, select
+  preselected), default message has no `Zona:`/`Indicaciones:`/`Ubicación:`
+  lines and shows `Dirección:` (never `Retiro en tienda`). Matrix probe (6/6
+  twice): `fee: 0` + `charge_delivery: true` → row visible `S/ 0.00`,
+  total = subtotal, delivery order (address, not pickup); `charge_delivery:
+  false` → row hidden, fee forced `S/ 0.00`, no `*Delivery:*` line, order still
+  delivery. Assumption recorded: the zone selector also hides when
+  `charge_delivery: false` (a tariff picker would be meaningless). Remote
+  adapter (`toV2Settings`) emits `charge_delivery: true` — v1 GAS has no such
+  flag; its flat fee was always charged.
