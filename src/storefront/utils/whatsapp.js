@@ -103,6 +103,7 @@ export class OrderMessage {
   #totals = null;
   #customer = null;
   #note = '';
+  #location = '';
   #deliveryEnabled = true;
 
   /**
@@ -166,6 +167,17 @@ export class OrderMessage {
   }
 
   /**
+   * Optional Google Maps link attached through the location button. Empty
+   * emits nothing, so the default state stays byte-identical.
+   * @param {string} url
+   * @returns {this}
+   */
+  withLocation(url) {
+    this.#location = typeof url === 'string' ? url.trim() : '';
+    return this;
+  }
+
+  /**
    * @param {string} method
    * @returns {string}
    */
@@ -205,6 +217,10 @@ export class OrderMessage {
         message += `Dirección: ${this.#customer.address}\n`;
       } else {
         message += `Tipo: Retiro en tienda\n`;
+      }
+
+      if (this.#location) {
+        message += `Ubicación: ${this.#location}\n`;
       }
 
       if (this.#deliveryEnabled && this.#customer.zone) {

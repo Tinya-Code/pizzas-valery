@@ -387,7 +387,8 @@ const fieldClass =
         .withItems(items)
         .withTotals({ subtotal, deliveryFee, total })
         .withCustomer({ name, address, paymentMethod: payment, zone: zoneName })
-        .withNote(note);
+        .withNote(note)
+        .withLocation(locationUrl);
 
       // Multi-contact picker (whatsapp-contacts.astro) takes precedence when
       // mounted; otherwise keep the legacy single-number behavior.
