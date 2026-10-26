@@ -13,6 +13,7 @@ import { z } from 'zod';
  *   data.page.footer_bg   — footer background image (`null` → CSS default)
  *   data.brand.logo_url   — logo rendered by every layout
  *   data.share            — share-sheet copy (`ShareButton`)
+ *   data.header.actions   — buttons on the right of the brand header
  *   data.blocks           — decoration items keyed by menu block
  *                           (`block-1`, `block-2`, `block-3`, `block-6`, …),
  *                           each passed to the matching `MenuBlock` as the
@@ -102,6 +103,49 @@ const themeShareSchema = z
   })
   .strict();
 
+/** Icon names a header action can render (`header-actions.astro` maps them). */
+const headerActionIconSchema = z.enum(['images', 'map-pin', 'utensils', 'whatsapp']);
+
+/** `link` — a navigation anchor whose href lives in the data. */
+const headerLinkActionSchema = z
+  .object({
+    type: z.literal('link'),
+    href: z.string(),
+    label: z.string(),
+    title: z.string().optional(),
+    icon: headerActionIconSchema,
+  })
+  .strict();
+
+/** `share` — renders `ShareButton` with the copy from the `share` block. */
+const headerShareActionSchema = z.object({ type: z.literal('share') }).strict();
+
+/**
+ * `whatsapp` — anchor to `wa.me` built from `settings.whatsapp` at render
+ * time; the business number never lives in `theme.json`.
+ */
+const headerWhatsappActionSchema = z
+  .object({
+    type: z.literal('whatsapp'),
+    label: z.string(),
+    title: z.string().optional(),
+  })
+  .strict();
+
+/** One button in the brand header — discriminated on `type`. */
+export const headerActionSchema = z.discriminatedUnion('type', [
+  headerLinkActionSchema,
+  headerShareActionSchema,
+  headerWhatsappActionSchema,
+]);
+
+/** Header block: the action list rendered on the right of the brand header. */
+const headerSchema = z
+  .object({
+    actions: z.array(headerActionSchema),
+  })
+  .strict();
+
 /** Whole `theme.json` file shape: `{ data: <theme> }`. */
 export const themeFileSchema = z
   .object({
@@ -110,6 +154,7 @@ export const themeFileSchema = z
         page: themePageSchema,
         brand: themeBrandSchema,
         share: themeShareSchema,
+        header: headerSchema,
         /** Keyed by menu block (`block-1`, `block-3`, `block-6`, …). */
         blocks: z.record(z.string(), z.array(decorationItemSchema)).optional(),
       })

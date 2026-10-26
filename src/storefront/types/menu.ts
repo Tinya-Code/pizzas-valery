@@ -196,6 +196,24 @@ export interface GroupDecorationItem extends BaseDecorationItem {
 
 export type DecorationItem = ImageDecorationItem | RailDecorationItem | GroupDecorationItem;
 
+/** Icon names a header action can render (`header-actions.astro` maps them). */
+export type HeaderActionIcon = 'images' | 'map-pin' | 'utensils' | 'whatsapp';
+
+/**
+ * One button in the brand header (`theme.header.actions`) — a discriminated
+ * union on `type`, mirroring `headerActionSchema`.
+ */
+export type HeaderAction =
+  | {
+      type: 'link';
+      href: string;
+      label: string;
+      title?: string;
+      icon: HeaderActionIcon;
+    }
+  | { type: 'share' }
+  | { type: 'whatsapp'; label: string; title?: string };
+
 /**
  * Ready-to-render page presentation — loaded from `src/data/api/theme.json`
  * (local mode). One source of truth for how a page looks: backgrounds plus
@@ -216,6 +234,10 @@ export interface Theme {
     text: string;
     label: string;
     button_title: string;
+  };
+  /** Action buttons rendered on the right of the brand header. */
+  header: {
+    actions: HeaderAction[];
   };
   blocks?: Record<string, DecorationItem[]>;
 }

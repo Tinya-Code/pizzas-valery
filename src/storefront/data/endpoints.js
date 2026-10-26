@@ -105,6 +105,7 @@ export const ENDPOINTS = {
           label: 'Compartir',
           button_title: 'Compartir este menú',
         },
+        header: { actions: [] },
         blocks: {},
       },
     },
