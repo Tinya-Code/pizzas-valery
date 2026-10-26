@@ -143,11 +143,13 @@ export class OrderMessage {
 
   /**
    * When `address` is empty the order is flagged as store pickup.
-   * @param {{ name: string, address?: string | null, paymentMethod?: string }} customer
+   * `zone` (the picked delivery zone name) renders a `Zona:` line only for
+   * delivery orders that actually chose one — empty keeps the output as-is.
+   * @param {{ name: string, address?: string | null, paymentMethod?: string, zone?: string }} customer
    * @returns {this}
    */
-  withCustomer({ name, address = '', paymentMethod = '' }) {
-    this.#customer = { name, address, paymentMethod };
+  withCustomer({ name, address = '', paymentMethod = '', zone = '' }) {
+    this.#customer = { name, address, paymentMethod, zone };
     return this;
   }
 
@@ -191,6 +193,10 @@ export class OrderMessage {
         message += `Dirección: ${this.#customer.address}\n`;
       } else {
         message += `Tipo: Retiro en tienda\n`;
+      }
+
+      if (this.#deliveryEnabled && this.#customer.zone) {
+        message += `Zona: ${this.#customer.zone}\n`;
       }
 
       if (this.#customer.paymentMethod) {
