@@ -197,17 +197,20 @@ export interface GroupDecorationItem extends BaseDecorationItem {
 export type DecorationItem = ImageDecorationItem | RailDecorationItem | GroupDecorationItem;
 
 /**
- * Ready-to-render decorations — loaded from `src/data/api/decorations.json`
- * (local mode) or a remote endpoint. Replace the JSON to customise per project.
+ * Ready-to-render page presentation — loaded from `src/data/api/theme.json`
+ * (local mode). One source of truth for how a page looks: backgrounds plus
+ * the decorative art keyed by menu block. Replace the JSON to customise.
  */
-export interface Decorations {
-  background: string;
-  header_background?: string | null;
-  footer_background?: string | null;
+export interface Theme {
+  page: {
+    background: string;
+    header_bg?: string | null;
+    footer_bg?: string | null;
+  };
+  brand: {
+    logo_url: string | null;
+  };
   blocks?: Record<string, DecorationItem[]>;
-  block1?: { barco: string; makis: string[] };
-  block3?: { alitasFondo: string; alitas2Fondo: string };
-  block6?: { coctelesVertical: string };
 }
 
 /** One promotional flyer displayed in the delayed flyer modal. */
@@ -318,11 +321,6 @@ export interface RestaurantSettings {
   social_media: SocialMedia;
   google_maps?: string | null;
   business_hours: BusinessHours;
-  logo_url: string | null;
-  /** Optional background image URL for the site header (`null` → CSS default). */
-  header_bg: string | null;
-  /** Optional background image URL for the site footer (`null` → CSS default). */
-  footer_bg: string | null;
   tags: unknown[];
   seo: SiteSeo;
 }

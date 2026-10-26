@@ -64,7 +64,7 @@ const {
   blocks,
   combos,
   promotions,
-  decorations,
+  theme,
   restaurant,
   settings,
   rawHours,
@@ -124,9 +124,8 @@ const hoursJson =
       restaurant={restaurant}
       settings={settings}
       businessHours={businessHours}
-      background={decorations.background}
-      headerBg={decorations.header_background ?? settings?.header_bg}
-      footerBg={decorations.footer_background ?? settings?.footer_bg}
+      background={theme.page.background}
+      theme={theme}
     >
       <div class:list={["h-full w-auto mx-2", hasContent && "py-12"]}>
         <BlockPromotions promotions={promotions} canOrder={canOrder} />
@@ -136,7 +135,7 @@ const hoursJson =
         <!-- block-1: maki rail + barco parallax -->
         <MenuBlock
           categories={cats("block-1")}
-          decorations={decorations.blocks?.["block-1"]}
+          decorations={theme.blocks?.["block-1"]}
           canOrder={canOrder}
           outerClass="grid-cols-4 md:grid-cols-12 gap-x-12 gap-y-16"
           categorySectionClass="col-span-3 md:col-span-8"
@@ -147,7 +146,7 @@ const hoursJson =
         <!-- block-2: plain categories, single column → 2-up cards -->
         <MenuBlock
           categories={cats("block-2")}
-          decorations={decorations.blocks?.["block-2"]}
+          decorations={theme.blocks?.["block-2"]}
           canOrder={canOrder}
           outerClass="grid-cols-4 md:grid-cols-12 gap-x-12 gap-y-16"
           categorySectionClass="col-span-3 md:col-span-10"
@@ -158,7 +157,7 @@ const hoursJson =
         <!-- block-3: full-width header row with the alitas decorations -->
         <MenuBlock
           categories={cats("block-3")}
-          decorations={decorations.blocks?.["block-3"]}
+          decorations={theme.blocks?.["block-3"]}
           canOrder={canOrder}
           outerClass="relative grid-cols-1 md:grid-cols-12 gap-x-12 gap-y-8 items-start"
           categorySectionClass="col-span-12 md:col-span-8"
@@ -168,7 +167,7 @@ const hoursJson =
         <!-- block-4: same layout as block-2 -->
         <MenuBlock
           categories={cats("block-4")}
-          decorations={decorations.blocks?.["block-4"]}
+          decorations={theme.blocks?.["block-4"]}
           canOrder={canOrder}
           outerClass="grid-cols-1 md:grid-cols-1 gap-x-12 gap-y-16 items-start"
           cardsClass="grid-cols-2 md:grid-cols-4"
@@ -177,7 +176,7 @@ const hoursJson =
         <!-- block-5: 2-up cards from mobile -->
         <MenuBlock
           categories={cats("block-5")}
-          decorations={decorations.blocks?.["block-5"]}
+          decorations={theme.blocks?.["block-5"]}
           canOrder={canOrder}
           outerClass="grid-cols-1 md:grid-cols-1 gap-x-12 gap-y-16 items-start"
           cardsClass="grid-cols-3 md:grid-cols-5 gap-6"
@@ -189,7 +188,7 @@ const hoursJson =
              card — that data is the whole override mechanism now. -->
         <MenuBlock
           categories={cats("block-6")}
-          decorations={decorations.blocks?.["block-6"]}
+          decorations={theme.blocks?.["block-6"]}
           canOrder={canOrder}
           outerClass="grid-cols-5 md:grid-cols-12 md:gap-12 items-start"
           categorySectionClass="w-full col-span-4 md:col-span-8"
@@ -199,7 +198,7 @@ const hoursJson =
         <!-- block-7: dessert illustration cell -->
         <MenuBlock
           categories={cats("block-7")}
-          decorations={decorations.blocks?.["block-7"]}
+          decorations={theme.blocks?.["block-7"]}
           canOrder={canOrder}
           outerClass="grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-16 items-start"
           cardsClass="grid-cols-2 md:grid-cols-1"

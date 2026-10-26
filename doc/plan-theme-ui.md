@@ -1,0 +1,142 @@
+# Plan — Merge presentation config into `theme.json`
+
+**Source:** session analysis of `src/data/api/settings.json` responsibility mix (2026-10-26), including three verified defects found in the current code (see F1/F3 objectives).
+
+**Stack context:** Astro 5 static build (no adapter, no backend, no CMS — data is build-time JSON under `src/data/api/`), Tailwind v4, zod `.strict()` schemas as the build-time contract, `pnpm build` (4 pages), `pnpm smoke` (needs `pnpm preview --port 4322`). The project has **no `tsc` and no `astro check` installed** — type regressions are only caught by reading or by the editor.
+
+**Decision taken:** `decorations.json` is absorbed into the new `theme.json` (single source of truth for "how the page looks"), and `logo_url` / `header_bg` / `footer_bg` leave `settings.json`. Site-level `seo` **stays in `settings.json`** — see "Explicit debt".
+
+---
+
+## Restrictions
+
+### Scope (prohibited)
+- No new dependencies, no adapter, no backend, no API/CMS. Data stays build-time JSON.
+- `src/data/api/menu.json`, `combos.json`, `promotions.json` are untouched — their declarative `card` keys stay exactly as they are.
+- The card design-key contract is out of scope: no change to `src/storefront/menu/cards/registry.ts`, to the `data-product` / `data-combo` / `data-promotion` payloads, nor to the `data-product-detail-host` dialog contract.
+- `settings.json` keeps every business/operations field: `name`, `phone`, `address`, `geo`, `whatsapp`, `timezone`, `currency`, `language`, `delivery`, `payment_methods`, `max_order_quantity`, `social_media`, `google_maps`, `business_hours`, `tags`, `seo`.
+- No change to the 44 pre-rendered product dialogs, to `src/storefront/menu/product-detail.astro`, or to the remote GAS endpoint mode in `src/storefront/data/endpoints.js`.
+
+### Style / code
+- Technical artifacts (files, code, comments, this document) in English.
+- Every new/changed zod schema keeps `.strict()`; every data file keeps the `{ "data": ... }` wrapper (`decorations.json` is currently flat — `theme.json` standardizes on the wrapper).
+- New data keys are declared in the schema first; `src/storefront/types/menu.ts` is updated in the same task (there is no `tsc` to catch the drift).
+- Reuse the existing patterns only: `ENDPOINTS` fixture entry → `resolveLocal` → `loadStorefront` → props. No new service layer, no context/providers.
+- Config reaches components as props — never re-introduce `Astro.slots` for layout configuration.
+
+### Quality
+- `pnpm build` → 4 pages, zero errors after **every** phase.
+- Parity on `dist/menu/index.html` against the pre-F1 baseline: DOM structure and all metrics identical — `data-has-range` 5/38, `data-template-card` 43, `data-combo-card` 2, `data-promotion-card` 1, root-class counts 1/8/16/5/13, `data-rail-urls` 2, `data-maki-urls` 2, "Alitas Fondo" 1, "Cócteles Vertical" 1.
+  Excluded from parity (intentional by this plan): (a) documentation comments, (b) `<style>` rule order, (c) the brand/share strings and gallery/landing `alt` texts that F3 changes on purpose.
+- `pnpm smoke` → 28 PASS, with only the pre-existing browser-extension console-warning failure (the warning list must match the baseline log).
+
+### Process
+- **Pre-flight, before F1:** `pnpm build && mkdir -p /tmp/theme-baseline && cp dist/menu/index.html /tmp/theme-baseline/menu.html`, then `pnpm preview --port 4322` and `pnpm smoke > /tmp/smoke-base.log`. Re-run both if more than one session elapses.
+- One task = one checkbox = one focused commit. A phase closes only when its `Cierre` line holds, with observed output — never a claimed result.
+- Mark tasks `- [x]` **with the commit hash in this file** before reporting a phase or launching the next one. This file is the live state record.
+- Any failed check becomes one "Needs your decision" result naming the blocker; no silent retries and no skipping a failing phase.
+
+---
+
+## F1 — Foundation: `theme.json` replaces `decorations.json`
+
+**Objective:** one source of truth for page presentation, killing the `header_bg`/`header_background` duplication **and** the typo that leaves 3 of 4 pages without a footer background.
+
+- [x] Create `src/data/api/theme.json` with `{ "data": { "page": { "background", "header_bg", "footer_bg" }, "blocks": {} } }`, migrating `background` → `page.background`, `header_background` → `page.header_bg`, `footer_background` → `page.footer_bg` and `blocks` verbatim from `src/data/api/decorations.json` (src/data/api/decorations.json: add the `{data}` wrapper, rename the two background keys) — ✅ verified: `blocks` byte-identical, values `/bg.png` / `null` / `null` preserved. No commit yet (see Log).
+- [x] Create `src/storefront/schemas/theme.schema.ts` exporting `themePageSchema` and `themeFileSchema` (both `.strict()`), mirroring the `blocks` record from `decorationItemSchema`, and export it from `src/storefront/schemas/index.ts:42` (src/storefront/schemas/theme.schema.ts, src/storefront/schemas/index.ts:42) — ✅ legacy `block1/block3/block6` keys dropped (they belonged to the deleted file). No commit yet.
+- [x] Swap the fixture entry at `src/storefront/data/endpoints.js:88-99`: key `decorations` → `theme`, `fixture: 'theme.json'`, `schema: themeFileSchema`, and a fallback shaped `{ data: { page: { background: …, header_bg: null, footer_bg: null }, blocks: {} } }` (src/storefront/data/endpoints.js:88) — ✅ import swapped too. No commit yet.
+- [x] Rename `getDecorations()` → `getTheme()` and update its JSDoc plus the `loadMenu` return union/destructuring at `src/storefront/services/menu.service.js:330-335` and `:374-388` (src/storefront/services/menu.service.js:334) — ✅ **deviation recorded**: the fixture is `{data:…}`-wrapped, so `getTheme()` unwraps `.data` (same pattern as `getGallery()` at `:409`); without it the first build failed with `Cannot read properties of undefined (reading 'background')`. No commit yet.
+- [x] Update the `decorations` key to `theme` in the `loadStorefront` docs and error fallback at `src/storefront/services/index.js:28` and `:45` (src/storefront/services/index.js:45) — ✅ `...menuPayload` spread carries the new key through unchanged. No commit yet.
+- [x] Replace `interface Decorations` with `interface Theme { page: …; blocks?: … }` and fix its doc comment at `src/storefront/types/menu.ts:200-213` (src/storefront/types/menu.ts:203) — ✅ legacy `block1/block3/block6` members dropped with the schema. No commit yet.
+- [x] Rewire the four pages to `theme.page.*` and `theme.blocks`: `src/pages/menu.astro:127-129` (drop the `?? settings?.header_bg` / `?? settings?.footer_bg` fallbacks) and `:139-202`, `src/pages/index.astro:155`, `src/pages/galeria.astro:175`, `src/pages/enlaces.astro:121` — the last three currently read the non-existent `decorations?.footer_bg` key (src/pages/index.astro:155, src/pages/galeria.astro:175, src/pages/enlaces.astro:121) — ✅ typo path dead; all 4 pages now read `theme.page.footer_bg`. No commit yet.
+- [x] Retire the old file: delete `src/data/api/decorations.json` and `src/storefront/schemas/decorations.schema.ts`, then update the stale references in `src/storefront/menu/blocks/menu-block.astro:14,18` and `src/storefront/menu/blocks/decoration-renderer.astro:6` (src/storefront/menu/blocks/menu-block.astro:14) — ✅ only remaining `decorations.json` mention is the intentional "former `decorations.json`" note in `theme.schema.ts:7`. No commit yet.
+
+**Cierre:** `pnpm build` → 4 pages; `grep -rn "decorations" src/` returns only historical prose (no imports, no keys); `grep -rn "footer_bg" src/pages/` returns only `theme.page.footer_bg`; menu HTML parity + all metrics green vs `/tmp/theme-baseline/menu.html`.
+
+---
+
+## F2 — `settings.json` loses its presentation keys
+
+**Objective:** `logo_url`, `header_bg`, `footer_bg` move out of settings; the layout components receive a `theme` prop once, so F4/F5 do not re-thread it.
+
+- [ ] Add `brand: { "logo_url" }` to `src/data/api/theme.json` and a `brandSchema` to `src/storefront/schemas/theme.schema.ts` (src/data/api/theme.json)
+- [ ] Remove `logo_url`, `header_bg`, `footer_bg` from `src/data/api/settings.json:83-86` **and** from `restaurantSettingsSchema` in `src/storefront/schemas/settings.schema.ts:107-111` in the same commit (the schema is `.strict()`, so the file and the schema must move together) (src/storefront/schemas/settings.schema.ts:107)
+- [ ] Remove the same three fields from `interface RestaurantSettings` at `src/storefront/types/menu.ts:321-325` (src/storefront/types/menu.ts:321)
+- [ ] Drop the hardcoded `logo_url` / `header_bg` / `footer_bg` assignments from the v1→v2 normalizer at `src/storefront/services/menu.service.js:194-196` (src/storefront/services/menu.service.js:194)
+- [ ] Thread a `theme` prop into `src/storefront/layout/menu-page.astro:42-54` (`Header` + `Footer`) and into `src/storefront/layout/footer.astro:41-57` / `src/storefront/layout/site-header.astro:13-26`, replacing `settings?.logo_url` with `theme.brand.logo_url` (src/storefront/layout/menu-page.astro:42)
+- [ ] Rewire the logo reads on the three pages that pass `settings` directly: `src/pages/index.astro:81,151-155`, `src/pages/galeria.astro:35,171-175`, `src/pages/enlaces.astro:39,46,117-121` (the last uses `meta.logo_url || settings?.logo_url` as a fallback chain) (src/pages/enlaces.astro:39)
+- [ ] Update `src/storefront/layout/header.astro:46-47` so `logoUrl` comes from `theme.brand.logo_url` and `headerBg` from `theme.page.header_bg` only — the `explicitHeaderBg ?? settings?.header_bg` fallback chain disappears (src/storefront/layout/header.astro:46)
+
+**Cierre:** `pnpm build` → 4 pages; `grep -rn "settings?.logo_url\|settings.logo_url\|settings?.header_bg\|settings?.footer_bg" src/` → 0 hits; menu HTML parity green.
+
+---
+
+## F3 — Brand text and share message become data
+
+**Objective:** remove every wrong-brand string (currently shipped in the production bundle) and make the share text configurable.
+
+- [ ] Add `share: { "title", "text", "label", "button_title" }` to `src/data/api/theme.json`, with `shareSchema` in `src/storefront/schemas/theme.schema.ts` and the matching type in `src/storefront/types/menu.ts` (src/data/api/theme.json)
+- [ ] Make `src/storefront/ui/share-button.astro:13-27` accept `title`, `text`, `label` and `buttonTitle` props, deleting the hardcoded `'Sazón Digital'` / `'¡Mira este delicioso menú! 🍜🏮'` at `:23,26,37-38` (src/storefront/ui/share-button.astro:37)
+- [ ] Pass `theme.share` into `<ShareButton />` from `src/storefront/layout/header.astro:153` (src/storefront/layout/header.astro:153)
+- [ ] Replace every wrong-brand fallback with a value derived from data (`settings.name` / `seo.site_name`): `src/storefront/layout/header.astro:41` (`"Mr Sushi"`), `src/storefront/layout/site-header.astro:25`, `src/storefront/layout/Layout.astro:31`, `src/storefront/ui/review-modal.astro:24`, `src/pages/index.astro:50-52`, `src/pages/enlaces.astro:37` (src/storefront/layout/header.astro:41)
+- [ ] Correct the stale brand in data: the 6 `"… — Sazón Digital"` `alt` values in `src/data/api/gallery.json:9,18,39,48,57,66` and `"Sábado de Promo — Sazón Digital"` at `src/data/api/landing.json:59` (src/data/api/gallery.json:9)
+- [ ] Run the brand audit: `grep -rn "Sazón Digital\|Mr Sushi\|Sushi artesanal\|🍜\|🏮" src/` → 0 hits, and confirm `grep -c "Sazón Digital" dist/menu/index.html` → 0 (src/storefront/ui/share-button.astro)
+
+**Cierre:** `pnpm build` → 4 pages; brand audit 0 hits in `src/` and in `dist/`; `dist/menu/index.html` differs from the baseline **only** in the share/title strings this task changed (metrics unchanged).
+
+---
+
+## F4 — Header actions become a configurable list
+
+**Objective:** the hardcoded Galería link and the share button become data-driven actions (`link` | `share` | `whatsapp`), so adding or removing a button is a data edit.
+
+- [ ] Add `header: { "actions": [ … ] }` to `src/data/api/theme.json` with a discriminated `headerActionSchema` (`type: 'link' | 'share' | 'whatsapp'`) in `src/storefront/schemas/theme.schema.ts` and the union type in `src/storefront/types/menu.ts` (src/data/api/theme.json)
+- [ ] Create `src/storefront/layout/header-actions.astro` rendering the action list, reusing the existing icons (`src/storefront/icons/images.astro`, `src/storefront/icons/share-2.astro`) and the `ShareButton` component (src/storefront/layout/header-actions.astro)
+- [ ] Replace the hardcoded Galería anchor at `src/storefront/layout/header.astro:140-152` and `<ShareButton />` at `:153` with `<HeaderActions actions={theme.header.actions} … />` (src/storefront/layout/header.astro:140)
+- [ ] Document in `src/storefront/schemas/theme.schema.ts` that `site-header.astro:41-62` navigation links are routing, not configurable actions, and leave them out of `header.actions` (src/storefront/schemas/theme.schema.ts)
+- [ ] Contract check: inject `"type": "accion-inexistente"` into an action in `src/data/api/theme.json`, confirm `pnpm build` fails with the zod enum error, then restore the file (src/data/api/theme.json)
+
+**Cierre:** `pnpm build` → 4 pages after the restore; the contract check produced a real `Invalid option: …` build failure; menu HTML parity shows the same link markup for the default action set.
+
+---
+
+## F5 — Header layout becomes configurable
+
+**Objective:** logo position and brand-name visibility are data, not code.
+
+- [ ] Add `header.layout: { "logo_position": "left" | "center", "show_name": boolean }` to `src/data/api/theme.json`, with `headerLayoutSchema` in `src/storefront/schemas/theme.schema.ts` and the type in `src/storefront/types/menu.ts` (src/data/api/theme.json)
+- [ ] Apply `logo_position` in `src/storefront/layout/header.astro:57-58` (the `flex-col md:flex-row items-center` container gets order/justify driven by the config) (src/storefront/layout/header.astro:57)
+- [ ] Gate the brand `<h1>` at `src/storefront/layout/header.astro:88-93` on `header.layout.show_name`, keeping `aria-*` and heading hierarchy valid when hidden (src/storefront/layout/header.astro:88)
+- [ ] Visual probe: flip `logo_position` to `"center"` and `show_name` to `false` in `src/data/api/theme.json`, build, confirm both render correctly in `dist/menu/index.html`, then restore the defaults (src/data/api/theme.json)
+
+**Cierre:** `pnpm build` → 4 pages; the probe showed both states rendering; after restore, menu HTML parity green.
+
+---
+
+## F6 — Verification and regression net
+
+**Objective:** prove the whole plan with the same evidence bar used for the card refactor.
+
+- [ ] Regenerate the baseline comparison and the full metric report: `pnpm build` + the parity script over `dist/menu/index.html` (metrics: 5/38/43/2/1, roots 1/8/16/5/13, rails 2, maki 2, alitas 1, cócteles 1), listing any diff outside the excluded categories (dist/menu/index.html)
+- [ ] Start `pnpm preview --port 4322`, run `pnpm smoke`, and diff the console-warning list against `/tmp/smoke-base.log` — expect 28 PASS and only the pre-existing extension warnings (scripts/smoke.mjs)
+- [ ] Re-run the zod contract check end to end: an unknown `page.header_bg` value and an unknown `actions[].type` must both fail the build, with the file restored afterwards (src/data/api/theme.json)
+- [ ] Dead-reference audit: `grep -rn "decorations\.json\|decorationsFileSchema\|getDecorations\|settings?.logo_url" src/` → 0 hits (src/)
+- [ ] Update this plan file: every completed task `- [x]` with its commit hash, and record the final parity/smoke output in the `## Log` below (doc/plan-theme-ui.md)
+
+**Cierre:** build 4 pages, parity green with only the intentional diffs, smoke 28 PASS with the baseline warning list, all audits 0 hits, plan file fully checked off.
+
+---
+
+## Explicit debt (not planned)
+
+- **Per-page SEO overrides for `/menu`.** Not planned: site-level `seo` stays in `settings.json`, and `<Layout title="Menú">` already composes with `seo.title_template` (`src/storefront/layout/Layout.astro:26-30`). Moving SEO into `theme.json` would re-create the responsibility mix this plan removes. Reopen only if a page needs metadata that the title + template cannot express.
+- **Tailwind arbitrary values embedded in decoration data** (`containerClass` / `class` in `theme.blocks`, e.g. `md:-right-48`, `min-w-[300px]`). Data is driving styling through class strings; the fix is design tokens / named layout presets, which is a separate refactor.
+- **Admin visual editor over an iframe** (previous session's proposal). Requires a write path — an Astro endpoint with an adapter, or git + rebuild — plus auth if it must run in production. Backend is not in the stack.
+- **44 pre-rendered product dialogs** (~349 KB, 65% of the menu HTML). Pre-existing architecture, deliberately preserved; converting to a single client-filled dialog trades no-JS content for payload size.
+- **Remote GAS endpoint mode** (`endpoints.js` `mode: 'auto'`) and its v1→v2 normalizer beyond the three removed keys — untouched.
+
+---
+
+## Log
+
+- 2026-10-26 — Plan written. No tasks executed yet; F1 not started.

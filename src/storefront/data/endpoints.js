@@ -29,7 +29,6 @@
  */
 import {
   combosFileSchema,
-  decorationsFileSchema,
   enlacesFileSchema,
   flyersFileSchema,
   galleryFileSchema,
@@ -37,6 +36,7 @@ import {
   menuFileSchema,
   promotionsFileSchema,
   settingsFileSchema,
+  themeFileSchema,
   parseFixture,
 } from '../schemas';
 
@@ -85,17 +85,22 @@ export const ENDPOINTS = {
   },
 
   // Local-only for now (mode 'local' → the fixture, no endpoint declared).
-  decorations: {
+  theme: {
     enabled: true,
     mode: 'local',
-    fixture: 'decorations.json',
+    fixture: 'theme.json',
     resource: null,
-    schema: decorationsFileSchema,
+    schema: themeFileSchema,
     fallback: {
-      background: 'https://picsum.photos/seed/menu-bg/400/400',
-      header_background: null,
-      footer_background: null,
-      blocks: {},
+      data: {
+        page: {
+          background: 'https://picsum.photos/seed/menu-bg/400/400',
+          header_bg: null,
+          footer_bg: null,
+        },
+        brand: { logo_url: null },
+        blocks: {},
+      },
     },
   },
   flyers: {

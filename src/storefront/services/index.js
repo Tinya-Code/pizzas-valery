@@ -25,7 +25,7 @@ export {
  *   blocks,
  *   combos,
  *   promotions,
- *   decorations,
+ *   theme,
  *   restaurant,
  *   settings,
  *   businessHours,
@@ -42,7 +42,7 @@ export async function loadStorefront() {
     loadMenu().catch((error) => {
       if (isSchemaViolationError(error)) throw error;
       console.error('[loadStorefront] menu load failed:', error);
-      return { blocks: [], combos: [], promotions: [], decorations: {} };
+      return { blocks: [], combos: [], promotions: [], theme: {} };
     }),
     getRestaurantData().catch((error) => {
       if (isSchemaViolationError(error)) throw error;

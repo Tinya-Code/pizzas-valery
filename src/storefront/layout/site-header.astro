@@ -8,22 +8,25 @@
  * - `class`      — pass-through host classes
  */
 import Utensils from "../icons/utensils.astro";
-import type { RestaurantProfile, RestaurantSettings } from "../types/menu";
+import type { RestaurantProfile, RestaurantSettings, Theme } from "../types/menu";
 
 interface Props {
   class?: string;
   restaurant?: RestaurantProfile | null;
   settings?: RestaurantSettings | null;
+  /** Page presentation: brand assets (single source). */
+  theme?: Theme | null;
 }
 
 const {
   class: hostClass = "",
   restaurant = null,
   settings = null,
+  theme = null,
 } = Astro.props;
 
 const restaurantName = restaurant?.name ?? "Sazón Digital";
-const logoUrl = settings?.logo_url ?? null;
+const logoUrl = theme?.brand?.logo_url ?? null;
 
 const currentPath = Astro.url.pathname.replace(/\/$/, "") || "/";
 const isMenuActive = currentPath === "/menu";

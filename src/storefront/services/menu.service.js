@@ -191,9 +191,6 @@ function toV2Settings(payload) {
       },
       google_maps: null,
       business_hours,
-      logo_url: nonEmpty(payload.logo_url),
-      header_bg: null,
-      footer_bg: null,
       tags: Array.isArray(payload.tags) ? payload.tags : [],
       seo: { ...SEO_DEFAULTS },
     },
@@ -327,12 +324,13 @@ export async function getRestaurantInfo() {
 }
 
 /**
- * Ready-to-render decorations — always the local fixture (manifest mode
- * `'local'`; no remote endpoint exists yet).
- * @returns {Promise<import('../types/menu.js').Decorations>}
+ * Page presentation (backgrounds + per-block decorative art) — always the
+ * local fixture (manifest mode `'local'`; no remote endpoint exists yet).
+ * @returns {Promise<import('../types/menu.js').Theme>}
  */
-export async function getDecorations() {
-  return resolveLocal('decorations');
+export async function getTheme() {
+  // Fixture is wrapped (`{ data: <theme> }`), same convention as gallery.
+  return resolveLocal('theme').data;
 }
 
 /**
@@ -371,21 +369,21 @@ export async function getPromotions() {
 
 /**
  * Everything the menu page needs in one parallel call.
- * @returns {Promise<{ blocks: any[], combos: any[], promotions: any[], decorations: import('../types/menu.js').Decorations }>}
+ * @returns {Promise<{ blocks: any[], combos: any[], promotions: any[], theme: import('../types/menu.js').Theme }>}
  */
 export async function loadMenu() {
-  const [menu, combos, promotions, decorations] = await Promise.all([
+  const [menu, combos, promotions, theme] = await Promise.all([
     getMenu(),
     getCombos(),
     getPromotions(),
-    getDecorations(),
+    getTheme(),
   ]);
 
   return {
     blocks: menu.blocks,
     combos: combos?.data ?? [],
     promotions: promotions?.data ?? [],
-    decorations,
+    theme,
   };
 }
 

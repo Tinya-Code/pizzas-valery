@@ -104,11 +104,6 @@ export const restaurantSettingsSchema = z
     /** Absent in v1 payloads; consumers fall back to `social_media.google_maps`. */
     google_maps: z.string().nullable().optional(),
     business_hours: businessHoursSchema,
-    logo_url: z.string().nullable(),
-    /** Background image URL (`null` → CSS default); the fixture always ships it. */
-    header_bg: z.string().nullable(),
-    /** Background image URL (`null` → CSS default); the fixture always ships it. */
-    footer_bg: z.string().nullable(),
     tags: z.array(z.string()),
     seo: siteSeoSchema,
   })

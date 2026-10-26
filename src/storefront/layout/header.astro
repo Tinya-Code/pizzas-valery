@@ -22,20 +22,21 @@ import Map from "../icons/map.astro";
 import MapPin from "../icons/map-pin.astro";
 import Utensils from "../icons/utensils.astro";
 import ShareButton from "../ui/share-button.astro";
-import type { RestaurantProfile, RestaurantSettings } from "../types/menu";
+import type { RestaurantProfile, RestaurantSettings, Theme } from "../types/menu";
 
 interface Props {
   class?: string;
   restaurant?: RestaurantProfile | null;
   settings?: RestaurantSettings | null;
-  headerBg?: string | null;
+  /** Page presentation: backgrounds + brand assets (single source). */
+  theme?: Theme | null;
 }
 
 const {
   class: hostClass = "",
   restaurant = null,
   settings = null,
-  headerBg: explicitHeaderBg = null,
+  theme = null,
 } = Astro.props;
 
 const restaurantName = restaurant?.name ?? "Mr Sushi";
@@ -43,8 +44,8 @@ const address = restaurant?.address ?? "";
 const location = restaurant?.location;
 const latitude = location?.lat ?? "";
 const longitude = location?.lng ?? "";
-const logoUrl = settings?.logo_url ?? null;
-const headerBg = explicitHeaderBg ?? settings?.header_bg ?? null;
+const logoUrl = theme?.brand?.logo_url ?? null;
+const headerBg = theme?.page?.header_bg ?? null;
 
 const hasCoordinates =
   latitude !== "" &&
