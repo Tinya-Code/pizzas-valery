@@ -47,8 +47,8 @@ const {
 // Load declarative blocks configuration from landing.json
 const { meta, blocks } = await getLanding(settings, promotions, menuBlocks);
 
-const restaurantName = meta.title || restaurant?.name || settings?.seo?.site_name || 'Sazón Digital';
-const tagline = meta.tagline || settings?.seo?.description || 'Sushi artesanal en Lima. Delivery a domicilio, combos y promociones.';
+const restaurantName = meta.title || restaurant?.name || settings?.seo?.site_name || settings?.name || '';
+const tagline = meta.tagline || settings?.seo?.description || '';
 const siteTitle = settings?.seo?.title ?? `${restaurantName} — Sushi y delivery en Lima`;
 
 // Initial open/closed state — computed at build time and corrected on the

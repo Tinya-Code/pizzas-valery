@@ -34,7 +34,7 @@ const {
 const { meta, blocks } = await getEnlaces(settings, gallery, menuBlocks);
 
 const restaurantName =
-  meta.title || restaurant?.name || settings?.name || "Sazón Digital";
+  meta.title || restaurant?.name || settings?.name || "";
 const tagline = meta.tagline || settings?.seo?.description || "";
 const logoUrl = meta.logo_url || theme?.brand?.logo_url || null;
 ---

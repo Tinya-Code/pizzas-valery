@@ -28,13 +28,13 @@ const documentTitle = seo
 	? (title && title !== seo.title
 		? (seo.title_template ? seo.title_template.replace('%s', title) : title)
 		: (seo.title || (seo.title_template ? seo.title_template.replace('%s', seo.site_name) : seo.site_name)))
-	: (title || 'Sazón Digital');
+	: (title || '');
 
 const description = seo?.description ?? '';
 const keywords = Array.isArray(seo?.keywords) ? seo.keywords : [];
 const canonical = seo?.canonical_url ?? '';
 const twitterCard = seo?.twitter_card ?? 'summary_large_image';
-const siteName = seo?.site_name ?? 'SAZÓN DIGITAL';
+const siteName = seo?.site_name ?? '';
 const locale = seo?.locale ?? 'es_PE';
 const ogImage = seo?.og_image || null;
 

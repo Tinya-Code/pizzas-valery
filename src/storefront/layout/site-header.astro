@@ -25,7 +25,7 @@ const {
   theme = null,
 } = Astro.props;
 
-const restaurantName = restaurant?.name ?? "Sazón Digital";
+const restaurantName = restaurant?.name ?? settings?.name ?? "";
 const logoUrl = theme?.brand?.logo_url ?? null;
 
 const currentPath = Astro.url.pathname.replace(/\/$/, "") || "/";

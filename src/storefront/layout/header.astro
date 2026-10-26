@@ -39,7 +39,7 @@ const {
   theme = null,
 } = Astro.props;
 
-const restaurantName = restaurant?.name ?? "Mr Sushi";
+const restaurantName = restaurant?.name ?? settings?.name ?? "";
 const address = restaurant?.address ?? "";
 const location = restaurant?.location;
 const latitude = location?.lat ?? "";
