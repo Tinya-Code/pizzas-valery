@@ -189,7 +189,12 @@ const fieldClass =
   import { readBusinessHours } from '../../utils/dom';
   import { local } from '../../utils/local-storage.js';
 
-  const STORAGE_KEYS = { NAME: 'user_name', ADDRESS: 'user_address', ZONE: ZONE_STORAGE_KEY };
+  const STORAGE_KEYS = {
+    NAME: 'user_name',
+    ADDRESS: 'user_address',
+    NOTE: 'user_note',
+    ZONE: ZONE_STORAGE_KEY,
+  };
   const MIN_NAME = 3;
   const MIN_ADDRESS = 5;
 
@@ -215,6 +220,7 @@ const fieldClass =
   function init(form: HTMLFormElement) {
     const nameInput = form.querySelector<HTMLInputElement>('[data-checkout-name]');
     const addressInput = form.querySelector<HTMLInputElement>('[data-checkout-address]');
+    const noteInput = form.querySelector<HTMLTextAreaElement>('[data-checkout-note]');
     const errorName = form.querySelector<HTMLElement>('[data-error-name]');
     const errorAddress = form.querySelector<HTMLElement>('[data-error-address]');
     const errorPayment = form.querySelector<HTMLElement>('[data-error-payment]');
@@ -223,8 +229,10 @@ const fieldClass =
     // Restore the previous customer data, like Angular `ngOnInit`.
     const savedName = local.get<string>(STORAGE_KEYS.NAME);
     const savedAddress = local.get<string>(STORAGE_KEYS.ADDRESS);
+    const savedNote = local.get<string>(STORAGE_KEYS.NOTE);
     if (savedName && nameInput) nameInput.value = savedName;
     if (savedAddress && addressInput) addressInput.value = savedAddress;
+    if (savedNote && noteInput) noteInput.value = savedNote;
 
     const deliveryEnabled = form.dataset.deliveryEnabled === 'true';
     const chargeDelivery = form.dataset.chargeDelivery !== 'false';
@@ -307,6 +315,10 @@ const fieldClass =
       local.set(STORAGE_KEYS.NAME, name);
       if (deliveryEnabled) local.set(STORAGE_KEYS.ADDRESS, address);
 
+      const note = (noteInput?.value ?? '').trim();
+      if (note) local.set(STORAGE_KEYS.NOTE, note);
+      else local.remove(STORAGE_KEYS.NOTE);
+
       const { subtotal, deliveryFee, total, items } = cartService.snapshot;
 
       const zoneName = zones.find((zone) => zone.id === zoneSelect?.value)?.name ?? '';
@@ -317,7 +329,8 @@ const fieldClass =
       })
         .withItems(items)
         .withTotals({ subtotal, deliveryFee, total })
-        .withCustomer({ name, address, paymentMethod: payment, zone: zoneName });
+        .withCustomer({ name, address, paymentMethod: payment, zone: zoneName })
+        .withNote(note);
 
       // Multi-contact picker (whatsapp-contacts.astro) takes precedence when
       // mounted; otherwise keep the legacy single-number behavior.

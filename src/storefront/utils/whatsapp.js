@@ -102,6 +102,7 @@ export class OrderMessage {
   #items = [];
   #totals = null;
   #customer = null;
+  #note = '';
   #deliveryEnabled = true;
 
   /**
@@ -150,6 +151,17 @@ export class OrderMessage {
    */
   withCustomer({ name, address = '', paymentMethod = '', zone = '' }) {
     this.#customer = { name, address, paymentMethod, zone };
+    return this;
+  }
+
+  /**
+   * Optional free-text order instructions. Empty/blank emits nothing, so the
+   * default state stays byte-identical (rendered in `build()` as N3).
+   * @param {string} note
+   * @returns {this}
+   */
+  withNote(note) {
+    this.#note = typeof note === 'string' ? note.trim() : '';
     return this;
   }
 
