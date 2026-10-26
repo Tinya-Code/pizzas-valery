@@ -13,6 +13,7 @@
 import MessageCircle from '../../icons/message-circle.astro';
 import Banknote from '../../icons/banknote.astro';
 import CreditCard from '../../icons/credit-card.astro';
+import MapPin from '../../icons/map-pin.astro';
 import Smartphone from '../../icons/smartphone.astro';
 import { OrderMessage } from '../../utils/whatsapp.js';
 import { precio } from '../../utils/format.js';
@@ -96,6 +97,19 @@ const fieldClass =
         />
         <div data-error-address hidden class="text-xs text-red-500 mt-1 ml-1">
           La dirección es obligatoria
+        </div>
+
+        <!-- Location button (L1) — never blocks the order: status only. -->
+        <div class="flex items-center gap-3 mt-1">
+          <button
+            type="button"
+            data-location-btn
+            class="inline-flex items-center gap-2 px-3 py-2 border border-primary/20 rounded-sm text-xs font-display text-secondary hover:bg-secondary/5 transition-all active:scale-95"
+          >
+            <MapPin class="w-4 h-4" />
+            Enviar mi ubicación
+          </button>
+          <span data-location-status aria-live="polite" class="text-xs text-secondary/70"></span>
         </div>
       </div>
     )
