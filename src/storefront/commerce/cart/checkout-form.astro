@@ -56,6 +56,8 @@ const fieldClass =
 <form
   data-checkout-form
   data-delivery-enabled={String(deliveryEnabled)}
+  data-charge-delivery={String(chargeDelivery)}
+  data-delivery-fee={String(defaultFee)}
   data-zones={JSON.stringify(zones)}
   data-whatsapp={settings?.whatsapp?.number ?? ''}
   data-whatsapp-template={settings?.whatsapp?.message_template ?? ''}
@@ -169,15 +171,26 @@ const fieldClass =
 </form>
 
 <script>
-  import { cartService } from '../../services/cart.service.js';
+  import { cartService, ZONE_STORAGE_KEY } from '../../services/cart.service.js';
   import { isOpenAt } from '../../services/business-hours.service.js';
   import { OrderMessage } from '../../utils/whatsapp.js';
   import { readBusinessHours } from '../../utils/dom';
   import { local } from '../../utils/local-storage.js';
 
-  const STORAGE_KEYS = { NAME: 'user_name', ADDRESS: 'user_address' };
+  const STORAGE_KEYS = { NAME: 'user_name', ADDRESS: 'user_address', ZONE: ZONE_STORAGE_KEY };
   const MIN_NAME = 3;
   const MIN_ADDRESS = 5;
+
+  type Zone = { id: string; name: string; fee: number };
+
+  function parseZones(raw: string | undefined): Zone[] {
+    try {
+      const parsed = JSON.parse(raw || '[]');
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return [];
+    }
+  }
 
   const form = document.querySelector<HTMLFormElement>('[data-checkout-form]');
   if (form) {
@@ -202,6 +215,26 @@ const fieldClass =
     if (savedAddress && addressInput) addressInput.value = savedAddress;
 
     const deliveryEnabled = form.dataset.deliveryEnabled === 'true';
+    const chargeDelivery = form.dataset.chargeDelivery !== 'false';
+    const defaultFee = Number(form.dataset.deliveryFee ?? 0);
+    const zones = parseZones(form.dataset.zones);
+    const zoneSelect = form.querySelector<HTMLSelectElement>('[data-zone-select]');
+
+    // Restore the picked zone in the UI. The fee itself is resolved by the
+    // drawer bootstrap from the same persisted id (this script runs first).
+    const savedZoneId = local.get<string>(STORAGE_KEYS.ZONE) ?? '';
+    if (zoneSelect && savedZoneId && zones.some((zone) => zone.id === savedZoneId)) {
+      zoneSelect.value = savedZoneId;
+    }
+
+    // Zone pick → recompute the delivery fee, re-render totals (the fee is a
+    // ReactiveValue, so the drawer's subscription repaints) and persist it.
+    zoneSelect?.addEventListener('change', () => {
+      const zone = zones.find((entry) => entry.id === zoneSelect.value) ?? null;
+      cartService.configure({ deliveryFee: chargeDelivery ? (zone?.fee ?? defaultFee) : 0 });
+      if (zone) local.set(STORAGE_KEYS.ZONE, zone.id);
+      else local.remove(STORAGE_KEYS.ZONE);
+    });
 
     const selectedPayment = () =>
       form.querySelector<HTMLInputElement>('[data-payment-input]:checked')?.value ?? '';
