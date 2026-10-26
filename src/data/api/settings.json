@@ -39,7 +39,8 @@
     "payment_methods": [
       "yape",
       "plin",
-      "visa"
+      "visa",
+      "efectivo"
     ],
     "max_order_quantity": 20,
     "social_media": {

@@ -51,7 +51,7 @@ const PAYMENT_COLORS: Record<string, string> = {
 };
 
 const fieldClass =
-  'w-full font-body bg-gray-100 border border-primary/20 rounded-sm px-4 py-3 text-sm transition-all focus:outline-none focus:ring-2 focus:ring-primary/40 focus:bg-secondary/50';
+  'w-full font-body bg-gray-100 border border-primary/20 rounded-sm px-4 py-3 text-sm transition-all focus:outline-none focus:ring-2 focus:ring-accent/40 ';
 ---
 
 <form
@@ -83,9 +83,11 @@ const fieldClass =
   {
     deliveryEnabled && (
       <div class="flex flex-col gap-1">
-        <label class="text-sm font-display text-secondary mb-1" for="checkout-address">
+                <label class="text-sm font-display text-secondary mb-1" for="checkout-address">
           Dirección de Entrega
         </label>
+        <div class="flex justify-center items-start  gap-1">
+
         <input
           id="checkout-address"
           data-checkout-address
@@ -100,16 +102,17 @@ const fieldClass =
         </div>
 
         <!-- Location button (L1) — never blocks the order: status only. -->
-        <div class="flex items-center gap-3 mt-1">
+        <div class="flex items-center gap-3 ">
           <button
             type="button"
             data-location-btn
             class="inline-flex items-center gap-2 px-3 py-2 border border-primary/20 rounded-sm text-xs font-display text-secondary hover:bg-secondary/5 transition-all active:scale-95"
           >
-            <MapPin class="w-4 h-4" />
+            <MapPin class="w-8 h-8" />
             Enviar mi ubicación
           </button>
           <span data-location-status aria-live="polite" class="text-xs text-secondary/70"></span>
+        </div>
         </div>
       </div>
     )
@@ -134,8 +137,8 @@ const fieldClass =
 
   <!-- Payment method -->
   <div class="flex flex-col gap-1">
-    <label class="text-sm font-display text-secondary mb-2">Método de Pago</label>
-    <div class="grid grid-cols-2 gap-3">
+    <label class="text-sm  font-display text-secondary mb-2">Método de Pago</label>
+    <div class="grid grid-cols-4 gap-3">
       {
         paymentMethods.map((method) => {
           const color = PAYMENT_COLORS[method] ?? 'var(--color-primary)';
@@ -143,7 +146,7 @@ const fieldClass =
           return (
             <label
               data-payment-option={method}
-              class="relative flex flex-col items-center justify-center p-4 rounded-sm border-2 transition-all cursor-pointer group border-primary/10 hover:border-primary/30"
+              class="relative flex flex-col items-center justify-center p-3 rounded-sm border-2 transition-all cursor-pointer group border-primary/10 hover:border-primary/30"
             >
               <input
                 type="radio"

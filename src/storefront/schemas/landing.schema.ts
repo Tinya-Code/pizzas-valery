@@ -32,6 +32,34 @@ const ctaMenuSchema = z
   })
   .strict();
 
+const heroBackgroundVideoSchema = z
+  .object({
+    /** `enabled: false` renders no `<video>` at all (flat `bg-secondary` fallback). */
+    enabled: z.boolean().optional(),
+    src: z.string().min(1),
+    type: z.string().optional(),
+    /** Shown until playback starts and while paused (e.g. reduced-motion). */
+    poster: z.string().nullable().optional(),
+    autoplay: z.boolean().optional(),
+    loop: z.boolean().optional(),
+    muted: z.boolean().optional(),
+    preload: z.enum(['none', 'metadata', 'auto']).optional(),
+  })
+  .strict();
+
+const heroScrollRevealSchema = z
+  .object({
+    /** Overlay opacity at scroll = 0. */
+    overlay_from: z.number().min(0).max(1).optional(),
+    /** Overlay opacity once fully scrolled. */
+    overlay_to: z.number().min(0).max(1).optional(),
+    /** Pixels of scroll needed to fully fade in tagline/badge/CTAs. */
+    content_fade_px: z.number().positive().optional(),
+    /** Viewport height (vh) over which the overlay keeps deepening. */
+    overlay_range_vh: z.number().positive().optional(),
+  })
+  .strict();
+
 const heroBlockSchema = z
   .object({
     id: z.string(),
@@ -42,6 +70,8 @@ const heroBlockSchema = z
     show_hours_badge: z.boolean(),
     cta_whatsapp: ctaWhatsappSchema.optional(),
     cta_menu: ctaMenuSchema.optional(),
+    background_video: heroBackgroundVideoSchema.optional(),
+    scroll_reveal: heroScrollRevealSchema.optional(),
   })
   .strict();
 

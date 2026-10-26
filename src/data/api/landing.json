@@ -11,6 +11,22 @@
       "title": null,
       "tagline": null,
       "show_hours_badge": true,
+      "background_video": {
+        "enabled": true,
+        "src": "/fondo/hero-video-pizza-horno.webm",
+        "type": "video/webm",
+        "poster": null,
+        "autoplay": true,
+        "loop": true,
+        "muted": true,
+        "preload": "auto"
+      },
+      "scroll_reveal": {
+        "overlay_from": 0.15,
+        "overlay_to": 0.7,
+        "content_fade_px": 90,
+        "overlay_range_vh": 45
+      },
       "cta_whatsapp": {
         "enabled": true,
         "label": "Pedir por WhatsApp",
