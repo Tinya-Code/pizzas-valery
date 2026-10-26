@@ -270,6 +270,49 @@ const fieldClass =
       else local.remove(STORAGE_KEYS.ZONE);
     });
 
+    // ── Location (L2): optional GPS attach, never blocks the order ───────────
+    const locationBtn = form.querySelector<HTMLButtonElement>('[data-location-btn]');
+    const locationStatus = form.querySelector<HTMLElement>('[data-location-status]');
+    let locationUrl = '';
+
+    const setLocationStatus = (text: string, state: 'idle' | 'getting' | 'attached' | 'error') => {
+      if (!locationStatus) return;
+      locationStatus.textContent = text;
+      locationStatus.classList.toggle('text-red-500', state === 'error');
+      locationStatus.classList.toggle('text-green-600', state === 'attached');
+      locationStatus.classList.toggle('text-secondary/70', state === 'idle' || state === 'getting');
+    };
+
+    locationBtn?.addEventListener('click', () => {
+      if (!('geolocation' in navigator)) {
+        locationUrl = '';
+        setLocationStatus('Tu navegador no permite la ubicación', 'error');
+        return;
+      }
+
+      setLocationStatus('Obteniendo ubicación…', 'getting');
+
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          locationUrl = `https://www.google.com/maps?q=${position.coords.latitude},${position.coords.longitude}`;
+          setLocationStatus('Ubicación adjunta ✓', 'attached');
+        },
+        (error) => {
+          // Denied/unavailable: show why and keep the form fully usable —
+          // the address field alone is enough to place the order.
+          locationUrl = '';
+          setLocationStatus(
+            // GeolocationPositionError.PERMISSION_DENIED === 1 (spec).
+            error.code === 1
+              ? 'Permiso de ubicación denegado — escribe tu dirección'
+              : 'No se pudo obtener tu ubicación',
+            'error',
+          );
+        },
+        { enableHighAccuracy: false, timeout: 10000, maximumAge: 60000 },
+      );
+    });
+
     const selectedPayment = () =>
       form.querySelector<HTMLInputElement>('[data-payment-input]:checked')?.value ?? '';
 
