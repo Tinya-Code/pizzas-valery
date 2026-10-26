@@ -49,7 +49,7 @@ const { meta, blocks } = await getLanding(settings, promotions, menuBlocks);
 
 const restaurantName = meta.title || restaurant?.name || settings?.seo?.site_name || settings?.name || '';
 const tagline = meta.tagline || settings?.seo?.description || '';
-const siteTitle = settings?.seo?.title ?? `${restaurantName} — Sushi y delivery en Lima`;
+const siteTitle = settings?.seo?.title ?? `${restaurantName} — Pizzas a domicilio en Lima`;
 
 // Initial open/closed state — computed at build time and corrected on the
 // client against the visitor's clock (home-hero re-reads the embedded
