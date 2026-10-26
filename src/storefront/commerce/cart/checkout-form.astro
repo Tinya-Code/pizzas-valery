@@ -159,6 +159,18 @@ const fieldClass =
     </div>
   </div>
 
+  <!-- Order note — optional, applies to delivery AND pickup (N1). -->
+  <div class="flex flex-col gap-1">
+    <label class="text-sm font-display text-secondary mb-1" for="checkout-note">Indicaciones</label>
+    <textarea
+      id="checkout-note"
+      data-checkout-note
+      name="note"
+      rows="2"
+      placeholder="Ej: sin cebolla, timbre roto, dejar en portería"
+      class={fieldClass}></textarea>
+  </div>
+
   <button
     type="submit"
     data-checkout-submit
