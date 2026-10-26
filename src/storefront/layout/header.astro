@@ -17,11 +17,11 @@
  * exists (the only page is `/`).
  */
 import Copy from "../icons/copy.astro";
-import Images from "../icons/images.astro";
 import Map from "../icons/map.astro";
 import MapPin from "../icons/map-pin.astro";
 import Utensils from "../icons/utensils.astro";
-import ShareButton from "../ui/share-button.astro";
+import HeaderActions from "./header-actions.astro";
+import { WhatsApp } from "../utils/whatsapp.js";
 import type { RestaurantProfile, RestaurantSettings, Theme } from "../types/menu";
 
 interface Props {
@@ -46,6 +46,15 @@ const latitude = location?.lat ?? "";
 const longitude = location?.lng ?? "";
 const logoUrl = theme?.brand?.logo_url ?? null;
 const headerBg = theme?.page?.header_bg ?? null;
+
+/**
+ * `wa.me` URL for `whatsapp` header actions — derived from the business
+ * config, never from `theme.json`. `null` → such an action renders nothing.
+ */
+const whatsappNumber = settings?.whatsapp?.number ?? restaurant?.phone ?? "";
+const whatsappUrl = whatsappNumber
+  ? WhatsApp.link(whatsappNumber, settings?.whatsapp?.message_template ?? "")
+  : null;
 
 const hasCoordinates =
   latitude !== "" &&
@@ -134,28 +143,12 @@ const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${mapsQuery}`;
       </a>
     </div>
 
-    <!-- Action Section -->
+    <!-- Action Section (data-driven: `theme.header.actions`) -->
     <div class="flex flex-row md:flex-col items-center md:items-end gap-3">
-      <!-- Gallery Link -->
-      <a
-        href="/galeria"
-        class="flex items-center gap-2 px-4 py-2 bg-primary hover:bg-primary/80 text-white rounded-sm transition-all duration-300 font-bold border border-primary/20 group backdrop-blur-sm hover:scale-105 active:scale-95"
-        title="Ver galería de fotos"
-      >
-        <Images
-          class="w-4 h-4 text-white group-hover:scale-110 transition-transform"
-        />
-        <span class="text-lg uppercase tracking-widest font-display select-none"
-          >Galería</span
-        >
-      </a>
-
-      <!-- Share Button (copy comes from `theme.share`) -->
-      <ShareButton
-        title={theme?.share?.title}
-        text={theme?.share?.text}
-        label={theme?.share?.label}
-        buttonTitle={theme?.share?.button_title}
+      <HeaderActions
+        actions={theme?.header?.actions ?? []}
+        share={theme?.share}
+        whatsappUrl={whatsappUrl}
       />
     </div>
   </div>
