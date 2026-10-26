@@ -139,7 +139,15 @@ export const headerActionSchema = z.discriminatedUnion('type', [
   headerWhatsappActionSchema,
 ]);
 
-/** Header block: the action list rendered on the right of the brand header. */
+/**
+ * Header block: the action list rendered on the right of the brand header.
+ *
+ * SCOPE NOTE — the `Menú` / `Galería` anchors inside `site-header.astro`'s
+ * `<nav>` are ROUTING (they are how a visitor reaches the other pages and
+ * carry the active-page styling), not configurable actions. They deliberately
+ * stay OUT of `header.actions`: turning routes into data would make every
+ * page's navigation a theme edit.
+ */
 const headerSchema = z
   .object({
     actions: z.array(headerActionSchema),
