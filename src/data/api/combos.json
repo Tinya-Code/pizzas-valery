@@ -14,7 +14,8 @@
         "alt": ""
       },
       "price": 59.9,
-      "price_before": null
+      "price_before": null,
+      "card": "combo-card-pizza"
     },
     {
       "id": "combo-2-pizza-eleccion",
@@ -30,7 +31,8 @@
         "alt": ""
       },
       "price": 49.9,
-      "price_before": null
+      "price_before": null,
+      "card": "combo-card-pizza"
     }
   ]
 }

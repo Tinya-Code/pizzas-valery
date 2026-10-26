@@ -8,9 +8,9 @@
  * - `title`       — section heading (default `'Combos'`)
  * - `description` — section sub-text (default `'Combos especiales para compartir'`)
  *
- * Named slot:
- * - `card` — per-combo design override (function child receiving
- *   `(combo, canOrder)`); falls back to TemplateComboCard per combo.
+ * There is no per-combo design slot anymore; the combo's own `card` key
+ * declares its design (see `COMBO_CARD_REGISTRY` / `registry.ts`), with the
+ * default design as fallback.
  *
  * Combo cards expose a `data-combo` payload; the page dispatches the bubbling
  * `add-to-cart` CustomEvent for them (see `src/pages/index.astro`).
@@ -33,14 +33,6 @@ const {
   title = 'Combos',
   description = 'Combos especiales para compartir',
 } = Astro.props;
-
-// Per-item override: render the `card` function-child once per combo.
-const customCards = new Map<string, string>();
-if (Astro.slots.has('card')) {
-  for (const combo of combos) {
-    customCards.set(combo.id, await Astro.slots.render('card', [combo, canOrder]));
-  }
-}
 ---
 
 {
@@ -49,14 +41,9 @@ if (Astro.slots.has('card')) {
       <TemplateSectionTitle title={title} description={description} />
 
       <Slider showArrows={true}>
-        {combos.map((combo) => {
-          const html = customCards.get(combo.id);
-          return html !== undefined ? (
-            <Fragment set:html={html} />
-          ) : (
-            <TemplateComboCard combo={combo} canOrder={canOrder} />
-          );
-        })}
+        {combos.map((combo) => (
+          <TemplateComboCard combo={combo} canOrder={canOrder} />
+        ))}
       </Slider>
     </section>
   )

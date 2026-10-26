@@ -23,12 +23,15 @@ interface Props {
 }
 
 const { promotion, canOrder = true } = Astro.props;
+
+/** Client payloads: `card` is a build-time design key, never client data. */
+const promotionPayload = JSON.stringify({ ...(promotion ?? {}), card: undefined });
 ---
 
 <div
   data-promotion-card
-  data-promotion={JSON.stringify(promotion ?? {})}
-  data-product={JSON.stringify(promotion ?? {})}
+  data-promotion={promotionPayload}
+  data-product={promotionPayload}
   class="group relative  items-center w-120 min-h-70 border border-transparent hover:border-accent rounded-sm p-4 flex flex-col cursor-pointer"
 >
   <div class="w-full col-span-1 h-auto gap-2 flex items-start justify-between">

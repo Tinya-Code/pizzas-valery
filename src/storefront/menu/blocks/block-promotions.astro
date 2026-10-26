@@ -8,9 +8,9 @@
  * - `title`       — section heading (default `'Promociones'`)
  * - `description` — section sub-text (default `'Aprovecha nuestras ofertas especiales'`)
  *
- * Named slot:
- * - `card` — per-promotion design override (function child receiving
- *   `(promotion, canOrder)`); falls back to TemplatePromotionCard per item.
+ * There is no per-promotion design slot anymore; the promotion's own `card`
+ * key declares its design (see `PROMOTION_CARD_REGISTRY` / `registry.ts`),
+ * with the default design as fallback.
  *
  * Promotion cards expose `data-promotion` / `data-product` payloads; the page
  * dispatches the bubbling `add-to-cart` and `product-click` CustomEvents for
@@ -34,14 +34,6 @@ const {
   title = 'Promociones',
   description = 'Aprovecha nuestras ofertas especiales',
 } = Astro.props;
-
-// Per-item override: render the `card` function-child once per promotion.
-const customCards = new Map<string, string>();
-if (Astro.slots.has('card')) {
-  for (const promotion of promotions) {
-    customCards.set(promotion.id, await Astro.slots.render('card', [promotion, canOrder]));
-  }
-}
 ---
 
 {
@@ -50,14 +42,9 @@ if (Astro.slots.has('card')) {
       <TemplateSectionTitle title={title} description={description} />
 
       <Slider showArrows={true}>
-        {promotions.map((promotion) => {
-          const html = customCards.get(promotion.id);
-          return html !== undefined ? (
-            <Fragment set:html={html} />
-          ) : (
-            <TemplatePromotionCard promotion={promotion} canOrder={canOrder} />
-          );
-        })}
+        {promotions.map((promotion) => (
+          <TemplatePromotionCard promotion={promotion} canOrder={canOrder} />
+        ))}
       </Slider>
     </section>
   )

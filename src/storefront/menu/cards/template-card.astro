@@ -1,65 +1,39 @@
 ---
 /**
- * TemplateCard — product design router (markup + client contract).
+ * TemplateCard — declarative product design router.
  *
- * Resolves the product's STATE (price range × image) to one of four named
- * design slots and renders the caller's function-child when present, or the
- * built-in default design for that state:
+ * Resolves the product's STATE (price range × image, see `productCardState`)
+ * and renders the design key the category's `card` map declares for that
+ * state, falling back to the default design (see DEFAULT_PRODUCT_CARD_DESIGN).
+ * The category hands its map down as the `card` prop — no slots, no
+ * per-block wiring in the page.
  *
- *   flat-with-image  → ProductRow (thumbnail branch)
- *   flat-no-image    → ProductRow (no-thumb branch)
- *   range-with-image → ProductCard
- *   range-no-image   → ProductCard (empty media circle)
+ *   flat-with-image  → product-row        (default)
+ *   flat-no-image    → product-row        (default)
+ *   range-with-image → product-card       (default)
+ *   range-no-image   → product-card       (default)
  *
- * Every design owns its root element and the CLIENT CONTRACT
+ * Every design OWNS its root element and the CLIENT CONTRACT
  * `data-template-card`, `data-has-range`, `data-product` — the page's click
- * delegation reads it. A custom design MUST carry all three.
+ * delegation reads it. A design MUST carry all three.
  *
- * Override per block (function children — Astro 7's scoped-slot mechanism):
- *
- *   <TemplateCard product={product} canOrder={canOrder}>
- *     <fragment slot="range-with-image">
- *       {(product, canOrder) => <MyPizzaCard product={product} canOrder={canOrder} />}
- *     </fragment>
- *   </TemplateCard>
- *
- * Swap a default globally: change the import + fallback below (one line).
+ * Adding a design: see `registry.ts` (component → schema key → registry →
+ * reference it from any category's `card` map in menu.json).
  */
-import ProductRow from './product/product-row.astro';
-import ProductCard from './product/product-card.astro';
-import type { MenuProduct } from '../../types/menu';
+import { PRODUCT_CARD_REGISTRY, productCardState, resolveProductCardDesign } from './registry';
+import type { CategoryCardMap, MenuProduct } from '../../types/menu';
 
 interface Props {
   product: MenuProduct;
   canOrder?: boolean;
+  /** The category's declarative state → design-key map (optional). */
+  card?: CategoryCardMap;
 }
 
-const { product, canOrder = true } = Astro.props;
+const { product, canOrder = true, card } = Astro.props;
 
-const hasPriceRange = !!product.price_range;
-const hasImage = !!product.image?.url;
-
-const designSlot = hasPriceRange
-  ? hasImage
-    ? 'range-with-image'
-    : 'range-no-image'
-  : hasImage
-    ? 'flat-with-image'
-    : 'flat-no-image';
-
-// Function-children slot content is rendered to HTML per card (Astro 7
-// replaced `let:` scoped slots with Astro.slots.render + function children).
-const customHtml = Astro.slots.has(designSlot)
-  ? await Astro.slots.render(designSlot, [product, canOrder])
-  : null;
+const designKey = resolveProductCardDesign(productCardState(product), card);
+const Design = PRODUCT_CARD_REGISTRY[designKey];
 ---
 
-{
-  customHtml !== null ? (
-    <Fragment set:html={customHtml} />
-  ) : hasPriceRange ? (
-    <ProductCard product={product} canOrder={canOrder} />
-  ) : (
-    <ProductRow product={product} canOrder={canOrder} />
-  )
-}
+<Design product={product} canOrder={canOrder} />
