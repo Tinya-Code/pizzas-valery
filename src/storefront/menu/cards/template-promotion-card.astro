@@ -1,27 +1,19 @@
 ---
 /**
- * TemplatePromotionCard — promotion design router.
+ * TemplatePromotionCard — declarative promotion design router.
  *
- * States (price range is not a promotion concept, so only image drives
- * dispatch):
- *   flat-with-image → PromotionCard (default)
- *   flat-no-image   → PromotionCard (default)
+ * Promotions carry no price range, so their `card` key IS the design (no
+ * state map): renders the promotion's declared design, falling back to the
+ * default (`DEFAULT_PROMOTION_CARD_DESIGN`) when absent.
  *
- * Every design owns its root + the CLIENT CONTRACT `data-promotion-card`,
- * `data-product` — the page's click delegation reads it. A custom design
- * MUST carry both.
+ * Every design OWNS its root + the CLIENT CONTRACT `data-promotion-card`,
+ * `data-product` — the page's click delegation reads it. A design MUST
+ * carry both.
  *
- * Override per block (function children):
- *
- *   <TemplatePromotionCard promotion={promotion} canOrder={canOrder}>
- *     <fragment slot="flat-with-image">
- *       {(promotion, canOrder) => <MyPromoCard promotion={promotion} canOrder={canOrder} />}
- *     </fragment>
- *   </TemplatePromotionCard>
- *
- * Swap a default globally: change the import + fallback below (one line).
+ * Adding a design: see `registry.ts` (component → schema key → registry →
+ * reference it from any promotion's `card` in promotions.json).
  */
-import PromotionCard from './promotion/promotion-card.astro';
+import { PROMOTION_CARD_REGISTRY, DEFAULT_PROMOTION_CARD_DESIGN } from './registry';
 import type { Promotion } from '../../types/menu';
 
 interface Props {
@@ -31,17 +23,8 @@ interface Props {
 
 const { promotion, canOrder = true } = Astro.props;
 
-const designSlot = promotion.image?.url ? 'flat-with-image' : 'flat-no-image';
-
-const customHtml = Astro.slots.has(designSlot)
-  ? await Astro.slots.render(designSlot, [promotion, canOrder])
-  : null;
+const designKey = promotion.card ?? DEFAULT_PROMOTION_CARD_DESIGN;
+const Design = PROMOTION_CARD_REGISTRY[designKey];
 ---
 
-{
-  customHtml !== null ? (
-    <Fragment set:html={customHtml} />
-  ) : (
-    <PromotionCard promotion={promotion} canOrder={canOrder} />
-  )
-}
+<Design promotion={promotion} canOrder={canOrder} />

@@ -20,24 +20,26 @@
  * scripts still need (hours, settings) ship as hidden JSON attributes
  * rendered below and read back by the script.
  *
- * DESIGN WIRING: every block declares its per-item `card` slot as a
- * function child rendering the block's Template*Card router — this page is
- * the template's port point: swap a router (or pass state slots into it)
- * per block to change that block's design without touching the components.
- * Blocks 1, 2 and 6 wire `ProductSizeCard` (the pizza design) into their
- * `range-*` state slots.
+ * DESIGN WIRING: fully declarative. Each category in menu.json carries a
+ * `card` map (product-state → design key) and each combo/promotion carries a
+ * single `card` key; MenuBlock → Template*Card resolves them through
+ * `cards/registry.ts`. This page declares no card markup at all — no slots,
+ * no function children. To change a design, edit the data (or register a new
+ * key in the schema + registry).
  *
  * There is no `forkJoin`, no `isLoading` signal and no 800 ms `hidden`
  * artefact: the page ships ready.
  *
- * The product dialog is static, so it is rendered once — hidden — and refilled
- * from the clicked card's `data-product` payload by the script below.
+ * The product dialog is static, so one pre-rendered instance per product and
+ * promotion (44 hosts, all `hidden`) is shipped in the page; the script below
+ * reveals the host matching the clicked card's id
+ * (`openDialog()` → `[data-product-detail-host="<id>"]`). Nothing is refilled
+ * from the `data-product` payload — the content is already in the markup.
  *
  * The script is also the single owner of the component event contract
  * (`src/utils/events.ts`): delegated card clicks, `add-to-cart` → cart, and
  * the dialog open/close listeners.
  */
-import ProductSizeCard from '../storefront/menu/cards/product/product-size-card.astro';
 import Layout from "../storefront/layout/Layout.astro";
 import MenuPage from "../storefront/layout/menu-page.astro";
 import CategoryNav from "../storefront/menu/category-nav.astro";
@@ -45,9 +47,6 @@ import MenuBlock from "../storefront/menu/blocks/menu-block.astro";
 import BlockCombos from "../storefront/menu/blocks/block-combos.astro";
 import BlockPromotions from "../storefront/menu/blocks/block-promotions.astro";
 import IllustrationCell from "../storefront/menu/blocks/illustration-cell.astro";
-import TemplateCard from "../storefront/menu/cards/template-card.astro";
-import TemplateComboCard from "../storefront/menu/cards/template-combo-card.astro";
-import TemplatePromotionCard from "../storefront/menu/cards/template-promotion-card.astro";
 import CartTrigger from "../storefront/commerce/cart/cart-trigger.astro";
 import WhatsAppButton from "../storefront/ui/whatsapp-button.astro";
 import WhatsAppContacts from "../storefront/ui/whatsapp-contacts.astro";
@@ -56,11 +55,6 @@ import ProductDetail from "../storefront/menu/product-detail.astro";
 import RestaurantClosedModal from "../storefront/ui/restaurant-closed-modal.astro";
 import FlyerModal from "../storefront/ui/flyer-modal.astro";
 import ReviewModal from "../storefront/ui/review-modal.astro";
-import ProductCardPizzaRange from "../storefront/menu/cards/product/product-card-pizza-range.astro";
-import ProductCardPizzaRangeImage from "../storefront/menu/cards/product/product-card-pizza-range-image.astro";
-import ProductCardBebidas from "../storefront/menu/cards/product/product-card-bebidas.astro";
-import PromotionCardPizza from "../storefront/menu/cards/promotion/promotion-card-pizza.astro";
-import ComboCardPizza from "../storefront/menu/cards/combo/combo-card-pizza.astro"
 import { loadStorefront } from "../storefront/services/index.js";
 import type { MenuCategory, MenuProduct } from "../storefront/types/menu";
 
@@ -135,48 +129,9 @@ const hoursJson =
       footerBg={decorations.footer_background ?? settings?.footer_bg}
     >
       <div class:list={["h-full w-auto mx-2", hasContent && "py-12"]}>
-        <!--
-          DESIGN WIRING (template port point): every block declares its
-          per-item `card` slot as a function child that renders the block's
-          Template*Card router. To customize a domain, swap the router (or
-          pass state slots into it) inside the matching `<fragment slot="card">`
-          — e.g. block-6 below shows the state-slot override pattern.
-        -->
-        <BlockPromotions promotions={promotions} canOrder={canOrder}>
-          <fragment slot="card">
-            {
-              (promotion, canOrder) => (
-                <TemplatePromotionCard
-                  promotion={promotion}
-                  canOrder={canOrder}
-                >
-                  <fragment slot="flat-with-image">
-                    {(promotion, canOrder) => (
-                      <PromotionCardPizza
-                        promotion={promotion}
-                        canOrder={canOrder}
-                      />
-                    )}
-                  </fragment>
-                </TemplatePromotionCard>
-              )
-            }
-          </fragment>
-        </BlockPromotions>
+        <BlockPromotions promotions={promotions} canOrder={canOrder} />
 
-        <BlockCombos combos={combos} canOrder={canOrder}>
-          <fragment slot="card">
-            {(combo, canOrder) => (
-          <TemplateComboCard combo={combo} canOrder={canOrder} >
-            <fragment slot="flat-with-image">
-            {(combo, canOrder) => (
-                <ComboCardPizza combo={combo} canOrder={canOrder} />
-              )}
-            </fragment>
-          </TemplateComboCard>
-              )}
-          </fragment>
-        </BlockCombos>
+        <BlockCombos combos={combos} canOrder={canOrder} />
 
         <!-- block-1: maki rail + barco parallax -->
         <MenuBlock
@@ -187,33 +142,7 @@ const hoursJson =
           categorySectionClass="col-span-3 md:col-span-8"
           cardsClass="grid-cols-2 md:grid-cols-3 gap-8"
           sectionAttrs={{ "data-block-1": "" }}
-        >
-          <fragment slot="card">
-
-            {
-              (product, canOrder) => (
-                <TemplateCard product={product} canOrder={canOrder}>
-                  <fragment slot="range-with-image">
-                    {(product, canOrder) => (
-                      <ProductCardPizzaRangeImage
-                        product={product}
-                        canOrder={canOrder}
-                      />
-                    )}
-                  </fragment>
-                  <fragment slot="range-no-image">
-                    {(product, canOrder) => (
-                      <ProductCardPizzaRange
-                        product={product}
-                        canOrder={canOrder}
-                      />
-                    )}
-                  </fragment>
-                </TemplateCard>
-              )
-            }
-          </fragment>
-        </MenuBlock>
+        />
 
         <!-- block-2: plain categories, single column → 2-up cards -->
         <MenuBlock
@@ -224,29 +153,7 @@ const hoursJson =
           categorySectionClass="col-span-3 md:col-span-10"
           cardsClass="grid-cols-1 md:grid-cols-2 justify-items-center gap-12"
           sectionAttrs={{ "data-block-2": "" }}
-        >
-          <fragment slot="card">
-
-            {(product, canOrder) => (
-              <TemplateCard product={product} canOrder={canOrder}>
-                <fragment slot="range-with-image">
-                  {(product, canOrder) => (
-                    <ProductSizeCard product={product} canOrder={canOrder} />
-                  )}
-                </fragment>
-                  <fragment slot="range-no-image">
-                    {(product, canOrder) => (
-                      <ProductCardPizzaRange
-                        product={product}
-                        canOrder={canOrder}
-                      />
-                    )}
-                  </fragment>
-              </TemplateCard>
-            )}
-
-          </fragment>
-        </MenuBlock>
+        />
 
         <!-- block-3: full-width header row with the alitas decorations -->
         <MenuBlock
@@ -256,98 +163,30 @@ const hoursJson =
           outerClass="relative grid-cols-1 md:grid-cols-12 gap-x-12 gap-y-8 items-start"
           categorySectionClass="col-span-12 md:col-span-8"
           cardsClass="grid-cols-1 md:grid-cols-2 gap-6"
-        >
-          <fragment slot="card">
-            {
-              (product, canOrder) => (
-                <TemplateCard product={product} canOrder={canOrder} />
-              )
-            }
-          </fragment>
-        </MenuBlock>
+        />
 
         <!-- block-4: same layout as block-2 -->
         <MenuBlock
           categories={cats("block-4")}
+          decorations={decorations.blocks?.["block-4"]}
           canOrder={canOrder}
           outerClass="grid-cols-1 md:grid-cols-1 gap-x-12 gap-y-16 items-start"
           cardsClass="grid-cols-2 md:grid-cols-4"
-        >
-          <fragment slot="card">
-            {
-              (product, canOrder) => (
-                <TemplateCard product={product} canOrder={canOrder}>
-                  <fragment slot="range-with-image">
-                    {(product, canOrder) => (
-                      <ProductCardPizzaRangeImage
-                        product={product}
-                        canOrder={canOrder}
-                      />
-                    )}
-                  </fragment>
-                  <fragment slot="range-no-image">
-                    {(product, canOrder) => (
-                      <ProductCardPizzaRange
-                        product={product}
-                        canOrder={canOrder}
-                      />
-                    )}
-                  </fragment>
-                </TemplateCard>
-              )
-            }
-          </fragment>
-        </MenuBlock>
+        />
 
         <!-- block-5: 2-up cards from mobile -->
         <MenuBlock
           categories={cats("block-5")}
+          decorations={decorations.blocks?.["block-5"]}
           canOrder={canOrder}
           outerClass="grid-cols-1 md:grid-cols-1 gap-x-12 gap-y-16 items-start"
           cardsClass="grid-cols-3 md:grid-cols-5 gap-6"
-        >
-          <fragment slot="card">
-            {
-              (product, canOrder) => (
-                                <TemplateCard product={product} canOrder={canOrder}>
-                  <fragment slot="range-with-image">
-                    {(product, canOrder) => (
-                      <ProductCardPizzaRangeImage
-                        product={product}
-                        canOrder={canOrder}
-                      />
-                    )}
-                  </fragment>
-                  <fragment slot="range-no-image">
-                    {(product, canOrder) => (
-                      <ProductCardPizzaRange
-                        product={product}
-                        canOrder={canOrder}
-                      />
-                    )}
-                  </fragment>
-                  <fragment slot="flat-with-image">
-                    {(product, canOrder) => (
-                      <ProductCardBebidas
-                        product={product}
-                        canOrder={canOrder}
-                      />
-                    )}
-                  </fragment>
-                </TemplateCard>
-              )
-            }
-          </fragment>
-        </MenuBlock>
+        />
 
         <!-- block-6: cocktail column decoration on the left.
-             This block DEMOS the state-slot override mechanism: both
-             `range-*` slots are wired with ProductSizeCard (the pizza
-             design) — swap it for your design component, e.g.:
-               <fragment slot="range-no-image">
-                 {(product, canOrder) => <MyPizzaCard product={product} canOrder={canOrder} />}
-               </fragment>
-             Slots: flat-with-image | flat-no-image | range-with-image | range-no-image -->
+             Its category's `card` map in menu.json points both `range-*`
+             states at the pizza designs and `flat-with-image` at the bebidas
+             card — that data is the whole override mechanism now. -->
         <MenuBlock
           categories={cats("block-6")}
           decorations={decorations.blocks?.["block-6"]}
@@ -355,57 +194,16 @@ const hoursJson =
           outerClass="grid-cols-5 md:grid-cols-12 md:gap-12 items-start"
           categorySectionClass="w-full col-span-4 md:col-span-8"
           cardsClass="grid-cols-2 md:grid-cols-3 gap-6"
-        >
-          <fragment slot="card">
-
-            {
-              (product, canOrder) => (
-                <TemplateCard product={product} canOrder={canOrder}>
-                  <fragment slot="range-with-image">
-                    {(product, canOrder) => (
-                      <ProductCardPizzaRangeImage
-                        product={product}
-                        canOrder={canOrder}
-                      />
-                    )}
-                  </fragment>
-                  <fragment slot="range-no-image">
-                    {(product, canOrder) => (
-                      <ProductCardPizzaRange
-                        product={product}
-                        canOrder={canOrder}
-                      />
-                    )}
-                  </fragment>
-                  <fragment slot="flat-with-image">
-                    {(product, canOrder) => (
-                      <ProductCardBebidas
-                        product={product}
-                        canOrder={canOrder}
-                      />
-                    )}
-                  </fragment>
-                </TemplateCard>
-              )
-            }
-
-          </fragment>
-        </MenuBlock>
+        />
 
         <!-- block-7: dessert illustration cell -->
         <MenuBlock
           categories={cats("block-7")}
+          decorations={decorations.blocks?.["block-7"]}
           canOrder={canOrder}
           outerClass="grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-16 items-start"
           cardsClass="grid-cols-2 md:grid-cols-1"
         >
-          <fragment slot="card">
-            {
-              (product, canOrder) => (
-                <TemplateCard product={product} canOrder={canOrder} />
-              )
-            }
-          </fragment>
           <IllustrationCell
             slot="extra"
             images={postresImages}
@@ -431,8 +229,9 @@ const hoursJson =
 
     <SidebarCart settings={settings} />
 
-    <!-- Product dialogs: one per product and promotion, all hidden.
-         Revealed on card click. -->
+    <!-- Product dialogs: one pre-rendered instance per product and promotion
+         (44 hosts), all hidden. On card click, openDialog() looks up the host
+         by id and unhides it — the dialog is never refilled client-side. -->
     {
       allProducts.map((product) => (
         <div data-product-detail-host={product.id} hidden>

@@ -21,11 +21,14 @@ interface Props {
 }
 
 const { combo, canOrder = true } = Astro.props;
+
+/** Client payload: `card` is a build-time design key, never client data. */
+const comboPayload = JSON.stringify({ ...(combo ?? {}), card: undefined });
 ---
 
 <div
   data-combo-card
-  data-combo={JSON.stringify(combo ?? {})}
+  data-combo={comboPayload}
   class="group relative p-6 transition-all duration-300 overflow-hidden cursor-pointer active:scale-100 rounded-sm border-2 border-transparent hover:border-2 hover:border-accent flex flex-col"
 >
   <!-- Combo Badge -->

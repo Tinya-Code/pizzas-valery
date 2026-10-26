@@ -56,7 +56,8 @@ const hasImage = Boolean(product?.image?.url);
 const rootAttributes = {
   "data-product-detail": "",
   "data-product-id": product?.id ?? "",
-  "data-product": JSON.stringify(product ?? {}),
+  // `card` is a build-time design key, never part of the client payload.
+  "data-product": JSON.stringify({ ...(product ?? {}), card: undefined }),
   "data-max-qty": String(maxQuantity),
   "data-whatsapp": String(whatsappPhone),
 };

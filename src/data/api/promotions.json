@@ -16,7 +16,8 @@
       },
       "price": 29.9,
       "price_before": null,
-      "valid_until": null
+      "valid_until": null,
+      "card": "promotion-card-pizza"
     }
   ]
 }

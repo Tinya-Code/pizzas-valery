@@ -1,26 +1,19 @@
 ---
 /**
- * TemplateComboCard — combo design router.
+ * TemplateComboCard — declarative combo design router.
  *
- * States (price range is not a combo concept, so only image drives dispatch):
- *   flat-with-image → ComboCard (default)
- *   flat-no-image   → ComboCard (default)
+ * Combos carry no price range, so their `card` key IS the design (no state
+ * map): renders the combo's declared design, falling back to the default
+ * (`DEFAULT_COMBO_CARD_DESIGN`) when absent.
  *
- * Every design owns its root + the CLIENT CONTRACT `data-combo-card`,
+ * Every design OWNS its root + the CLIENT CONTRACT `data-combo-card`,
  * `data-combo` — the page's click delegation reads it (a combo never opens
- * the product dialog). A custom design MUST carry both.
+ * the product dialog). A design MUST carry both.
  *
- * Override per block (function children):
- *
- *   <TemplateComboCard combo={combo} canOrder={canOrder}>
- *     <fragment slot="flat-with-image">
- *       {(combo, canOrder) => <MyComboCard combo={combo} canOrder={canOrder} />}
- *     </fragment>
- *   </TemplateComboCard>
- *
- * Swap a default globally: change the import + fallback below (one line).
+ * Adding a design: see `registry.ts` (component → schema key → registry →
+ * reference it from any combo's `card` in combos.json).
  */
-import ComboCard from './combo/combo-card.astro';
+import { COMBO_CARD_REGISTRY, DEFAULT_COMBO_CARD_DESIGN } from './registry';
 import type { Combo } from '../../types/menu';
 
 interface Props {
@@ -30,17 +23,8 @@ interface Props {
 
 const { combo, canOrder = true } = Astro.props;
 
-const designSlot = combo.image?.url ? 'flat-with-image' : 'flat-no-image';
-
-const customHtml = Astro.slots.has(designSlot)
-  ? await Astro.slots.render(designSlot, [combo, canOrder])
-  : null;
+const designKey = combo.card ?? DEFAULT_COMBO_CARD_DESIGN;
+const Design = COMBO_CARD_REGISTRY[designKey];
 ---
 
-{
-  customHtml !== null ? (
-    <Fragment set:html={customHtml} />
-  ) : (
-    <ComboCard combo={combo} canOrder={canOrder} />
-  )
-}
+<Design combo={combo} canOrder={canOrder} />

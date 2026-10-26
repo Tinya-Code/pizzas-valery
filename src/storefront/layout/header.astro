@@ -92,42 +92,45 @@ const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${mapsQuery}`;
       >
         {restaurantName}
       </h1>
-
-      <div
-        class="flex flex-wrap items-center justify-center md:justify-start gap-4"
+      <!--mapa -->
+      <a
+        href={mapsUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        title="Ver en Google Maps"
+        aria-label="Ver en Google Maps"
+        class="w-full flex flex-col items-center  md:items-start"
       >
         <div
-          class="flex items-center gap-2 text-primary-text/80 bg-primary/10 px-4 py-2 rounded-xl border border-primary/20"
+          class="w-full md:w-auto flex items-center gap-3 px-4 py-2 rounded-xl bg-primary/10 text-primary-text/80 md:flex-row md:gap-2 md:py-2"
         >
-          <MapPin class="w-4 h-4 text-primary" />
-          <span class="text-xs font-bold uppercase tracking-wider mr-2"
-            >{address}</span
-          >
-
-          <div
-            class="flex items-center gap-3 border-l border-primary/20 pl-4 py-1"
-          >
-            <button
-              data-copy-address
-              data-address={address}
-              type="button"
-              title="Copiar dirección"
-              class="hover:text-primary transition-colors hover:scale-110"
+          <div class="flex items-start gap-2 min-w-0 md:items-center">
+            <MapPin class="w-4 h-4 mt-0.5 text-primary shrink-0 md:mt-0" />
+            <span
+              class="text-xs font-bold uppercase tracking-wider leading-relaxed break-words"
+              >{address}</span
             >
-              <Copy class="w-4 h-4" />
-            </button>
-            <a
-              href={mapsUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              title="Ver en Google Maps"
-              class="hover:text-primary transition-colors hover:scale-110"
-            >
-              <Map class="w-4 h-4" />
-            </a>
           </div>
+
+          <button
+            data-copy-address
+            data-address={address}
+            type="button"
+            title="Copiar dirección"
+            aria-label="Copiar dirección"
+            class="flex items-center justify-center w-11 h-11 rounded-lg transition-all hover:text-primary hover:scale-110 active:scale-95 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+          >
+            <Copy class="w-6 h-6" />
+          </button>
         </div>
-      </div>
+        <p
+          data-copy-feedback
+          role="status"
+          aria-live="polite"
+          class="h-4 text-xs font-bold text-accent-muted"
+        >
+        </p>
+      </a>
     </div>
 
     <!-- Action Section -->
@@ -160,11 +163,19 @@ const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${mapsQuery}`;
     const copyButton = target.closest<HTMLElement>("[data-copy-address]");
     if (copyButton) {
       const address = copyButton.dataset.address ?? "";
+      const feedback = document.querySelector<HTMLElement>(
+        "[data-copy-feedback]",
+      );
       try {
         await navigator.clipboard.writeText(address);
+        if (feedback) feedback.textContent = "¡Dirección copiada!";
       } catch (error) {
         console.warn("No se pudo copiar la dirección", error);
+        if (feedback) feedback.textContent = "No se pudo copiar la dirección";
       }
+      window.setTimeout(() => {
+        if (feedback) feedback.textContent = "";
+      }, 2500);
     }
   });
 </script>

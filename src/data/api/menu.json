@@ -170,7 +170,11 @@
                 "is_hidden": false,
                 "category_id": "cat-pizzas-clasicas"
               }
-            ]
+            ],
+            "card": {
+              "range-with-image": "product-card-pizza-range-image",
+              "range-no-image": "product-card-pizza-range"
+            }
           }
         ]
       },
@@ -695,7 +699,11 @@
                 "is_hidden": false,
                 "category_id": "cat-pizzas-especiales"
               }
-            ]
+            ],
+            "card": {
+              "range-with-image": "product-size-card",
+              "range-no-image": "product-card-pizza-range"
+            }
           }
         ]
       },
@@ -841,7 +849,7 @@
                 "is_hidden": false,
                 "category_id": "cat-bebidas"
               },
-                            {
+              {
                 "id": "limonada",
                 "name": "Limonada 1 Lt",
                 "description": "Limonada tradicional servida fría.",
@@ -856,7 +864,7 @@
                 "is_hidden": false,
                 "category_id": "cat-bebidas"
               },
-                            {
+              {
                 "id": "maracuya",
                 "name": "Maracuyá 1 Lt",
                 "description": "Maracuyá tradicional servida fría.",
@@ -886,7 +894,7 @@
                 "is_hidden": false,
                 "category_id": "cat-bebidas"
               },
-                          {
+              {
                 "id": "incakola",
                 "name": "Inca Kola 1 Lt.",
                 "description": "Gaseosa  fría de 1 Lt.",
@@ -901,7 +909,7 @@
                 "is_hidden": false,
                 "category_id": "cat-bebidas"
               },
-                                        {
+              {
                 "id": "pepsi",
                 "name": "Pepsi Jumbo",
                 "description": "Gaseosa fría.",
@@ -916,7 +924,12 @@
                 "is_hidden": false,
                 "category_id": "cat-bebidas"
               }
-            ]
+            ],
+            "card": {
+              "flat-with-image": "product-card-bebidas",
+              "range-with-image": "product-card-pizza-range-image",
+              "range-no-image": "product-card-pizza-range"
+            }
           }
         ]
       },
@@ -1004,7 +1017,12 @@
                 "is_hidden": false,
                 "category_id": "cat-cocteles"
               }
-            ]
+            ],
+            "card": {
+              "flat-with-image": "product-card-bebidas",
+              "range-with-image": "product-card-pizza-range-image",
+              "range-no-image": "product-card-pizza-range"
+            }
           }
         ]
       },
@@ -1145,7 +1163,11 @@
                 "is_hidden": false,
                 "category_id": "cat-nuevos-sabores"
               }
-            ]
+            ],
+            "card": {
+              "range-with-image": "product-card-pizza-range-image",
+              "range-no-image": "product-card-pizza-range"
+            }
           }
         ]
       }
