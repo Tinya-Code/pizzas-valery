@@ -93,7 +93,7 @@ const rootAttributes = {
     <div
       data-detail-image-section
       hidden={!hasImage}
-      class="w-full flex justify-center p-4 items-center   h-62  bg-cover md:h-[80svh] bg-black relative overflow-hidden "
+      class="w-full flex justify-center p-4 items-center h-62 bg-cover md:h-[80svh] bg-gray-100 relative overflow-hidden "
     >
       {
         hasImage && (
@@ -101,7 +101,7 @@ const rootAttributes = {
             data-detail-image
             src={product?.image?.url}
             alt={product?.image?.alt ?? product?.name ?? ""}
-            class="w-auto h-62 md:h-auto md:max-h-120  object-contain"
+            class="w-auto h-62 md:h-auto md:max-h-120 object-contain drop-shadow-xl/50"
           />
         )
       }
@@ -283,12 +283,12 @@ const rootAttributes = {
 </div>
 
 <script>
-  import { cartService } from "../services/cart.service.js";
-  import { readJson, readBusinessHours } from "../utils/dom";
   import { isOpenAt } from "../services/business-hours.service.js";
-  import { precio } from "../utils/format.js";
-  import { entryLabel } from "../utils/entry-label";
-  import { OrderMessage, WhatsApp } from "../utils/whatsapp.js";
+import { cartService } from "../services/cart.service.js";
+import { readBusinessHours, readJson } from "../utils/dom";
+import { entryLabel } from "../utils/entry-label";
+import { precio } from "../utils/format.js";
+import { OrderMessage, WhatsApp } from "../utils/whatsapp.js";
 
   const SELECTED_CLASSES = ["border-accent", "bg-accent/5"];
 
